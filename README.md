@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Resources
+- **DaisyUI Components** https://daisyui.com/components/hero/
+- **Tailwind CSS styles** https://tailwindcss.com/docs/text-color
+- **NextJS Docs** https://nextjs.org/docs
+
 ## Getting Started
 
 First, run the development server:
