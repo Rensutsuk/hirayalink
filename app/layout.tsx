@@ -20,7 +20,7 @@ export default function RootLayout({
 				<div className="navbar bg-base-100">
 					<div className="flex-1">
 						<a className="btn btn-ghost text-xl" href="/">
-							AIDLINK
+							HIRAYALINK
 						</a>
 					</div>
 					<div className="flex-none">
@@ -45,7 +45,7 @@ export default function RootLayout({
 					<aside>
 						<p>
 							Copyright © {new Date().getFullYear()} - All right reserved by
-							AIDLINK
+							HIRAYALINK
 						</p>
 					</aside>
 				</footer>
