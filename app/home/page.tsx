@@ -1,5 +1,5 @@
 "use client";
-import './embla.css';
+import '../embla.css';
 import { EmblaCarousel } from "@/components/EmblaCarousel";
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
           <p className="text-xl text-white">Together we help those in need</p>
         </div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col mx-5">
         <div className="grid grid-flow-col auto-col-auto justify-center gap-20">
           <div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
             <div className="card-body">
