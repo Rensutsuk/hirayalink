@@ -5,14 +5,7 @@ import { EmblaCarousel } from "@/components/EmblaCarousel";
 export default function Home() {
 	return (
 		<main>
-			<div
-				className="bg-cover max-h-[30rem] mb-20"
-				style={{
-					backgroundImage:
-						"url(https://img.daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.webp)",
-				}}
-			>
-				<div className=""></div>
+			<div className="hero-background bg-cover max-h-[30rem] mb-20">
 				<div className="text-center pt-10 pb-20 backdrop-blur-sm ">
 					<h1 className="mb-5 py-10 text-5xl font-bold text-white">
 						Your Help Matters
