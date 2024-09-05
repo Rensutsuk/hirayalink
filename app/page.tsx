@@ -10,7 +10,7 @@ export default function Landing() {
 							<span className="text-primary">HIRAYA</span>
 							<span>LINK</span>
 						</h1>
-						<a role="button" href="/home" className="btn btn-primary text-white">
+						<a role="button" href="/home" className="btn btn-primary">
 							Get Started
 						</a>
 					</div>
