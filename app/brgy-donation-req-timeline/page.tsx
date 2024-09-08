@@ -75,7 +75,7 @@ export default function Newsfeed() {
   return (
     <div>
       {/* Background image section */}
-      <div className="relative h-64 bg-cover bg-center" style={{ backgroundImage: 'url(download.png)' }}>
+      <div className="relative h-64 bg-cover bg-center" style={{ backgroundImage: 'url(background-hero.png)' }}>
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative flex items-center justify-center h-full text-center text-white p-4">
           <div>
