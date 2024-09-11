@@ -1,53 +1,30 @@
-export default function Navbar() {
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import FullMenu from '@/components/navigation/navbar/full-menu';
+import Hamburger from '@/components/navigation/navbar/Hamburger-Menu';
+
+const Navbar: React.FC = () => {
+	const [isMobile, setIsMobile] = useState(false);
+
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+
+		window.addEventListener('resize', handleResize);
+		handleResize();
+
+		return () => {
+			window.removeEventListener('resize', handleResize);
+		};
+	}, []);
+
 	return (
-		<div className="navbar bg-base-100">
-			<div className="flex-1">
-				<a className="btn btn-ghost text-xl" href="/home">
-					<img src="./aidlink.svg" alt="HirayaLink Logo" className="max-w-12" />
-				</a>
-				<h2 className="text-xl font-bold">
-					<span className="text-primary">HIRAYA</span>
-					<span>LINK</span>
-				</h2>
-			</div>
-			<div className="flex-none">
-				<ul className="menu menu-horizontal px-1">
-					<li>
-						<a href="home">Home</a>
-					</li>
-					<li>
-						<a href="about">About</a>
-					</li>
-					<li>
-						<a href="contact">Contact</a>
-					</li>
-					<li>
-						<a href="faqs">FAQs</a>
-					</li>
-				</ul>
-				<div className="dropdown dropdown-end">
-					<div
-						tabIndex={0}
-						role="button"
-						className="btn btn-ghost btn-circle avatar"
-					>
-						<div className="w-10 rounded-full">
-							<img
-								alt="Tailwind CSS Navbar component"
-								src="./circle-user-solid.svg"
-							/>
-						</div>
-					</div>
-					<ul
-						tabIndex={0}
-						className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-					>
-						<li>
-							<a href="/login">Login</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
+		<nav>
+			{isMobile ? <Hamburger /> : <FullMenu />}
+		</nav>
 	);
-}
+};
+
+export default Navbar;
