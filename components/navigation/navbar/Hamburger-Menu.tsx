@@ -8,7 +8,7 @@ export default function Hamburger() {
 		<div className="navbar bg-base-100">
 			<div className="flex-1">
 				<a className="btn btn-ghost text-xl" href="/home">
-					<img src="./aidlink.svg" alt="HirayaLink Logo" className="max-w-12" />
+					<img src="/aidlink.svg" alt="HirayaLink Logo" className="max-w-12" />
 				</a>
 			</div>
 			<div className="flex-none">
@@ -51,7 +51,7 @@ export default function Hamburger() {
 						<div className="w-5 rounded-full">
 							<img
 								alt="Tailwind CSS Navbar component"
-								src="./circle-user-solid.svg"
+								src="/circle-user-solid.svg"
 							/>
 						</div>
 					</div>
