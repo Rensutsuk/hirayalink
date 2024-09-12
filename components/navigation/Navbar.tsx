@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import FullMenu from '@/components/navigation/navbar/full-menu';
+import FullMenu from '@/components/navigation/navbar/Full-Menu';
 import Hamburger from '@/components/navigation/navbar/Hamburger-Menu';
 
 const Navbar: React.FC = () => {

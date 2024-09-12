@@ -3,7 +3,7 @@ export default function FullMenu() {
 		<div className="navbar bg-base-100">
 			<div className="flex-1">
 				<a className="btn btn-ghost text-xl" href="/home">
-					<img src="./aidlink.svg" alt="HirayaLink Logo" className="max-w-12" />
+					<img src="/aidlink.svg" alt="HirayaLink Logo" className="max-w-12" />
 				</a>
 				<h2 className="text-xl font-bold">
 					<span className="text-primary">HIRAYA</span>
@@ -34,7 +34,7 @@ export default function FullMenu() {
 						<div className="w-10 rounded-full">
 							<img
 								alt="Tailwind CSS Navbar component"
-								src="./circle-user-solid.svg"
+								src="/circle-user-solid.svg"
 							/>
 						</div>
 					</div>
