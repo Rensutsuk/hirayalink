@@ -45,6 +45,9 @@ export default function FullMenu() {
 						<li>
 							<a href="/api/auth/select-role">Login</a>
 						</li>
+						<li>
+							<a href="/signup">Sign Up</a>
+						</li>
 					</ul>
 				</div>
 			</div>
