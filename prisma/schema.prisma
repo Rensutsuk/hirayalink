@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id            Int     @id @default(autoincrement())
+  name          String  @unique
+  brgyNumber    String?
+  contactNumber String  @unique
+  address       String?
+  password      String
+}
+
+model Donor {
+  id            Int        @id @default(autoincrement())
+  name          String     @unique
+  orgName       String?
+  contactNumber String     @unique
+  address       String?
+  password      String
+  Comment       Comment[]
+  Like          Like[]
+  donations     Donation[]
+}
+
+model BarangayRequestPost {
+  id              Int       @id @default(autoincrement())
+  controlNumber   String    @unique
+  barangay        String
+  person          String
+  typeOfCalamity  String
+  inKind          String
+  contactNumber   String
+  dropOffAddress  String
+  dropOffLandmark String
+  image           Bytes?    @db.MediumBlob
+  dateTime        DateTime  @default(now())
+  likes           Like[] // Relationship to the Like model
+  comments        Comment[] // Relationship to the Comment model
+}
+
+model Like {
+  id        Int                 @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  post      BarangayRequestPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime            @default(now())
+  user      Donor               @relation(fields: [id], references: [id])
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id        Int                 @id @default(autoincrement())
+  content   String // The comment content
+  userId    Int // Reference to the user who made the comment
+  postId    Int // Reference to the post being commented on
+  post      BarangayRequestPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      Donor               @relation(fields: [id], references: [id], onDelete: Cascade)
+  createdAt DateTime            @default(now()) // Timestamp of when the comment was created
+}
+
+model Batch {
+  id          Int      @id @default(autoincrement())
+  batchNumber String   @unique // Unique identifier for the batch
+  description String? // Optional description for the batch
+  donationIds String // Comma-separated list of donation IDs
+  createdAt   DateTime @default(now()) // Timestamp for when the batch was created
+}
+
+model RecipientRequestPost {
+  id                Int      @id @default(autoincrement()) // Primary key
+  completeName      String   @db.VarChar(191) // Name of the head of the family
+  age               Int // Age of the head of the family
+  noOfFamilyMembers Int // Number of family members
+  contactNumber     String   @db.VarChar(191) // Contact number
+  emailAddress      String?  @db.VarChar(191) // Optional email address
+  barangay          String   @db.VarChar(191) // Barangay number and area
+  typeOfCalamity    String   @db.VarChar(191) // Type of calamity
+  inKindNecessities String   @db.VarChar(255) // Requested in-kind items
+  specifications    String   @db.Text // Detailed specifications
+  uploadedPhoto     Bytes    @db.Blob // Photo uploaded by the user (BLOB)
+  dateTime          DateTime @default(now()) // Date and time of request submission
+}
+
+model Donation {
+  id             Int                 @id @default(autoincrement())
+  controlNumber  String              @unique
+  donorId        Int
+  donor          Donor               @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  barangayId     Int
+  barangay       Barangay            @relation(fields: [barangayId], references: [id], onDelete: Cascade)
+  donationStatus DonationStatus
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  donationItems  DonationItem[]
+  statusLogs     DonationStatusLog[]
+}
+
+model DonationItem {
+  id         Int      @id @default(autoincrement())
+  donationId Int
+  donation   Donation @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  itemName   String
+  quantity   Int
+}
+
+model DonationStatusLog {
+  id         Int            @id @default(autoincrement())
+  donationId Int
+  donation   Donation       @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  status     DonationStatus
+  timestamp  DateTime       @default(now())
+  remarks    String?
+}
+
+model Barangay {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  donations Donation[] // Relationship with Donations
+}
+
+model SuccessStory {
+  id                 Int      @id @default(autoincrement()) // Primary key
+  postId             Int // Foreign key from BarangayRequestPost
+  barangayNumberArea String   @db.VarChar(191) // Barangay number/area
+  nameOfCalamity     String   @db.VarChar(191) // Name of the calamity
+  controlNumber      String   @db.VarChar(191) // Control number for tracking
+  transactionIds     String   @db.Text // Comma-separated list of transaction IDs
+  batchNumber        String   @db.VarChar(191) // Batch number related to the aid
+  numberOfRecipients Int // Number of people who received aid
+  storyText          String   @db.Text // The actual success story text
+  createdAt          DateTime @default(now()) // Timestamp when the success story was created
+  image              Bytes?   @db.MediumBlob // Image of the success story
+}
+
+// Enum for donation status
+enum DonationStatus {
+  PLEDGED
+  COLLECTED
+  PROCESSING
+  IN_TRANSIT
+  RECEIVED
+}
