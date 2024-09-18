@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FaHandHoldingHeart } from "react-icons/fa";
 
 export default function DonorSignUp() {
 	const router = useRouter();
@@ -50,12 +51,15 @@ export default function DonorSignUp() {
 	};
 
 	return (
-		<div className="flex justify-center items-center h-screen">
+		<div className="flex justify-center items-center mb-10">
 			<form
 				onSubmit={handleSubmit}
 				className="bg-base-100 p-6 rounded-lg shadow-lg min-w-sm w-96"
 			>
-				<h2 className="text-2xl font-bold text-center mb-5">Donor Sign-Up</h2>
+				<h2 className="flex justify-center items-center text-2xl font-bold text-center mb-5 gap-2">
+					<FaHandHoldingHeart />
+					<span>Donor SignUp</span>
+				</h2>
 
 				{error && <p className="text-alert mb-4">{error}</p>}
 
@@ -123,7 +127,16 @@ export default function DonorSignUp() {
 						required
 					/>
 				</div>
-
+				<p className="text-center mb-5">
+					By signing up, you agree to our{" "}
+					<a href="#" className="text-primary">
+						Terms of Service
+					</a>{" "}
+					and{" "}
+					<a href="#" className="text-primary">
+						Privacy Policy
+					</a>
+				</p>
 				<button type="submit" className="btn btn-primary w-full">
 					Sign Up
 				</button>

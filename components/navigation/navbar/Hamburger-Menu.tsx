@@ -60,7 +60,7 @@ export default function Hamburger() {
 						className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
 					>
 						<li>
-							<a href="/api/auth/select-role">Login</a>
+							<a href="/login">Login</a>
 						</li>
 						<li>
 							<a href="/signup">Sign Up</a>
