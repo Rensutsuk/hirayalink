@@ -2,7 +2,7 @@ export default function Landing() {
 	return (
 		<main>
 			<div className="hero hero-background min-h-screen">
-				<div className="hero-overlay backdrop-blur-sm"></div>
+				<div className="hero-overlay backdrop-blur-sm bg-black/25"></div>
 				<div className="hero-content text-neutral-content text-center">
 					<div className="max-w-md">
 						<img src="./aidlink.svg" alt="HirayaLink" className="max-w-md" />
