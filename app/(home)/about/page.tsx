@@ -15,7 +15,7 @@ export default function About() {
 						className="w-full h-auto max-w-full rounded-md"
 					/>
 
-					<div className="absolute bottom-0 left-0 right-0 bg-green-500 p-4 rounded-md max-w-lg mx-auto transform translate-y-1/2">
+					<div className="absolute bottom-0 left-0 right-0 bg-green-600 p-4 rounded-md max-w-lg mx-auto transform translate-y-1/2">
 						<p className="text-center text-white text-lg md:text-xl">
 							About Us
 						</p>
@@ -53,7 +53,7 @@ export default function About() {
 			</div>
 
 			<div className="py-4">
-				<hr className="border-t-2 border-green-500 mx-auto max-w-6xl" />
+				<hr className="border-t-2 border-green-600 mx-auto max-w-6xl" />
 			</div>
 
 			<div className="py-8 px-4 sm:px-8 lg:px-12">
@@ -64,8 +64,8 @@ export default function About() {
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 						<div className="text-center">
-							<div className="bg-green-500 p-4 rounded-md mx-auto w-full max-w-[800px]">
-								<p className="text-white text-lg font-semi-bold">
+							<div className="bg-green-600 p-4 rounded-md mx-auto w-full max-w-[800px]">
+								<p className="text-white text-lg font-bold">
 									Enhance Disaster Relief Coordination
 								</p>
 							</div>
@@ -78,8 +78,8 @@ export default function About() {
 						</div>
 
 						<div className="text-center">
-							<div className="bg-green-500 p-4 rounded-md mx-auto w-full max-w-[800px]">
-								<p className="text-white text-lg font-semi-bold">
+							<div className="bg-green-600 p-4 rounded-md mx-auto w-full max-w-[800px]">
+								<p className="text-white text-lg font-bold">
 									Promote Compassion and Bayanihan
 								</p>
 							</div>
@@ -93,8 +93,8 @@ export default function About() {
 						</div>
 
 						<div className="text-center">
-							<div className="bg-green-500 p-4 rounded-md mx-auto w-full max-w-[800px]">
-								<p className="text-white text-lg font-semi-bold">
+							<div className="bg-green-600 p-4 rounded-md mx-auto w-full max-w-[800px]">
+								<p className="text-white text-lg font-bold">
 									Provide Timely and Reliable Information
 								</p>
 							</div>
@@ -107,8 +107,8 @@ export default function About() {
 						</div>
 
 						<div className="text-center">
-							<div className="bg-green-500 p-4 rounded-md mx-auto w-full max-w-[800px]">
-								<p className="text-white text-lg font-semi-bold">
+							<div className="bg-green-600 p-4 rounded-md mx-auto w-full max-w-[800px]">
+								<p className="text-white text-lg font-bold">
 									Simplify Donation Processes
 								</p>
 							</div>
@@ -121,8 +121,8 @@ export default function About() {
 						</div>
 
 						<div className="text-center col-span-1 md:col-span-2">
-							<div className="bg-green-500 p-4 rounded-md mx-auto w-full max-w-[800px]">
-								<p className="text-white text-lg font-semi-bold">
+							<div className="bg-green-600 p-4 rounded-md mx-auto w-full max-w-[800px]">
+								<p className="text-white text-lg font-bold">
 									Facilitate Efficient Communication
 								</p>
 							</div>
