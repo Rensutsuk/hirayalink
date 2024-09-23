@@ -22,7 +22,7 @@ export default function FAQs() {
 
   return (
     <div>
-      <div className="bg-green-500 py-16">
+      <div className="bg-primary py-16">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="text-white mb-8 md:mb-0 text-center md:text-left">
