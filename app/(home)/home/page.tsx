@@ -6,7 +6,7 @@ export default function Home() {
 	return (
 		<main>
 			<div className="hero-background bg-cover max-h-[30rem] mb-20">
-				<div className="text-center pt-10 pb-20 backdrop-blur-sm ">
+				<div className="text-center pt-10 pb-20 backdrop-blur-sm bg-black/25">
 					<h1 className="mb-5 py-10 text-5xl font-bold text-white">
 						Your Help Matters
 					</h1>

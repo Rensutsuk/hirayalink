@@ -61,7 +61,7 @@ export default function DonorSignUp() {
 					<span>Donor SignUp</span>
 				</h2>
 
-				{error && <p className="text-alert mb-4">{error}</p>}
+				{error && <p className="text-error text-center mb-4">{error}</p>}
 
 				<div className="form-control mb-4">
 					<label className="label">

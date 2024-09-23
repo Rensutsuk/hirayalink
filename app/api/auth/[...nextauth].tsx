@@ -1,8 +1,7 @@
-// pages/api/auth/[...nextauth].ts
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt';
-import { PrismaClient } from '@prisma/client/extension';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -15,14 +14,21 @@ export default NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const user = await prisma.donor.findUnique({
+        const donor = await prisma.donor.findUnique({
           where: { contactNumber: credentials?.contactNumber },
         });
 
-        if (user && credentials?.password) {
-          const isValid = await compare(credentials.password, user.password);
+        if (donor && credentials?.password) {
+          const isValid = await compare(credentials.password, donor.password);
           if (isValid) {
-            return user;
+            return {
+              id: donor.id.toString(),
+              name: donor.name,
+              orgName: donor.orgName,
+              contactNumber: donor.contactNumber,
+              address: donor.address,
+              password: donor.password,
+            };
           }
         }
 
