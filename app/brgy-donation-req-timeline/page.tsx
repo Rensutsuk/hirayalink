@@ -299,6 +299,26 @@ export default function Newsfeed() {
                     </div>
                   </div>
                 )}
+              </ul>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  placeholder="Add a comment..."
+                  value={newComment[index] || ''}
+                  onChange={(e) =>
+                    setNewComment((prev) => ({
+                      ...prev,
+                      [index]: e.target.value
+                    }))
+                  }
+                  className="border rounded w-full p-1"
+                />
+                <button
+                  onClick={() => handleAddComment(index)}
+                  className="mt-2 bg-primary text-white py-1 px-3 rounded"
+                >
+                  Submit
+                </button>
               </div>
             </div>
           ))
