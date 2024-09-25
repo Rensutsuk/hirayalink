@@ -54,7 +54,7 @@ export default function Login() {
 
   return (
     <main>
-      <div className="card bg-neutral text-neutral-content min-w-min">
+      <div className="card bg-neutral text-neutral-content min-w-min max-w-3xl">
         <div className="flex flex-row card-body">
           <div className="flex flex-col items-center">
             <h1 className="card-title text-center text-2xl font-bold mb-4">
@@ -111,7 +111,7 @@ export default function Login() {
                 </div>
               </div>
               {error && (
-                <div role="alert" className="alert alert-error mb-4">
+                <div role="alert" className="alert alert-error mb-4 max-w-fit">
                   <span>{error}</span>
                 </div>
               )}
@@ -132,7 +132,7 @@ export default function Login() {
             </form>
           </div>
           <div className="divider divider-primary divider-horizontal">or</div>
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center min-w-fit">
             <h1 className="card-title text-center text-2xl font-bold mb-4">
               REQUEST
             </h1>
