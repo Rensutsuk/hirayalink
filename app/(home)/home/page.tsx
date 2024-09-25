@@ -20,7 +20,7 @@ export default function Home() {
 					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
 						<div className="card-body">
 							<h2 className="card-title">Mission</h2>
-							<p>
+							<p className="text-justify">
 								To connect donors with those in need through a centralized
 								platform that enhances disaster relief efforts with
 								transparency, efficiency, and compassion.
@@ -33,7 +33,7 @@ export default function Home() {
 					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
 						<div className="card-body">
 							<h2 className="card-title">Vission</h2>
-							<p>
+							<p className="text-justify">
 								To be a leading platform for in-kind donations, ensuring swift,
 								impactful support for vulnerable communities at all times.
 							</p>
