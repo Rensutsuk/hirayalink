@@ -142,7 +142,7 @@ export default function Newsfeed() {
 
       {/* Dropdown menu aligned to the right */}
 <div className="p-4 mb-4 flex justify-end">
-  <button className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center font-bold">
+  <button className="bg-primary text-white px-4 py-2 rounded-lg shadow-lg flex items-center font-bold">
     View Other Barangay
     <select
       id="barangay-select"
@@ -179,7 +179,7 @@ export default function Newsfeed() {
 
        
 
-        <div className="bg-green-600 text-white p-3 rounded-t-lg">
+        <div className="bg-primary text-white p-3 rounded-t-lg">
         <p className="text-xs">Control Number: {post.controlNumber}</p>
           <h2 className="text-lg font-bold">{post.barangay}</h2>
           <p className="text-xs">{post.dateTime}</p>
@@ -207,7 +207,7 @@ export default function Newsfeed() {
             <div className="flex space-x-2">
               <button
                 onClick={() => handleLikeClick(post.id, post.likedByUser)}
-                className={`p-2 rounded ${post.likedByUser ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+                className={`p-2 rounded ${post.likedByUser ? 'bg-primary text-white' : 'bg-gray-300 text-gray-700'}`}
               >
                 👍 {post.likes}
               </button>
@@ -256,7 +256,7 @@ export default function Newsfeed() {
                 />
                 <button
                   onClick={() => handleAddComment(index)}
-                  className="mt-2 bg-green-600 text-white py-1 px-3 rounded"
+                  className="mt-2 bg-primary text-white py-1 px-3 rounded"
                 >
                   Submit
                 </button>
