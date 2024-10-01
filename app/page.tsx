@@ -8,7 +8,7 @@ export default function Landing() {
 						<img src="./aidlink.svg" alt="HirayaLink" className="max-w-md" />
 						<h1 className="mb-5 text-5xl font-bold">
 							<span className="text-primary">HIRAYA</span>
-							<span>LINK</span>
+							<span className="text-white">LINK</span>
 						</h1>
 						<a role="button" href="/home" className="btn btn-primary">
 							Get Started

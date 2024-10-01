@@ -54,16 +54,17 @@ const handler = NextAuth({
   ],
   session: {
     strategy: "jwt",
+    maxAge: 0, 
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
+        token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && session.user) {
         session.user.role = token.role;
       }
       return session;
@@ -74,5 +75,4 @@ const handler = NextAuth({
   },
 });
 
-// Export named handlers for GET and POST requests
 export { handler as GET, handler as POST };

@@ -90,7 +90,7 @@ model RecipientRequestPost {
   typeOfCalamity    String   @db.VarChar(191) // Type of calamity
   inKindNecessities String   @db.VarChar(255) // Requested in-kind items
   specifications    String   @db.Text // Detailed specifications
-  uploadedPhoto     Bytes    @db.Blob // Photo uploaded by the user (BLOB)
+  uploadedPhoto     Bytes?    @db.Blob // Photo uploaded by the user (BLOB)
   dateTime          DateTime @default(now()) // Date and time of request submission
 }
 
