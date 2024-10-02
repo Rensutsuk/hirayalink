@@ -6,7 +6,7 @@ export default function Home() {
 	return (
 		<main>
 			<div className="hero-background bg-cover max-h-[30rem] mb-20">
-				<div className="text-center pt-10 pb-20 backdrop-blur-sm bg-black/25">
+				<div className="text-center pt-10 pb-20 backdrop-blur-sm ">
 					<h1 className="mb-5 py-10 text-5xl font-bold text-white">
 						Your Help Matters
 					</h1>
@@ -20,7 +20,7 @@ export default function Home() {
 					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
 						<div className="card-body">
 							<h2 className="card-title">Mission</h2>
-							<p className="text-justify">
+							<p>
 								To connect donors with those in need through a centralized
 								platform that enhances disaster relief efforts with
 								transparency, efficiency, and compassion.
@@ -33,7 +33,7 @@ export default function Home() {
 					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
 						<div className="card-body">
 							<h2 className="card-title">Vission</h2>
-							<p className="text-justify">
+							<p>
 								To be a leading platform for in-kind donations, ensuring swift,
 								impactful support for vulnerable communities at all times.
 							</p>
@@ -64,3 +64,5 @@ export default function Home() {
 		</main>
 	);
 }
+
+
