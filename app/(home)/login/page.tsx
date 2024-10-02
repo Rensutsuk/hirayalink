@@ -136,10 +136,14 @@ export default function Login() {
             <h1 className="card-title text-center text-2xl font-bold mb-4">
               REQUEST
             </h1>
-            <a role="button" href="request" className="btn btn-outline text-xl">
+            <button
+              type="button"
+              onClick={() => router.push("/request")}
+              className="btn btn-outline text-xl"
+            >
               <FaHandHolding />
               <span>Recipient</span>
-            </a>
+            </button>
           </div>
         </div>
       </div>
