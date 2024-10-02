@@ -136,7 +136,12 @@ export default function Login() {
             <h1 className="card-title text-center text-2xl font-bold mb-4">
               REQUEST
             </h1>
-            <a role="button" href="request" className="btn btn-outline text-xl">
+            {/* Modified RECIPIENT Button with Correct Route */}
+            <a
+              role="button"
+              href="/donation-request-posting"
+              className="btn btn-outline text-xl"
+            >
               <FaHandHolding />
               <span>Recipient</span>
             </a>
