@@ -32,7 +32,7 @@ export default function Home() {
 					</div>
 					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
 						<div className="card-body">
-							<h2 className="card-title">Vission</h2>
+							<h2 className="card-title">Vision</h2>
 							<p>
 								To be a leading platform for in-kind donations, ensuring swift,
 								impactful support for vulnerable communities at all times.
