@@ -123,19 +123,20 @@ export default function Newsfeed() {
   return (
     <div>
       <div className="hero-background bg-cover max-h-[30rem] mb-7">
-        <div className="text-center pt-10 pb-20 backdrop-blur-sm bg-black/25 ">
-          <h1 className="mb-5 py-10 text-5xl font-bold text-white">
-            BARANGAY 20, ZONE 2, TONDO MANILA
-          </h1>
-          <p className="text-xl text-white py-5">
-            Official Donation Request List
-          </p>
-        </div>
-      </div>
+				<div className="text-center pt-10 pb-20 backdrop-blur-sm bg-black/25 ">
+					<h1 className="mb-5 py-10 text-5xl font-bold text-white">
+          BARANGAY 20, ZONE 2, TONDO MANILA
+					</h1>
+					<p className="text-xl text-white py-5">
+          Official Donation Request List
+					</p>
+				</div>
+			</div>
+
 
       {/* Dropdown menu aligned to the right */}
       <div className="p-4 mb-4 flex justify-end">
-        <button className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center font-bold">
+        <button className="bg-primary text-white px-4 py-2 rounded-lg shadow-lg flex items-center font-bold">
           View Other Barangay
           <select
             id="barangay-select"
@@ -149,7 +150,9 @@ export default function Newsfeed() {
             }}
             className="ml-2 bg-white border-none text-black focus:outline-none"
           >
-            <option value="BARANGAY NUMBER 20 TONDO" disabled>20</option>
+            <option value="BARANGAY NUMBER 20 TONDO" disabled>
+              20
+            </option>
             <option value="BARANGAY NUMBER 105">105</option>
           </select>
         </button>
@@ -159,7 +162,10 @@ export default function Newsfeed() {
       <div className="space-y-4 p-4">
         {posts.length > 0 ? (
           posts.map((post, index) => (
-            <div key={post.id} className="relative p-4 bg-white shadow-md rounded-lg max-w-lg mx-auto">
+            <div
+              key={post.id}
+              className="relative p-4 bg-white shadow-md rounded-lg max-w-lg mx-auto"
+            >
               {/* Donate Now Button */}
               <button
                 onClick={() => handleDonateClick(post)}
@@ -168,7 +174,7 @@ export default function Newsfeed() {
                 DONATE NOW
               </button>
 
-              <div className="bg-green-600 text-white p-3 rounded-t-lg">
+              <div className="bg-primary text-white p-3 rounded-t-lg">
                 <p className="text-xs">Control Number: {post.controlNumber}</p>
                 <h2 className="text-lg font-bold">{post.barangay}</h2>
                 <p className="text-xs">{post.dateTime}</p>
@@ -177,55 +183,73 @@ export default function Newsfeed() {
               <div className="p-4 border-2 border-green-600 rounded-10g">
                 {/* Grid layout for post details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                  <p><strong>Barangay:</strong> {post.barangay}</p>
-                  <p><strong>Contact:</strong> {post.person}</p>
-                  <p><strong>Calamity:</strong> {post.typeOfCalamity}</p>
-                  <p><strong>Needs:</strong> {post.inKind}</p>
-                  <p><strong>Phone:</strong> {post.contactNumber}</p>
-                  <p><strong>Address:</strong> {post.dropOffAddress}</p>
-                  <p><strong>Landmark:</strong> {post.dropOffLandmark}</p>
+                  <p>
+                    <strong>Barangay:</strong> {post.barangay}
+                  </p>
+                  <p>
+                    <strong>Contact:</strong> {post.person}
+                  </p>
+                  <p>
+                    <strong>Calamity:</strong> {post.typeOfCalamity}
+                  </p>
+                  <p>
+                    <strong>Needs:</strong> {post.inKind}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {post.contactNumber}
+                  </p>
+                  <p>
+                    <strong>Address:</strong> {post.dropOffAddress}
+                  </p>
+                  <p>
+                    <strong>Landmark:</strong> {post.dropOffLandmark}
+                  </p>
                 </div>
 
-                <img
-                  src={post.imageUrl}
-                  alt="Donation Image"
-                  className="w-full h-auto rounded-lg mt-4"
-                />
+          <img
+            src={post.imageUrl}
+            alt="Donation Image"
+            className="w-full h-auto rounded-lg mt-4"
+          />
 
                 <div className="flex justify-between items-center mt-4 text-xs">
                   <div className="flex space-x-2">
-                    {/* Like Button */}
                     <button
                       onClick={() => handleLikeClick(post.id, post.likedByUser)}
-                      className={`p-2 rounded ${post.likedByUser ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+                      className={`p-2 rounded ${
+                        post.likedByUser
+                          ? "bg-primary text-white"
+                          : "bg-gray-300 text-gray-700"
+                      }`}
                     >
                       👍 {post.likes}
                     </button>
-                    {/* Comments Button */}
                     <button
-                      className="text-green-600"
+                      className="text-primary"
                       onClick={() => toggleComments(index)}
                     >
                       💬
                     </button>
                   </div>
-                  {/* View Donations Button */}
                   <Link
                     href="/donation-tracking"
-                    className="text-green-600 bg-white border border-green-600 py-2 px-4 rounded hover:bg-green-100"
+                    className="text-primary bg-white border border-green-600 py-2 px-4 rounded hover:bg-green-100"
                   >
                     View Donations
                   </Link>
                 </div>
 
-                {/* Comments Section */}
+                {/* Comments section */}
                 {showComments[index] && (
                   <div className="mt-4">
                     <h3 className="text-sm font-bold">Comments:</h3>
                     <ul className="space-y-2 mt-2 text-sm">
                       {comments[index]?.length ? (
                         comments[index].map((comment, commentIndex) => (
-                          <li key={commentIndex} className="bg-gray-100 p-2 rounded">
+                          <li
+                            key={commentIndex}
+                            className="bg-gray-100 p-2 rounded"
+                          >
                             {comment}
                           </li>
                         ))
@@ -237,24 +261,44 @@ export default function Newsfeed() {
                       <input
                         type="text"
                         placeholder="Add a comment..."
-                        value={newComment[index] || ''}
+                        value={newComment[index] || ""}
                         onChange={(e) =>
                           setNewComment((prev) => ({
                             ...prev,
-                            [index]: e.target.value
+                            [index]: e.target.value,
                           }))
                         }
                         className="border rounded w-full p-1"
                       />
                       <button
                         onClick={() => handleAddComment(index)}
-                        className="mt-2 bg-green-600 text-white py-1 px-3 rounded"
+                        className="mt-2 bg-primary text-white py-1 px-3 rounded"
                       >
                         Submit
                       </button>
                     </div>
                   </div>
                 )}
+              </ul>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  placeholder="Add a comment..."
+                  value={newComment[index] || ''}
+                  onChange={(e) =>
+                    setNewComment((prev) => ({
+                      ...prev,
+                      [index]: e.target.value
+                    }))
+                  }
+                  className="border rounded w-full p-1"
+                />
+                <button
+                  onClick={() => handleAddComment(index)}
+                  className="mt-2 bg-primary text-white py-1 px-3 rounded"
+                >
+                  Submit
+                </button>
               </div>
             </div>
           ))
