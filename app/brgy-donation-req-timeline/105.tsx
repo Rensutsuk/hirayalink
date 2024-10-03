@@ -181,11 +181,10 @@ export default function BarangayPosts() {
                   </Link>
                 </div>
               </div>
-
-              {/* Comments Section */}
+             {/* Comments Section */}
               {showComments[post.id] && (
                 <div className="mt-4">
-                  <div>
+                  <div className="max-h-32 overflow-y-auto">
                     {comments[post.id]?.map((comment, commentIndex) => (
                       <p key={commentIndex} className="text-sm text-gray-600">{comment}</p>
                     ))}
@@ -199,7 +198,7 @@ export default function BarangayPosts() {
                       placeholder="Add a comment..."
                     />
                     <button
-                      onClick={() => handleAddComment(post.id)} // Use post ID here
+                      onClick={() => handleAddComment(post.id)}
                       className="bg-blue-600 text-white px-4 rounded ml-2"
                     >
                       Submit
