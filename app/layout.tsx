@@ -5,7 +5,7 @@ import "@/styles/globals.css";
 const inter = Manrope({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "AidLink",
+	title: "HirayaLink",
 	description: "Donation Website",
 };
 

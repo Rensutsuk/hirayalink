@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 interface Post {
   id: number;
-  controlNumber: string;
+  controlNumber: string; // Control number included as part of the data structure
   barangay: string;
   person: string;
   typeOfCalamity: string;
@@ -19,12 +19,6 @@ interface Post {
   likedByUser: boolean;
 }
 
-const generateControlNumber = () => {
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 10000);
-  return `CN-${timestamp}-${random}`;
-};
-
 export default function Newsfeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [key: number]: string[] }>({});
@@ -37,7 +31,7 @@ export default function Newsfeed() {
       const mockData: Post[] = [
         {
           id: 1,
-          controlNumber: generateControlNumber(),
+          controlNumber: "CN-001", // Example control number
           barangay: "Barangay 20, Zone 2 Parola, Tondo",
           person: "Apple Ruben",
           typeOfCalamity: "Flood",
@@ -52,7 +46,7 @@ export default function Newsfeed() {
         },
         {
           id: 2,
-          controlNumber: generateControlNumber(),
+          controlNumber: "CN-002", // Example control number
           barangay: "Barangay 20, Zone 2 Parola, Tondo",
           person: "Juan Dela Cruz",
           typeOfCalamity: "Typhoon",
@@ -67,7 +61,7 @@ export default function Newsfeed() {
         },
         {
           id: 3,
-          controlNumber: generateControlNumber(),
+          controlNumber: "CN-003", // Example control number
           barangay: "Barangay 20, Isla Puting Bato, Tondo",
           person: "Maria Clara",
           typeOfCalamity: "Earthquake",
