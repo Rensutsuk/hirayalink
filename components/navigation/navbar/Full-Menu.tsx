@@ -1,10 +1,12 @@
+import Link from 'next/link';
+
 export default function FullMenu() {
 	return (
 		<div className="navbar bg-base-100">
 			<div className="flex-1">
-				<a className="btn btn-ghost text-xl" href="/home">
+				<Link href="/home" className="btn btn-ghost text-xl">
 					<img src="/aidlink.svg" alt="HirayaLink Logo" className="max-w-12" />
-				</a>
+				</Link>
 				<h2 className="text-xl font-bold">
 					<span className="text-primary">HIRAYA</span>
 					<span>LINK</span>
@@ -13,16 +15,16 @@ export default function FullMenu() {
 			<div className="flex-none">
 				<ul className="menu menu-horizontal px-1">
 					<li>
-						<a href="/home">Home</a>
+						<Link href="/home">Home</Link>
 					</li>
 					<li>
-						<a href="/about">About</a>
+						<Link href="/about">About</Link>
 					</li>
 					<li>
-						<a href="/contact">Contact</a>
+						<Link href="/contact">Contact</Link>
 					</li>
 					<li>
-						<a href="/faqs">FAQs</a>
+						<Link href="/faqs">FAQs</Link>
 					</li>
 				</ul>
 				<div className="dropdown dropdown-end">
@@ -30,6 +32,7 @@ export default function FullMenu() {
 						tabIndex={0}
 						role="button"
 						className="btn btn-ghost btn-circle avatar"
+						onClick={() => console.log('Avatar button clicked')}
 					>
 						<div className="w-10 rounded-full">
 							<img
@@ -43,10 +46,10 @@ export default function FullMenu() {
 						className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
 					>
 						<li>
-							<a href="/login">Login</a>
+							<Link href="/login">Login</Link>
 						</li>
 						<li>
-							<a href="/signup">Sign Up</a>
+							<Link href="/signup">Sign Up</Link>
 						</li>
 					</ul>
 				</div>
