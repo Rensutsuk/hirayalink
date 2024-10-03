@@ -181,33 +181,31 @@ export default function BarangayPosts() {
                   </Link>
                 </div>
               </div>
-
              {/* Comments Section */}
-{showComments[post.id] && (
-  <div className="mt-4">
-    <div className="max-h-32 overflow-y-auto">
-      {comments[post.id]?.map((comment, commentIndex) => (
-        <p key={commentIndex} className="text-sm text-gray-600">{comment}</p>
-      ))}
-    </div>
-    <div className="flex mt-2">
-      <input
-        type="text"
-        value={newComment[post.id] || ''}
-        onChange={(e) => setNewComment({ ...newComment, [post.id]: e.target.value })}
-        className="border border-gray-300 rounded-md p-1 flex-1"
-        placeholder="Add a comment..."
-      />
-      <button
-        onClick={() => handleAddComment(post.id)}
-        className="bg-blue-600 text-white px-4 rounded ml-2"
-      >
-        Submit
-      </button>
-    </div>
-  </div>
-)}
-
+              {showComments[post.id] && (
+                <div className="mt-4">
+                  <div className="max-h-32 overflow-y-auto">
+                    {comments[post.id]?.map((comment, commentIndex) => (
+                      <p key={commentIndex} className="text-sm text-gray-600">{comment}</p>
+                    ))}
+                  </div>
+                  <div className="flex mt-2">
+                    <input
+                      type="text"
+                      value={newComment[post.id] || ''}
+                      onChange={(e) => setNewComment({ ...newComment, [post.id]: e.target.value })}
+                      className="border border-gray-300 rounded-md p-1 flex-1"
+                      placeholder="Add a comment..."
+                    />
+                    <button
+                      onClick={() => handleAddComment(post.id)}
+                      className="bg-blue-600 text-white px-4 rounded ml-2"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))
         ) : (
