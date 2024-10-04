@@ -39,8 +39,8 @@ model BarangayRequestPost {
   controlNumber   String    @unique
   barangay        String
   person          String
-  typeOfCalamity  String
-  inKind          String
+  typeOfCalamity  String    
+  inKind          String    @db.VarChar(255) 
   contactNumber   String
   dropOffAddress  String
   dropOffLandmark String
