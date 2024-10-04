@@ -21,5 +21,3 @@ const Navbar: React.FC = () => {
 
   return <nav><FullMenu /></nav>;
 };
-
-export default Navbar;
