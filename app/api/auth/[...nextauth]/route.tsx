@@ -29,6 +29,7 @@ export const authOptions: AuthOptions = {
         if (credentials.userType === "admin") {
           user = await prisma.admin.findUnique({
             where: { contactNumber: credentials.contactNumber },
+            select: { id: true, contactNumber: true, name: true, password: true, brgyNumber: true },
           });
         } else if (credentials.userType === "donor") {
           user = await prisma.donor.findUnique({
@@ -56,6 +57,7 @@ export const authOptions: AuthOptions = {
           contactNumber: user.contactNumber,
           name: user.name,
           userType: credentials.userType,
+          brgyNumber: user.brgyNumber,
         };
       },
     }),
@@ -64,18 +66,20 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.contactNumber = user.contactNumber;
         token.name = user.name;
         token.userType = user.userType;
+        token.contactNumber = user.contactNumber;
+        token.brgyNumber = user.brgyNumber;
       }
       return token;
     },
     async session({ session, token }) {
       session.user = {
         id: token.id,
-        contactNumber: token.contactNumber,
         name: token.name,
         userType: token.userType,
+        contactNumber: token.contactNumber,
+        brgyNumber: token.brgyNumber,
       };
       return session;
     },

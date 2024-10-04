@@ -7,6 +7,8 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const postId = parseInt(params.id);
+  const url = new URL(request.url);
+  const type = url.searchParams.get("type"); // Get the type parameter
   const { content } = await request.json();
   const session = await getServerSession(authOptions);
   
@@ -24,14 +26,25 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const comment = await prisma.comment.create({
-      data: {
-        content,
-        userId: user.id,
-        recipientRequestPostId: postId,
-      },
-    });
-    return NextResponse.json(comment);
+    if (type === 'recipient') {
+      const comment = await prisma.comment.create({
+        data: {
+          content,
+          userId: user.id,
+          recipientRequestPostId: postId,
+        },
+      });
+      return NextResponse.json(comment);
+    } else if (type === 'barangay') {
+      const comment = await prisma.comment.create({
+        data: {
+          content,
+          userId: user.id,
+          barangayRequestPostId: postId,
+        },
+      });
+      return NextResponse.json(comment);
+    }
   } catch (error) {
     console.error('Error adding comment:', error);
     return NextResponse.json({ error: 'Error adding comment' }, { status: 500 });

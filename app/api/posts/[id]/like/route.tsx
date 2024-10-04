@@ -8,6 +8,8 @@ const prisma = new PrismaClient();
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const postId = parseInt(params.id);
   const session = await getServerSession(authOptions);
+  const url = new URL(request.url);
+  const type = url.searchParams.get("type"); // Get the type parameter
   if (!session || !session.user || !session.user.contactNumber) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -23,33 +25,56 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     const userId = user.id;
 
-    // Check if the like already exists
-    const existingLike = await prisma.like.findUnique({
-      where: {
-        userId_recipientRequestPostId: {
-          userId,
-          recipientRequestPostId: postId,
-        },
-      },
-    });
-
-    if (existingLike) {
-      // If the like exists, delete it (unlike)
-      await prisma.like.delete({
+    if (type === "barangay") {
+      const existingLike = await prisma.like.findFirst({
         where: {
-          id: existingLike.id,
+          userId,
+          barangayRequestPostId: postId,
         },
       });
-      return NextResponse.json({ liked: false });
-    } else {
-      // If the like doesn't exist, create a new one
-      await prisma.like.create({
-        data: {
+
+      if (existingLike) {
+        await prisma.like.delete({
+          where: {
+            id: existingLike.id,
+          },
+        });
+        return NextResponse.json({ liked: false });
+      } else {
+        await prisma.like.create({
+          data: {
+            userId,
+            barangayRequestPostId: postId,
+          },
+        });
+        return NextResponse.json({ liked: true });
+      }
+    }
+
+    if (type === "recipient") {
+      const existingLike = await prisma.like.findFirst({
+        where: {
           userId,
           recipientRequestPostId: postId,
         },
       });
-      return NextResponse.json({ liked: true });
+
+      if (existingLike) {
+        await prisma.like.delete({
+          where: {
+            id: existingLike.id,
+          },
+        });
+        return NextResponse.json({ liked: false });
+      } else {
+        await prisma.like.create({
+          data: {
+            userId,
+            recipientRequestPostId: postId,
+          },
+        });
+        return NextResponse.json({ liked: true });
+      }
     }
   } catch (error) {
     console.error('Error toggling like:', error);

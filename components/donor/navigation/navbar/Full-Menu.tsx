@@ -7,7 +7,6 @@ import { useEffect } from "react";
 
 export default function FullMenu() {
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   useEffect(() => {
     console.log("Session data:", session);
@@ -33,10 +32,6 @@ export default function FullMenu() {
       console.error("Error during sign out:", error);
     }
   };
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="navbar bg-base-100">

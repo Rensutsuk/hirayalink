@@ -1,4 +1,5 @@
 import FullMenu from "@/components/donor/navigation/navbar/Full-Menu";
+import Footer from "@/components/navigation/Footer";
 
 export default function DonorLayout({
   children,
@@ -9,6 +10,7 @@ export default function DonorLayout({
     <div>
       <FullMenu />
       {children}
+      <Footer />
     </div>
   );
 }
