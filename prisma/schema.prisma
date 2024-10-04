@@ -44,31 +44,36 @@ model BarangayRequestPost {
   contactNumber   String
   dropOffAddress  String
   dropOffLandmark String
-  image           Bytes?    @db.MediumBlob
+  image           Bytes?    @db.LongBlob
   dateTime        DateTime  @default(now())
-  likes           Like[] // Relationship to the Like model
-  comments        Comment[] // Relationship to the Comment model
+  likes           Like[]    @relation("BarangayRequestPostLikes")
+  comments        Comment[] @relation("BarangayRequestPostComments")
 }
 
 model Like {
-  id        Int                 @id @default(autoincrement())
-  userId    Int
-  postId    Int
-  post      BarangayRequestPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  createdAt DateTime            @default(now())
-  user      Donor               @relation(fields: [id], references: [id])
+  id                     Int                   @id @default(autoincrement())
+  userId                 Int
+  user                   Donor                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barangayRequestPostId  Int?
+  barangayRequestPost    BarangayRequestPost?  @relation("BarangayRequestPostLikes", fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
+  recipientRequestPostId Int?
+  recipientRequestPost   RecipientRequestPost? @relation("RecipientRequestPostLikes", fields: [recipientRequestPostId], references: [id], onDelete: Cascade)
+  createdAt              DateTime              @default(now())
 
-  @@unique([userId, postId])
+  @@unique([userId, barangayRequestPostId])
+  @@unique([userId, recipientRequestPostId])
 }
 
 model Comment {
-  id        Int                 @id @default(autoincrement())
-  content   String // The comment content
-  userId    Int // Reference to the user who made the comment
-  postId    Int // Reference to the post being commented on
-  post      BarangayRequestPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      Donor               @relation(fields: [id], references: [id], onDelete: Cascade)
-  createdAt DateTime            @default(now()) // Timestamp of when the comment was created
+  id                     Int                   @id @default(autoincrement())
+  content                String                @db.Text
+  userId                 Int
+  user                   Donor                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barangayRequestPostId  Int?
+  barangayRequestPost    BarangayRequestPost?  @relation("BarangayRequestPostComments", fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
+  recipientRequestPostId Int?
+  recipientRequestPost   RecipientRequestPost? @relation("RecipientRequestPostComments", fields: [recipientRequestPostId], references: [id], onDelete: Cascade)
+  createdAt              DateTime              @default(now())
 }
 
 model Batch {
@@ -80,18 +85,20 @@ model Batch {
 }
 
 model RecipientRequestPost {
-  id                Int      @id @default(autoincrement()) // Primary key
-  completeName      String   @db.VarChar(191) // Name of the head of the family
+  id                Int       @id @default(autoincrement()) // Primary key
+  completeName      String    @db.VarChar(191) // Name of the head of the family
   age               Int // Age of the head of the family
   noOfFamilyMembers Int // Number of family members
-  contactNumber     String   @db.VarChar(191) // Contact number
-  emailAddress      String?  @db.VarChar(191) // Optional email address
-  barangay          String   @db.VarChar(191) // Barangay number and area
-  typeOfCalamity    String   @db.VarChar(191) // Type of calamity
-  inKindNecessities String   @db.VarChar(255) // Requested in-kind items
-  specifications    String   @db.Text // Detailed specifications
-  uploadedPhoto     Bytes?   @db.LongBlob // Photo uploaded by the user (BLOB)
-  dateTime          DateTime @default(now()) // Date and time of request submission
+  contactNumber     String    @db.VarChar(191) // Contact number
+  emailAddress      String?   @db.VarChar(191) // Optional email address
+  barangay          String    @db.VarChar(191) // Barangay number and area
+  typeOfCalamity    String    @db.VarChar(191) // Type of calamity
+  inKindNecessities String    @db.VarChar(255) // Requested in-kind items
+  specifications    String    @db.Text // Detailed specifications
+  uploadedPhoto     Bytes?    @db.LongBlob // Photo uploaded by the user (BLOB)
+  dateTime          DateTime  @default(now()) // Date and time of request submission
+  likes             Like[]    @relation("RecipientRequestPostLikes")
+  comments          Comment[] @relation("RecipientRequestPostComments")
 }
 
 model Donation {
