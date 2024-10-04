@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav>
+    <nav className="fixed top-0 left-0 h-screen w-72">
       {isMobile && (
         <button 
           onClick={toggleMenu}
