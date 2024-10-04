@@ -13,7 +13,7 @@ export default function Login() {
   const [formData, setFormData] = useState({
     contactNumber: "",
     password: "",
-    userType: "",
+    role: "",
   });
   const [error, setError] = useState("");
 
@@ -24,7 +24,7 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.contactNumber || !formData.password || !formData.userType) {
+    if (!formData.contactNumber || !formData.password) {
       setError("Please fill all required fields");
       return;
     }
@@ -34,14 +34,14 @@ export default function Login() {
         redirect: false,
         contactNumber: formData.contactNumber,
         password: formData.password,
-        userType: formData.userType,
+        role: formData.role,
       });
 
       if (result?.ok) {
-        if (formData.userType === "donor") {
+        if (formData.role === "donor") {
           router.push("/donor");
         }
-        if (formData.userType === "admin") {
+        if (formData.role === "admin") {
           router.push("/admin");
         }
       } else {
@@ -64,9 +64,9 @@ export default function Login() {
               <button
                 type="button"
                 className={`btn btn-outline text-xl ${
-                  formData.userType === "donor" ? "btn-active" : ""
+                  formData.role === "donor" ? "btn-active" : ""
                 }`}
-                onClick={() => setFormData({ ...formData, userType: "donor" })}
+                onClick={() => setFormData({ ...formData, role: "donor" })}
               >
                 <FaHandHoldingHeart />
                 Donor
@@ -74,9 +74,9 @@ export default function Login() {
               <button
                 type="button"
                 className={`btn btn-outline text-xl ${
-                  formData.userType === "admin" ? "btn-active" : ""
+                  formData.role === "admin" ? "btn-active" : ""
                 }`}
-                onClick={() => setFormData({ ...formData, userType: "admin" })}
+                onClick={() => setFormData({ ...formData, role: "admin" })}
               >
                 <RiAdminFill />
                 Admin

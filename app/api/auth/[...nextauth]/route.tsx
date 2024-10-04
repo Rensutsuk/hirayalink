@@ -1,95 +1,78 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma),
+const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
         contactNumber: { label: "Contact Number", type: "text" },
         password: { label: "Password", type: "password" },
-        userType: { label: "User Type", type: "text" },
+        role: { label: "Role", type: "text" }, // Either 'donor' or 'admin'
       },
       async authorize(credentials) {
-        if (
-          !credentials?.contactNumber ||
-          !credentials?.password ||
-          !credentials?.userType
-        ) {
-          return null;
-        }
+        const { contactNumber, password, role } = credentials;
 
         let user;
-        if (credentials.userType === "admin") {
-          user = await prisma.admin.findUnique({
-            where: { contactNumber: credentials.contactNumber },
-          });
-        } else if (credentials.userType === "donor") {
+
+        // Check which role is trying to log in (Donor or Admin)
+        if (role === "donor") {
           user = await prisma.donor.findUnique({
-            where: { contactNumber: credentials.contactNumber },
+            where: { contactNumber },
+          });
+        } else if (role === "admin") {
+          user = await prisma.admin.findUnique({
+            where: { contactNumber },
           });
         } else {
-          return null;
+          throw new Error("Invalid role");
         }
 
+        // If user not found
         if (!user) {
-          return null;
+          throw new Error("User not found");
         }
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
+        // Validate password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-          return null;
+          throw new Error("Invalid password");
         }
 
+        // Return user data on successful authentication
         return {
-          id: user.id.toString(),
+          id: user.id,
           contactNumber: user.contactNumber,
-          name: user.name,
-          userType: credentials.userType,
+          role,
         };
       },
     }),
   ],
+  session: {
+    strategy: "jwt",
+    maxAge: 0, 
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.contactNumber = user.contactNumber;
-        token.name = user.name;
-        token.userType = user.userType;
+        token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
-      session.user = {
-        id: token.id,
-        contactNumber: token.contactNumber,
-        name: token.name,
-        userType: token.userType,
-      };
+      if (token && session.user) {
+        session.user.role = token.role;
+      }
       return session;
     },
   },
   pages: {
-    signIn: "/login",
-    signOut: "/api/auth/signout",
+    signIn: "/login", // Optional: Custom sign-in page
   },
-  session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-};
+});
 
-const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

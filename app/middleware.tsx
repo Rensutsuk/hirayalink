@@ -1,31 +1,31 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
+import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  const token = await getToken({ req: request });
   const path = request.nextUrl.pathname;
-  console.log("Middleware called for path:", path);
 
+  // Check if the path starts with /donor or /admin
   if (path.startsWith('/donor') || path.startsWith('/admin')) {
-    console.log("Checking token for protected route");
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-    console.log("Token:", token);
-
     if (!token) {
-      console.log("No token found, redirecting to signin");
-      return NextResponse.redirect(new URL('/auth/signin', request.url));
+      // Redirect to login if there's no token
+      return NextResponse.redirect(new URL('/login', request.url));
     }
-    console.log("Token found, allowing access");
+
+    // Check if the user has the correct role for the route
+    if (path.startsWith('/donor') && token.role !== 'donor') {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    if (path.startsWith('/admin') && token.role !== 'admin') {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/donor/:path*',
-    '/admin/:path*',
-    '/donor',
-    '/admin',
-  ],
+  matcher: ['donor*', 'admin/:path*'],
 };
