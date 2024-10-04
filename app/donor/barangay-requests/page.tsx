@@ -1,10 +1,9 @@
-"use client"; // Ensure this component can use hooks
+"use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Adjust import for Next.js router
+import { FaThumbsUp, FaComment } from "react-icons/fa";
 
-interface BarangayRequest {
+interface BarangayRequestPost {
   id: number;
   controlNumber: string;
   barangay: string;
@@ -14,46 +13,85 @@ interface BarangayRequest {
   contactNumber: string;
   dropOffAddress: string;
   dropOffLandmark: string;
-  dateTime: string;
-  image: string | null; // Assuming the image is base64
+  image: Buffer | null;
+  dateTime: Date;
+  likes: { id: number }[];
+  comments: { id: number; content: string; userId: number }[];
 }
 
-export default function Newsfeed() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [comments, setComments] = useState<{ [key: number]: string[] }>({});
+export default function BarangayRequests() {
+  const [posts, setPosts] = useState<BarangayRequestPost[]>([]);
   const [showComments, setShowComments] = useState<{ [key: number]: boolean }>(
     {}
   );
   const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
-  const [selectedBarangay, setSelectedBarangay] = useState(
-    "BARANGAY NUMBER 20 TONDO"
-  ); // Default selection
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [selectedBarangay, setSelectedBarangay] = useState<string>("");
 
-  const handleDonateClick = (post: Post) => {
-    if (
-      confirm(
-        `Do you want to pledge for the donation request from ${post.barangay}?`
-      )
-    ) {
-      alert("Pledge confirmed!");
-    } else {
-      alert("Pledge canceled.");
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/posts?type=barangay"); // Fetch barangay posts
+        if (!response.ok) {
+          throw new Error("Failed to fetch posts");
+        }
+        const data = await response.json();
+        setPosts(data);
+
+        const initialLikedPosts = new Set(
+          data
+            .map((post: BarangayRequestPost) =>
+              post.likes.length > 0 ? post.id : null
+            )
+            .filter(Boolean)
+        );
+        setLikedPosts(initialLikedPosts);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+        setError("Failed to load posts. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const handleLikeClick = async (postId: number) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/like?type=barangay`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId
+              ? {
+                  ...post,
+                  likes: data.liked
+                    ? [...post.likes, { id: Date.now() }]
+                    : post.likes.slice(0, -1),
+                }
+              : post
+          )
+        );
+        setLikedPosts((prevLikedPosts) => {
+          const newLikedPosts = new Set(prevLikedPosts);
+          if (data.liked) {
+            newLikedPosts.add(postId);
+          } else {
+            newLikedPosts.delete(postId);
+          }
+          return newLikedPosts;
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
     }
-  };
-
-  const handleLikeClick = (postId: number, liked: boolean) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              likedByUser: !liked,
-              likes: post.likes + (liked ? -1 : 1),
-            }
-          : post
-      )
-    );
   };
 
   const toggleComments = (postId: number) => {
@@ -63,177 +101,171 @@ export default function Newsfeed() {
     }));
   };
 
-  const handleAddComment = (postId: number) => {
+  const handleAddComment = async (postId: number) => {
     if (newComment[postId]?.trim()) {
-      setComments((prevComments) => ({
-        ...prevComments,
-        [postId]: [...(prevComments[postId] || []), newComment[postId]],
-      }));
-      setNewComment((prevNewComment) => ({
-        ...prevNewComment,
-        [postId]: "",
-      }));
+      try {
+        const response = await fetch(
+          `/api/posts/${postId}/comment?type=barangay`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content: newComment[postId] }),
+          }
+        );
+        if (response.ok) {
+          const newCommentData = await response.json();
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post.id === postId
+                ? { ...post, comments: [...post.comments, newCommentData] }
+                : post
+            )
+          );
+          setNewComment((prev) => ({ ...prev, [postId]: "" }));
+        }
+      } catch (error) {
+        console.error("Error adding comment:", error);
+      }
     }
   };
 
-  // Fetch posts from the API
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch("/api/barangayRequestPost"); // Add leading '/' to the path
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-          setPosts(data);
-        } else {
-          console.error("Unexpected data format:", data);
-          setPosts([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-        setPosts([]);
-      }
-    };
-
-    fetchPosts();
-  }, []);
-
-  // Function to filter posts based on selected barangay number
-  const filteredPosts = posts.filter((post) =>
-    post.barangay.includes(selectedBarangay.includes("105") ? "105" : "20")
-  );
+  // Filter posts based on selected barangay
+  const filteredPosts = selectedBarangay
+    ? posts.filter((post) => post.barangay === selectedBarangay)
+    : posts;
 
   return (
     <div>
-      <div className="hero-background bg-cover max-h-[30rem] mb-7">
-        <div className="text-center pt-10 pb-20 backdrop-blur-sm bg-black/25 ">
-          <h1 className="mb-5 py-10 text-5xl font-bold text-white">
-            OFFICIAL DONATION REQUEST LIST
+      <div className="hero-background bg-cover max-h-[20rem] mb-5">
+        <div className="py-14 backdrop-blur-sm bg-black/25">
+          <h1 className="mb-0 py-0 text-5xl font-bold text-center text-white">
+            Barangay Donation Request Post
           </h1>
-          <p className="text-xl text-white py-5">Barangay</p>
+          <p className="text-center text-white mt-2 text-xl">
+            {selectedBarangay
+              ? `Official requests from ${selectedBarangay}`
+              : "Official requests from all Barangays"}
+          </p>
+          <div className="flex items-center justify-end mt-4 mr-10">
+            <select
+              value={selectedBarangay}
+              onChange={(e) => setSelectedBarangay(e.target.value)}
+              className="select select-bordered w-min max-w-xs"
+            >
+              <option value="">All Barangays</option>
+              {/* Add options for each barangay */}
+              {Array.from(new Set(posts.map((post) => post.barangay))).map(
+                (barangay) => (
+                  <option key={barangay} value={barangay}>
+                    {barangay}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
         </div>
-      </div>
-
-      {/* Dropdown menu aligned to the right */}
-      <div className="p-4 mb-4 flex justify-end">
-        <button className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center font-bold">
-          View Other Barangay
-          <select
-            id="barangay-select"
-            value={selectedBarangay}
-            onChange={(e) => {
-              const selectedValue = e.target.value;
-              setSelectedBarangay(selectedValue);
-              router.push(
-                `/brgy-donation-req-timeline?barangay=${
-                  selectedValue.includes("105") ? "105" : "20"
-                }`
-              );
-            }}
-            className="ml-2 bg-white border-none text-black focus:outline-none"
-          >
-            <option value="BARANGAY NUMBER 20 TONDO">20</option>
-            <option value="BARANGAY NUMBER 105">105</option>
-          </select>
-        </button>
       </div>
 
       {/* Posts section */}
       <div className="space-y-4 p-4">
-        {filteredPosts.length > 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <span className="loading loading-spinner loading-lg">
+              Loading Posts
+            </span>
+          </div>
+        ) : error ? (
+          <p>{error}</p>
+        ) : filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
             <div
               key={post.id}
-              className="relative p-4 bg-white shadow-md rounded-lg max-w-lg mx-auto"
+              className="relative p-4 bg-white shadow-md rounded-lg max-w-4xl mx-auto flex"
             >
-              {/* Donate Now Button */}
-              <button
-                onClick={() => handleDonateClick(post)}
-                className="absolute top-1 right-1 bg-red-600 text-white py-0 px-1 rounded"
-              >
-                DONATE NOW
-              </button>
-
-              {/* Post details */}
-              <div className="bg-green-600 text-white p-3 rounded-t-lg">
-                <p className="text-xs">Control Number: {post.controlNumber}</p>
-                <h2 className="text-lg font-bold">{post.barangay}</h2>
-                <p className="text-xs">{post.dateTime}</p>
-              </div>
-              <div className="p-4 border-2 border-green-600 rounded-10g">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                  <p>
-                    <strong>Barangay:</strong> {post.barangay}
-                  </p>
-                  <p>
-                    <strong>Contact:</strong> {post.person}
-                  </p>
-                  <p>
-                    <strong>Calamity:</strong> {post.typeOfCalamity}
-                  </p>
-                  <p>
-                    <strong>Needs:</strong> {post.inKind}
-                  </p>
-                  <p>
-                    <strong>Phone:</strong> {post.contactNumber}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {post.dropOffAddress}
-                  </p>
-                  <p>
-                    <strong>Landmark:</strong> {post.dropOffLandmark}
-                  </p>
+              {/* Main post content */}
+              <div className="flex-grow">
+                {/* Header for Each Post */}
+                <div className="bg-primary text-white text-lg font-bold px-4 py-2 flex justify-between items-center rounded-t-lg">
+                  <span>{post.barangay}</span>
+                  <span className="text-sm">
+                    {new Date(post.dateTime).toLocaleString()}
+                  </span>
                 </div>
-                {post.image && (
-                  <img
-                    src={`data:image/png;base64,${post.image}`}
-                    alt="Donation Image"
-                    className="w-full h-auto rounded-lg mt-4"
-                  />
-                )}
-              </div>
 
-              <div className="flex justify-between items-center mt-4 text-xs">
-                <div className="flex space-x-2">
-                  {/* Like Button */}
-                  <button
-                    onClick={() => handleLikeClick(post.id, post.likedByUser)}
-                    className={`p-2 rounded ${
-                      post.likedByUser
-                        ? "bg-green-600 text-white"
-                        : "bg-gray-300 text-gray-700"
-                    }`}
-                  >
-                    👍 {post.likes}
-                  </button>
-                  {/* Comments Button */}
-                  <button
-                    className="text-green-600"
-                    onClick={() => toggleComments(post.id)}
-                  >
-                    💬
-                  </button>
+                {/* Static Calamity Type Display */}
+                <div className="absolute top-1 right-1 bg-error text-white py-0 px-1 rounded-md">
+                  {post.typeOfCalamity}
                 </div>
-                {/* View Donations Button */}
-                <Link
-                  href="/donation-tracking"
-                  className="text-green-600 underline"
-                >
-                  View Donations
-                </Link>
+
+                <div className="p-4 border-2 border-primary rounded-b-lg">
+                  {/* Information in smaller, inline, bubbly text boxes */}
+                  <div className="flex flex-wrap gap-2 text-sm">
+                    <div className="p-1 px-2 bg-gray-100 rounded-full">
+                      <strong>Control Number:</strong> {post.controlNumber}
+                    </div>
+                    <div className="p-1 px-2 bg-gray-100 rounded-full">
+                      <strong>Needs:</strong> {post.inKind}
+                    </div>
+                    <div className="p-1 px-2 bg-gray-100 rounded-full">
+                      <strong>Contact:</strong> {post.contactNumber}
+                    </div>
+                    <div className="p-1 px-2 bg-gray-100 rounded-full">
+                      <strong>Drop-off Address:</strong> {post.dropOffAddress}
+                    </div>
+                    <div className="p-1 px-2 bg-gray-100 rounded-full">
+                      <strong>Landmark:</strong> {post.dropOffLandmark}
+                    </div>
+                  </div>
+
+                  {post.image && (
+                    <img
+                      src={`data:image/png;base64,${Buffer.from(
+                        post.image
+                      ).toString("base64")}`}
+                      alt="Donation Image"
+                      className="w-full h-auto rounded-lg mt-4"
+                    />
+                  )}
+
+                  <div className="flex justify-between items-center mt-4 text-xs">
+                    <div className="flex space-x-2">
+                      <div
+                        role="button"
+                        onClick={() => handleLikeClick(post.id)}
+                        className={`btn btn-sm ${
+                          likedPosts.has(post.id)
+                            ? "btn-primary text-white"
+                            : "btn-outline"
+                        } flex items-center`}
+                      >
+                        <FaThumbsUp className="mr-1" /> {post.likes.length}
+                      </div>
+                      <button
+                        className="btn btn-sm btn-outline text-primary flex items-center"
+                        onClick={() => toggleComments(post.id)}
+                      >
+                        <FaComment className="mr-1" /> {post.comments.length}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Comments Section */}
+              {/* Comments section */}
               {showComments[post.id] && (
-                <div className="mt-4">
-                  <div className="max-h-32 overflow-y-auto">
-                    {comments[post.id]?.map((comment, commentIndex) => (
-                      <p key={commentIndex} className="text-sm text-gray-600">
-                        {comment}
+                <div className="w-max ml-4 border-l pl-4 max-h-96 overflow-y-auto">
+                  <h4 className="font-bold mb-2">Comments</h4>
+                  <div className="space-y-2">
+                    {post.comments.map((comment) => (
+                      <p
+                        key={comment.id}
+                        className="text-sm bg-gray-200 p-2 rounded"
+                      >
+                        {comment.content}
                       </p>
                     ))}
                   </div>
-                  <div className="flex mt-2">
+                  <div className="mt-2 sticky bottom-0 bg-white py-2">
                     <input
                       type="text"
                       value={newComment[post.id] || ""}
@@ -243,22 +275,23 @@ export default function Newsfeed() {
                           [post.id]: e.target.value,
                         })
                       }
-                      className="border border-gray-300 rounded-md p-1 flex-1"
                       placeholder="Add a comment..."
+                      className="input input-bordered w-full"
                     />
-                    <button
+                    <div
+                      role="button"
                       onClick={() => handleAddComment(post.id)}
-                      className="bg-blue-600 text-white px-4 rounded ml-2"
+                      className="btn btn-primary w-full text-white mt-2"
                     >
-                      Submit
-                    </button>
+                      Add Comment
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           ))
         ) : (
-          <p>No donation requests found for this barangay.</p>
+          <p className="text-center">No posts available</p>
         )}
       </div>
     </div>
