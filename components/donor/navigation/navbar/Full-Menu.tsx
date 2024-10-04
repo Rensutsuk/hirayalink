@@ -55,10 +55,10 @@ export default function FullMenu() {
             <Link href="/donor">Home</Link>
           </li>
           <li>
-            <Link href="/about">About</Link>
+            <Link href="/donor/recipient-requests">Recipients</Link>
           </li>
           <li>
-            <Link href="/contact">Contact</Link>
+            <Link href="/donor/barangay-requests">Barangays</Link>
           </li>
           <li>
             <Link href="/faqs">FAQs</Link>
