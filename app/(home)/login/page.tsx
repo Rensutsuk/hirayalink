@@ -110,6 +110,11 @@ export default function Login() {
                   />
                 </div>
               </div>
+              {error && (
+                <div role="alert" className="alert alert-error mb-4 max-w-fit">
+                  <span>{error}</span>
+                </div>
+              )}
               <div className="form-control mb-4">
                 <button type="submit" className="btn btn-primary w-full">
                   Login
@@ -138,13 +143,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-
-      {/* Error Toast */}
-      {error && (
-        <div className="fixed bottom-4 right-4 bg-error text-white px-6 py-3 rounded-lg shadow-lg">
-          <p>{error}</p>
-        </div>
-      )}
     </main>
   );
 }
