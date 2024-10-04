@@ -1,8 +1,10 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import imageCompression from 'browser-image-compression';
 
-export default function DonationRequestPosting() {
-  // State to hold form data
+export default function AdminRequestDonation() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     barangayArea: "",
     calamityType: "",
@@ -14,50 +16,75 @@ export default function DonationRequestPosting() {
     proofFile: null,
   });
 
-  // Handle form input changes
-  const handleChange = (e) => {
+  const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
   };
 
-  // Handle checkbox changes
-  const handleCheckboxChange = (e) => {
+  const handleCheckboxChange = (e : any) => {
     const { name, checked } = e.target;
-    if (checked) {
-      setFormData((prev) => ({
-        ...prev,
-        necessities: [...prev.necessities, name],
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        necessities: prev.necessities.filter((item) => item !== name),
-      }));
-    }
+    setFormData(prevData => ({
+      ...prevData,
+      necessities: checked
+        ? [...prevData.necessities, name]
+        : prevData.necessities.filter(item => item !== name)
+    }));
   };
 
   // Handle file upload
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, proofFile: e.target.files[0] });
+  const handleFileChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prevData => ({
+        ...prevData,
+        proofFile: e.target.files![0]
+      }));
+    }
   };
-
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/barangay-request", {
-        method: "POST",
-        body: formData,
+      // Compress the image
+      let compressedFile = null;
+      if (formData.proofFile) {
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true
+        }
+        compressedFile = await imageCompression(formData.proofFile, options);
+      }
+
+      // Create FormData object
+      const formDataToSend = new FormData();
+      formDataToSend.append('barangayArea', formData.barangayArea);
+      formDataToSend.append('calamityType', formData.calamityType);
+      formDataToSend.append('contactPerson', formData.contactPerson);
+      formDataToSend.append('contactNumber', formData.contactNumber);
+      formDataToSend.append('donationDropOff', formData.donationDropOff);
+      formDataToSend.append('donationLandmark', formData.donationLandmark);
+      formDataToSend.append('necessities', JSON.stringify(formData.necessities));
+      if (compressedFile) {
+        formDataToSend.append('proofFile', compressedFile);
+      }
+
+      const response = await fetch('/api/barangay-request', {
+        method: 'POST',
+        body: formDataToSend
       });
 
       if (response.ok) {
-        console.log("Request submitted successfully");
+        alert('Your request has been submitted successfully.');
+        router.push('/admin');
       } else {
-        console.error("Failed to submit request");
+        console.error('Failed to submit form data');
       }
     } catch (error) {
-      console.error("Error submitting request:", error);
+      console.error('Error:', error);
     }
   };
 
