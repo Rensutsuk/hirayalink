@@ -11,6 +11,9 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
+  console.log("Middleware function called");
+  console.log("Request path:", request.nextUrl.pathname);
+
   try {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
     

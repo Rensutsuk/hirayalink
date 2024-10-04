@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import router from "next/router";
 import { RiAdminFill } from "react-icons/ri";
 
-export default function AdminSignup() {
+export default function DonorSignUp() {
 	const [formData, setFormData] = useState({
 		name: "",
 		brgyNumber: "",
@@ -13,7 +13,6 @@ export default function AdminSignup() {
 		password: "",
 	});
 	const [error, setError] = useState("");
-	const router = useRouter();
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,7 +20,12 @@ export default function AdminSignup() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError("");
+
+		// Basic form validation
+		if (!formData.name || !formData.contactNumber || !formData.password) {
+			setError("Please fill all required fields");
+			return;
+		}
 
 		try {
 			const res = await fetch("/api/signup/admin", {
@@ -32,16 +36,12 @@ export default function AdminSignup() {
 				body: JSON.stringify(formData),
 			});
 
-			const data = await res.json();
-
 			if (res.ok) {
-				console.log("Signup successful, redirecting to login page");
-				router.push('/login');
+				router.push("/login");
 			} else {
-				setError(data.message || "Sign up failed");
+				setError("Sign up failed");
 			}
 		} catch (err) {
-			console.error("Error during signup:", err);
 			setError("Something went wrong");
 		}
 	};

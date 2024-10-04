@@ -1,30 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { hash } from "bcryptjs";
+import { hash } from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// POST method
 export async function POST(req: NextRequest) {
 	try {
 		const { name, brgyNumber, contactNumber, address, password } =
 			await req.json();
 
-		// Check if all required fields are provided
-		if (!name || !brgyNumber || !contactNumber || !address || !password) {
-			return NextResponse.json(
-				{ message: "All fields are required" },
-				{ status: 400 }
-			);
-		}
-
-		// Check if the admin already exists
+		// Check if the donor already exists
 		const existingAdmin = await prisma.admin.findFirst({
 			where: { OR: [{ contactNumber }, { name }] },
 		});
 
 		if (existingAdmin) {
 			return NextResponse.json(
-				{ message: "Admin with this name or contact number already exists" },
+				{ message: "Admin already exists" },
 				{ status: 400 }
 			);
 		}
@@ -32,7 +25,7 @@ export async function POST(req: NextRequest) {
 		// Hash the password
 		const hashedPassword = await hash(password, 10);
 
-		// Create the new admin
+		// Create the new donor
 		const newAdmin = await prisma.admin.create({
 			data: {
 				name,
@@ -44,13 +37,12 @@ export async function POST(req: NextRequest) {
 		});
 
 		return NextResponse.json(
-			{ message: "Admin created successfully", newAdmin },
+			{ message: "Admin created", newAdmin },
 			{ status: 201 }
 		);
 	} catch (error) {
-		console.error("Error in admin signup:", error);
 		return NextResponse.json(
-			{ message: "Internal Server Error" },
+			{ message: "Internal Server Error", error },
 			{ status: 500 }
 		);
 	}

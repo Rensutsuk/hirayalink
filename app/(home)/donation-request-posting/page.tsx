@@ -84,7 +84,7 @@ export default function DonationRequestPosting() {
         formDataToSend.append('proofOfResidence', compressedFile);
       }
 
-      const response = await fetch('/api/recipient-request', {
+      const response = await fetch('/api/recipient-request-post', {
         method: 'POST',
         body: formDataToSend,
       });
