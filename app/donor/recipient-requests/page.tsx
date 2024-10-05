@@ -150,7 +150,7 @@ export default function RecipientRequests() {
               {/* Main post content */}
               <div className="flex-grow">
                 {/* Header for Each Post */}
-                <div className="bg-primary text-white text-lg font-bold px-4 py-2 flex justify-between items-center rounded-t-lg">
+                <div className="bg-primary text-white text-lg font-semi bold px-4 py-2 flex justify-between items-center rounded-t-lg">
                   <span>{post.completeName}</span>
                   <span className="text-sm">
                     {new Date(post.dateTime).toLocaleString()}
@@ -158,18 +158,24 @@ export default function RecipientRequests() {
                 </div>
 
                 {/* Static Calamity Type Display */}
-                <div className="absolute top-1 right-1 bg-error text-white py-0 px-1 rounded-md">
+                <div className="absolute top-1 left-1 bg-error text-white font-bold py-0 px-1 rounded-md">
                   {post.typeOfCalamity}
                 </div>
 
                 <div className="p-4 border-2 border-primary rounded-b-lg">
                   {/* Information in smaller, inline, bubbly text boxes */}
                   <div className="flex flex-wrap gap-2 text-sm">
+                  <div className="p-1 px-2 bg-gray-100 rounded-full">
+                      <strong>Age:</strong> {post.age}
+                    </div>
                     <div className="p-1 px-2 bg-gray-100 rounded-full">
                       <strong>Barangay:</strong> {post.barangay}
                     </div>
                     <div className="p-1 px-2 bg-gray-100 rounded-full">
                       <strong>Needs:</strong> {post.inKindNecessities}
+                    </div>
+                    <div className="p-1 px-2 bg-gray-100 rounded-full">
+                      <strong>Specifications:</strong> {post.specifications}
                     </div>
                     <div className="p-1 px-2 bg-gray-100 rounded-full">
                       <strong>Phone:</strong> {post.contactNumber}
