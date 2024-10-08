@@ -20,7 +20,7 @@ export default function LearnMore() {
       {/* Calamity Impact Section */}
       <div className="bg-white py-20 px-5">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-5 text-green-600 border-b-4 border-green-500 inline-block pb-2">
+          <h2 className="text-4xl font-bold mb-5 text-red-600 border-b-4 border-red-500 inline-block pb-2">
             CALAMITY IMPACT
           </h2>
           <p className="mb-10 text-lg text-gray-600 px-5">
