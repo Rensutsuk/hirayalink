@@ -236,5 +236,3 @@ export default function DonorSignUp() {
     </div>
   );
 }
-
-http://localhost:3000/signup
