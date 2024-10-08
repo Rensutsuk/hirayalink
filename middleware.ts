@@ -19,6 +19,14 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
+    if (request.nextUrl.pathname === '/donor' && token.userType !== 'donor') {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    if (request.nextUrl.pathname === '/admin' && token.userType !== 'admin') {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
     console.log("Token found, user is authenticated");
     return NextResponse.next();
   } catch (error) {

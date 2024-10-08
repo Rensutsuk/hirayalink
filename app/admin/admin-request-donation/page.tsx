@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import imageCompression from 'browser-image-compression';
+import imageCompression from "browser-image-compression";
 
 export default function AdminRequestDonation() {
   const router = useRouter();
@@ -11,80 +11,82 @@ export default function AdminRequestDonation() {
     contactPerson: "",
     contactNumber: "",
     donationDropOff: "",
-    donationLandmark: "", 
+    donationLandmark: "",
     necessities: [],
     proofFile: null,
   });
 
-  const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleCheckboxChange = (e : any) => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       necessities: checked
         ? [...prevData.necessities, name]
-        : prevData.necessities.filter(item => item !== name)
+        : prevData.necessities.filter((item) => item !== name),
     }));
   };
 
-  // Handle file upload
-  const handleFileChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        proofFile: e.target.files![0]
+        proofFile: e.target.files[0],
       }));
     }
   };
-  // Handle form submission
-  const handleSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // Compress the image
       let compressedFile = null;
       if (formData.proofFile) {
         const options = {
           maxSizeMB: 1,
           maxWidthOrHeight: 1920,
-          useWebWorker: true
-        }
+          useWebWorker: true,
+        };
         compressedFile = await imageCompression(formData.proofFile, options);
       }
 
-      // Create FormData object
       const formDataToSend = new FormData();
-      formDataToSend.append('barangayArea', formData.barangayArea);
-      formDataToSend.append('calamityType', formData.calamityType);
-      formDataToSend.append('contactPerson', formData.contactPerson);
-      formDataToSend.append('contactNumber', formData.contactNumber);
-      formDataToSend.append('donationDropOff', formData.donationDropOff);
-      formDataToSend.append('donationLandmark', formData.donationLandmark);
-      formDataToSend.append('necessities', JSON.stringify(formData.necessities));
+      formDataToSend.append("barangayArea", formData.barangayArea);
+      formDataToSend.append("calamityType", formData.calamityType);
+      formDataToSend.append("contactPerson", formData.contactPerson);
+      formDataToSend.append("contactNumber", formData.contactNumber);
+      formDataToSend.append("donationDropOff", formData.donationDropOff);
+      formDataToSend.append("donationLandmark", formData.donationLandmark);
+      formDataToSend.append(
+        "necessities",
+        JSON.stringify(formData.necessities)
+      );
       if (compressedFile) {
-        formDataToSend.append('proofFile', compressedFile);
+        formDataToSend.append("proofFile", compressedFile);
       }
 
-      const response = await fetch('/api/barangay-request', {
-        method: 'POST',
-        body: formDataToSend
+      const response = await fetch("/api/barangay-request", {
+        method: "POST",
+        body: formDataToSend,
       });
 
       if (response.ok) {
-        alert('Your request has been submitted successfully.');
-        router.push('/admin');
+        alert("Your request has been submitted successfully.");
+        router.push("/admin");
       } else {
-        console.error('Failed to submit form data');
+        console.error("Failed to submit form data");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -98,22 +100,18 @@ export default function AdminRequestDonation() {
         </div>
       </div>
       <div className="flex justify-center m-10">
-        <div className="card outline outline-emerald-500 bg-base-100 w-full shadow-xl">
+        <div className="card w-full bg-base-100 shadow-xl">
           <div className="card-title rounded-t-xl p-5 bg-primary">
             <h2 className="text-white text-2xl">Fill in the details</h2>
           </div>
           <div className="card-body">
             <form onSubmit={handleSubmit}>
-              {/* Barangay Number and Area */}
               <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="barangayArea"
-                >
-                  Barangay Number, Area
+                <label className="label">
+                  <span className="label-text">Barangay Number, Area</span>
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-secondary w-full"
                   id="barangayArea"
                   type="text"
                   name="barangayArea"
@@ -124,17 +122,13 @@ export default function AdminRequestDonation() {
                 />
               </div>
 
-              {/* Calamity Type and Donation Drop-Off Area */}
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                    htmlFor="calamityType"
-                  >
-                    Type of Calamity
+                  <label className="label">
+                    <span className="label-text">Type of Calamity</span>
                   </label>
                   <select
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="select select-secondary w-full"
                     id="calamityType"
                     name="calamityType"
                     value={formData.calamityType}
@@ -148,14 +142,13 @@ export default function AdminRequestDonation() {
                   </select>
                 </div>
                 <div>
-                  <label
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                    htmlFor="donationDropOff"
-                  >
-                    Barangay Donation Drop-Off Area Address
+                  <label className="label">
+                    <span className="label-text">
+                      Barangay Donation Drop-Off Area Address
+                    </span>
                   </label>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="input input-bordered input-secondary w-full"
                     id="donationDropOff"
                     type="text"
                     name="donationDropOff"
@@ -167,17 +160,13 @@ export default function AdminRequestDonation() {
                 </div>
               </div>
 
-              {/* Contact Person, Contact Number, and Donation Drop-Off Landmark */}
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
-                  <label
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                    htmlFor="contactPerson"
-                  >
-                    Person to Contact
+                  <label className="label">
+                    <span className="label-text">Person to Contact</span>
                   </label>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="input input-bordered input-secondary w-full"
                     id="contactPerson"
                     type="text"
                     name="contactPerson"
@@ -188,14 +177,11 @@ export default function AdminRequestDonation() {
                   />
                 </div>
                 <div>
-                  <label
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                    htmlFor="contactNumber"
-                  >
-                    Contact Number
+                  <label className="label">
+                    <span className="label-text">Contact Number</span>
                   </label>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="input input-bordered input-secondary w-full"
                     id="contactNumber"
                     type="text"
                     name="contactNumber"
@@ -206,14 +192,13 @@ export default function AdminRequestDonation() {
                   />
                 </div>
                 <div>
-                  <label
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                    htmlFor="donationLandmark"
-                  >
-                    Donation Drop-Off Area Landmark
+                  <label className="label">
+                    <span className="label-text">
+                      Donation Drop-Off Area Landmark
+                    </span>
                   </label>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="input input-bordered input-secondary w-full"
                     id="donationLandmark"
                     type="text"
                     name="donationLandmark"
@@ -225,10 +210,9 @@ export default function AdminRequestDonation() {
                 </div>
               </div>
 
-              {/* In-Kind Necessities */}
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  In-Kind Necessities List
+                <label className="label">
+                  <span className="label-text">In-Kind Necessities List</span>
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   {[
@@ -251,13 +235,14 @@ export default function AdminRequestDonation() {
                     "Cleaning and Sanitary Supplies",
                     "Child and Infant Care Items",
                   ].map((necessity) => (
-                    <div key={necessity} className="relative flex items-center">
-                      <label className="inline-flex items-center">
+                    <div key={necessity} className="flex items-center">
+                      <label className="label cursor-pointer">
                         <input
                           type="checkbox"
                           name={necessity}
                           checked={formData.necessities.includes(necessity)}
                           onChange={handleCheckboxChange}
+                          className="checkbox checkbox-primary"
                         />
                         <span className="ml-2">{necessity}</span>
                       </label>
@@ -266,16 +251,14 @@ export default function AdminRequestDonation() {
                 </div>
               </div>
 
-              {/* Collage Photo of Calamity */}
               <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="proofFile"
-                >
-                  Collage Photo of Calamity (if applicable)
+                <label className="label">
+                  <span className="label-text">
+                    Collage Photo of Calamity (if applicable)
+                  </span>
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="file-input file-input-bordered file-input-primary w-full"
                   id="proofFile"
                   type="file"
                   name="proofFile"
@@ -284,10 +267,7 @@ export default function AdminRequestDonation() {
               </div>
 
               <div className="flex justify-end">
-                <button
-                  className="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="submit"
-                >
+                <button className="btn btn-primary text-white" type="submit">
                   Submit
                 </button>
               </div>
