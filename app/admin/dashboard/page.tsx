@@ -12,7 +12,7 @@ export default function Dashboard(): ReactElement {
       {session?.user && (
         <div>
           <p>Welcome, {session.user.name}!</p>
-          <p>You are managing Barangay {session.user.brgyNumber || "N/A"}</p>
+          <p>You are managing {session.user.brgyName || "N/A"}</p>
 
           <div className="mt-4">
             <h2 className="text-xl font-semibold mb-2">Quick Stats</h2>
