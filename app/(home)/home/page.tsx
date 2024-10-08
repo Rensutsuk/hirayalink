@@ -49,12 +49,13 @@ export default function Home() {
 						Empowering Giving, Every Day, and in Every Way.
 					</p>
 					<a
-						role="button"
-						className="btn btn-outline btn-wide mt-10"
-						href="/donation-request-posting"
-					>
-						Learn More
+  						role="button"
+  							className="btn btn-outline btn-wide mt-10"
+ 						 href="/learn-more"  // Update the href to match the learn-more page
+>
+  						Learn More
 					</a>
+
 				</div>
 			</div>
 			<div className="grid grid-flow-row py-20 auto-rows-max justify-center bg-gradient-to-t from-transparent from-5% via-green-300 via-85% to-transparent to-100%">
