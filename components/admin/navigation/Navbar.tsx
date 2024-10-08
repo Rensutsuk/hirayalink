@@ -31,7 +31,7 @@ const Navbar: React.FC = () => {
       {isMobile && (
         <button 
           onClick={toggleMenu}
-          className="fixed top-4 left-4 z-20 text-white bg-green-600 p-2 rounded-md"
+          className="fixed top-4 left-4 z-20 text-white bg-primary p-2 rounded-md"
         >
           {isOpen ? '✕' : '☰'}
         </button>

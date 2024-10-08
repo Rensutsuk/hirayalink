@@ -14,16 +14,17 @@ datasource db {
 }
 
 model Admin {
-  id            Int     @id @default(autoincrement())
-  name          String  @unique
-  brgyNumber    String?
-  contactNumber String  @unique
+  id            String   @id @default(uuid()) // Change to UUID
+  name          String   @unique
+  contactNumber String   @unique
   address       String?
   password      String
+  barangayId    String // Foreign key to Barangay
+  barangay      Barangay @relation(fields: [barangayId], references: [id]) // Relation to Barangay
 }
 
 model Donor {
-  id            Int        @id @default(autoincrement())
+  id            String     @id @default(uuid()) // Change to UUID
   name          String     @unique
   orgName       String?
   contactNumber String     @unique
@@ -35,12 +36,12 @@ model Donor {
 }
 
 model BarangayRequestPost {
-  id              Int       @id @default(autoincrement())
+  id              String    @id @default(uuid()) // Change to UUID
   controlNumber   String    @unique
   barangay        String
   person          String
-  typeOfCalamity  String    
-  inKind          String    @db.VarChar(255) 
+  typeOfCalamity  String
+  inKind          String    @db.VarChar(255)
   contactNumber   String
   dropOffAddress  String
   dropOffLandmark String
@@ -51,12 +52,12 @@ model BarangayRequestPost {
 }
 
 model Like {
-  id                     Int                   @id @default(autoincrement())
-  userId                 Int
+  id                     String                @id @default(uuid()) // Change to UUID
+  userId                 String
   user                   Donor                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  barangayRequestPostId  Int?
+  barangayRequestPostId  String?
   barangayRequestPost    BarangayRequestPost?  @relation("BarangayRequestPostLikes", fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
-  recipientRequestPostId Int?
+  recipientRequestPostId String?
   recipientRequestPost   RecipientRequestPost? @relation("RecipientRequestPostLikes", fields: [recipientRequestPostId], references: [id], onDelete: Cascade)
   createdAt              DateTime              @default(now())
 
@@ -65,19 +66,19 @@ model Like {
 }
 
 model Comment {
-  id                     Int                   @id @default(autoincrement())
+  id                     String                @id @default(uuid()) // Change to UUID
   content                String                @db.Text
-  userId                 Int
+  userId                 String
   user                   Donor                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  barangayRequestPostId  Int?
+  barangayRequestPostId  String?
   barangayRequestPost    BarangayRequestPost?  @relation("BarangayRequestPostComments", fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
-  recipientRequestPostId Int?
+  recipientRequestPostId String?
   recipientRequestPost   RecipientRequestPost? @relation("RecipientRequestPostComments", fields: [recipientRequestPostId], references: [id], onDelete: Cascade)
   createdAt              DateTime              @default(now())
 }
 
 model Batch {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(uuid()) // Change to UUID
   batchNumber String   @unique // Unique identifier for the batch
   description String? // Optional description for the batch
   donationIds String // Comma-separated list of donation IDs
@@ -85,7 +86,7 @@ model Batch {
 }
 
 model RecipientRequestPost {
-  id                Int       @id @default(autoincrement()) // Primary key
+  id                String    @id @default(uuid()) // Change to UUID
   completeName      String    @db.VarChar(191) // Name of the head of the family
   age               Int // Age of the head of the family
   noOfFamilyMembers Int // Number of family members
@@ -102,11 +103,11 @@ model RecipientRequestPost {
 }
 
 model Donation {
-  id             Int                 @id @default(autoincrement())
+  id             String              @id @default(uuid()) // Change to UUID
   controlNumber  String              @unique
-  donorId        Int
+  donorId        String
   donor          Donor               @relation(fields: [donorId], references: [id], onDelete: Cascade)
-  barangayId     Int
+  barangayId     String
   barangay       Barangay            @relation(fields: [barangayId], references: [id], onDelete: Cascade)
   donationStatus DonationStatus
   createdAt      DateTime            @default(now())
@@ -116,16 +117,16 @@ model Donation {
 }
 
 model DonationItem {
-  id         Int      @id @default(autoincrement())
-  donationId Int
+  id         String   @id @default(uuid()) // Change to UUID
+  donationId String
   donation   Donation @relation(fields: [donationId], references: [id], onDelete: Cascade)
   itemName   String
   quantity   Int
 }
 
 model DonationStatusLog {
-  id         Int            @id @default(autoincrement())
-  donationId Int
+  id         String         @id @default(uuid()) // Change to UUID
+  donationId String
   donation   Donation       @relation(fields: [donationId], references: [id], onDelete: Cascade)
   status     DonationStatus
   timestamp  DateTime       @default(now())
@@ -133,14 +134,15 @@ model DonationStatusLog {
 }
 
 model Barangay {
-  id        Int        @id @default(autoincrement())
+  id        String     @id @default(uuid()) // Change to UUID
   name      String     @unique
   donations Donation[] // Relationship with Donations
+  Admin     Admin[]
 }
 
 model SuccessStory {
-  id                 Int      @id @default(autoincrement()) // Primary key
-  postId             Int // Foreign key from BarangayRequestPost
+  id                 String   @id @default(uuid()) // Change to UUID
+  postId             String
   barangayNumberArea String   @db.VarChar(191) // Barangay number/area
   nameOfCalamity     String   @db.VarChar(191) // Name of the calamity
   controlNumber      String   @db.VarChar(191) // Control number for tracking

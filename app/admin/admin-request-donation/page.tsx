@@ -2,11 +2,17 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
+import { useSession } from "next-auth/react";
 
 export default function AdminRequestDonation() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const barangay = status === "authenticated" ? session?.user.brgyName : ""; // Only access brgyName if authenticated
+
+  console.log(session?.user.brgyName);
+
   const [formData, setFormData] = useState({
-    barangayArea: "",
+    barangayArea: barangay,
     calamityType: "",
     contactPerson: "",
     contactNumber: "",

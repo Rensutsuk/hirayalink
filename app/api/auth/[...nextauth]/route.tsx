@@ -2,7 +2,7 @@ import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { verify } from "argon2"; // Change from bcrypt to argon2
 
 const prisma = new PrismaClient();
 
@@ -29,7 +29,18 @@ export const authOptions: AuthOptions = {
         if (credentials.userType === "admin") {
           user = await prisma.admin.findUnique({
             where: { contactNumber: credentials.contactNumber },
-            select: { id: true, contactNumber: true, name: true, password: true, brgyNumber: true },
+            select: {
+              id: true,
+              contactNumber: true,
+              name: true,
+              password: true,
+              barangayId: true,
+              barangay: {
+                select: {
+                  name: true,
+                }
+              }
+            },
           });
         } else if (credentials.userType === "donor") {
           user = await prisma.donor.findUnique({
@@ -43,9 +54,9 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
+        const isPasswordValid = await verify(
+          user.password,
+          credentials.password
         );
 
         if (!isPasswordValid) {
@@ -57,7 +68,7 @@ export const authOptions: AuthOptions = {
           contactNumber: user.contactNumber,
           name: user.name,
           userType: credentials.userType,
-          brgyNumber: user.brgyNumber,
+          brgyName: user.barangay?.name || null,
         };
       },
     }),
@@ -69,7 +80,7 @@ export const authOptions: AuthOptions = {
         token.name = user.name;
         token.userType = user.userType;
         token.contactNumber = user.contactNumber;
-        token.brgyNumber = user.brgyNumber;
+        token.brgyName = user.brgyName;
       }
       return token;
     },
@@ -79,7 +90,7 @@ export const authOptions: AuthOptions = {
         name: token.name,
         userType: token.userType,
         contactNumber: token.contactNumber,
-        brgyNumber: token.brgyNumber,
+        brgyName: token.brgyName,
       };
       return session;
     },

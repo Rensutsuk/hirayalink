@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const type = url.searchParams.get("type"); // Get the type parameter
+  const type = url.searchParams.get("type"); 
 
   try {
     if (type === "barangay") {
