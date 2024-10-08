@@ -111,7 +111,7 @@ export default function Donor() {
             <div
               role="button"
               onClick={() => router.push("/donor/barangay-requests")}
-              className="btn btn-primary w-full text-lg text-white"
+              className="btn btn-primary btn-lg w-full text-lg text-white"
             >
               Barangay Donation Request Timeline
             </div>
