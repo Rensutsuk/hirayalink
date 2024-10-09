@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { FaChevronDown } from "react-icons/fa";
@@ -12,7 +12,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const [barangayName] = useState("");
+  const { data: session } = useSession();
 
   const handleSignOut = async () => {
     try {
@@ -46,7 +47,7 @@ export default function AdminLayout({
                   <span>{session.user.name || "User"}</span>
                 </p>
                 <p className="text-sm text-gray-600">
-                  Barangay <span>{session.user.brgyNumber || "N/A"}</span>
+                  <span>{session.user.brgyName || "N/A"}</span>
                 </p>
               </div>
               <button

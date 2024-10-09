@@ -1,57 +1,44 @@
-import { NextRequest, NextResponse } from "next/server";
-import { hash } from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { hash } from 'argon2';
 
 const prisma = new PrismaClient();
 
-export async function POST(req: NextRequest) {
-	try {
-		const { name, brgyNumber, contactNumber, address, password } =
-			await req.json();
+export async function POST(req: Request) {
+  const { name, barangayName, contactNumber, address, password } = await req.json();
 
-		// Check if all required fields are provided
-		if (!name || !brgyNumber || !contactNumber || !address || !password) {
-			return NextResponse.json(
-				{ message: "All fields are required" },
-				{ status: 400 }
-			);
-		}
+  // Validate input
+  if (!name || !barangayName || !contactNumber || !address || !password) {
+    return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
+  }
 
-		// Check if the admin already exists
-		const existingAdmin = await prisma.admin.findFirst({
-			where: { OR: [{ contactNumber }, { name }] },
-		});
+  try {
+    const barangay = await prisma.barangay.create({
+      data: {
+        name: barangayName,
+      },
+    });
 
-		if (existingAdmin) {
-			return NextResponse.json(
-				{ message: "Admin with this name or contact number already exists" },
-				{ status: 400 }
-			);
-		}
+		const hashedPassword = await hash(password);
 
-		// Hash the password
-		const hashedPassword = await hash(password, 10);
-
-		// Create the new admin
-		const newAdmin = await prisma.admin.create({
-			data: {
+		const admin = await prisma.admin.create({
+			data:{
 				name,
-				brgyNumber,
 				contactNumber,
 				address,
 				password: hashedPassword,
-			},
-		});
+				barangayId: barangay.id,
+			}
+		})
 
-		return NextResponse.json(
-			{ message: "Admin created successfully", newAdmin },
-			{ status: 201 }
-		);
-	} catch (error) {
-		console.error("Error in admin signup:", error);
-		return NextResponse.json(
-			{ message: "Internal Server Error" },
-			{ status: 500 }
-		);
-	}
+    return NextResponse.json({ message: 'Admin created successfully', admin }, { status: 201 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// Handle any other HTTP method
+export async function OPTIONS(req: Request) {
+  return NextResponse.json({ message: `Method ${req.method} Not Allowed` }, { status: 405 });
 }

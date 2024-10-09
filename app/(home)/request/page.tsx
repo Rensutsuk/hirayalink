@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import imageCompression from 'browser-image-compression'; // You'll need to install this package
+import PhilippinesClock from './PhilippinesClock';
 
 export default function DonationRequestPosting() {
   const router = useRouter();
@@ -18,6 +19,22 @@ export default function DonationRequestPosting() {
     specifyNecessities: {},
     proofFile: null,
   });
+  const [barangays, setBarangays] = useState([]); // Add state for barangays
+
+  useEffect(() => {
+    const fetchBarangays = async () => {
+      try {
+        const response = await fetch('/api/barangays'); // Adjust the API endpoint as needed
+        const data = await response.json();
+        setBarangays(data);
+      } catch (error) {
+        console.error('Error fetching barangays:', error);
+      }
+    };
+
+    fetchBarangays();
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
@@ -103,6 +120,7 @@ export default function DonationRequestPosting() {
 
   return (
     <div>
+      <PhilippinesClock />
       <div className="hero-background bg-cover max-h-[30rem]">
         <div className="py-10 text-center backdrop-blur-sm">
           <h1 className="text-5xl font-bold text-white">
@@ -111,12 +129,12 @@ export default function DonationRequestPosting() {
         </div>
       </div>
       <div className="flex justify-center m-10">
-        <div className="card outline outline-emerald-500 bg-base-100 w-full shadow-xl">
-          <div className="card-title rounded-t-xl p-5 bg-primary">
-            <h2 className="text-white text-2xl">Fill in the details</h2>
+        <div className="card outline outline-primary bg-base-100 w-full shadow-xl">
+          <div className="card-title rounded-t-xl p-5 bg-primary align-middle">
+            <h2 className="text-white text-2xl">Head of the Family:</h2>
+            <p className="text-white text-lg">Fill the details</p>
           </div>
           <div className="card-body">
-            <h2 className="text-center">Head of the Family</h2>
             <form onSubmit={handleSubmit}>
               {/* Full Name */}
               <div className="mb-4">
@@ -127,7 +145,7 @@ export default function DonationRequestPosting() {
                   Full Name
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="fullName"
                   type="text"
                   name="fullName"
@@ -147,7 +165,7 @@ export default function DonationRequestPosting() {
                     Age
                   </label>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="age"
                     type="number"
                     name="age"
@@ -165,7 +183,7 @@ export default function DonationRequestPosting() {
                     Contact Number
                   </label>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="contactNumber"
                     type="text"
                     name="contactNumber"
@@ -186,7 +204,7 @@ export default function DonationRequestPosting() {
                     Email Address (Optional)
                   </label>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="email"
                     type="email"
                     name="email"
@@ -203,7 +221,7 @@ export default function DonationRequestPosting() {
                     No. of Family Members
                   </label>
                   <input
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="familyMembers"
                     type="number"
                     name="familyMembers"
@@ -223,7 +241,7 @@ export default function DonationRequestPosting() {
                   Barangay Number, Area
                 </label>
                 <select
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="barangay"
                   name="barangay"
                   value={formData.barangay}
@@ -231,45 +249,11 @@ export default function DonationRequestPosting() {
                   required
                 >
                   <option value="">Select Barangay</option>
-                  <option value="Barangay 1">
-                    Antonio Rivera Street, Barangay 20, Zone 2, District 1,
-                    Tondo, Manila,
-                  </option>
-                  <option value="Barangay 2">
-                    Sandejas Street, Barangay 20, Zone 2, District 1, Tondo,
-                    Manila
-                  </option>
-                  <option value="Barangay 3">
-                    Paz Street, Barangay 20, Zone 2, District 1, Tondo, Manila
-                  </option>
-                  <option value="Barangay 4">
-                    Reina Regente Street, Barangay 20, Zone 2, District 1,
-                    Tondo, Manila
-                  </option>
-                  <option value="Barangay 5">
-                    Divisoria, Barangay 20, Zone 2, District 1, Tondo, Manila
-                  </option>
-                  <option value="Barangay 6">
-                    Raja Matanda Street, Barangay 105, Zone 8, District 1,
-                    Tondo, Manila
-                  </option>
-                  <option value="Barangay 7">
-                    Perla Street, Barangay 105, Zone 8, District 1, Tondo,
-                    Manila
-                  </option>
-                  <option value="Barangay 8">
-                    Mel Lopez Boulevard, Barangay 105, Zone 8, District 1,
-                    Tondo, Manila
-                  </option>
-                  <option value="Barangay 9">
-                    Road 10 (R-10), Barangay 105, Zone 8, District 1, Tondo,
-                    Manila
-                  </option>
-                  <option value="Barangay 10">
-                    Lakandula Street, Barangay 105, Zone 8, District 1, Tondo,
-                    Manila
-                  </option>
-                  {/* Add more options as needed */}
+                  {barangays.map((barangay) => ( // Map over the barangays state
+                    <option key={barangay.id} value={barangay.name}>
+                      {barangay.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               {/* Type of Calamity */}
@@ -281,18 +265,26 @@ export default function DonationRequestPosting() {
                   Type of Calamity
                 </label>
                 <select
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="calamityType"
                   name="calamityType"
                   value={formData.calamityType}
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Select Calamity Type</option>
                   <option value="Flood">Flood</option>
                   <option value="Earthquake">Earthquake</option>
+                  <option value="Tropical Disease">Tropical Disease</option>
+                  <option value="Drought">Drought</option>
+                  <option value="Dengue Fever">Dengue Fever</option>
+                  <option value="Water Shortage">Water Shortage</option>
+                  <option value="Heatwave">Heatwave</option>
+                  <option value="Tsunami">Tsunami</option>
+                  <option value="Leptospirosis">Leptospirosis</option>
+                  <option value="Volcanic Eruption">Volcanic Eruption</option>
+                  <option value="Landslide">Landslide</option>
+                  <option value="Typhoon">Typhoon</option>
                   <option value="Fire">Fire</option>
-                  {/* Add more options as needed */}
                 </select>
               </div>
               {/* In-Kind Necessities */}
@@ -307,20 +299,29 @@ export default function DonationRequestPosting() {
                   {[
                     "Child and Infant Care Items",
                     "Clothing and Footwear",
+                    "Cleaning and Sanitary Supplies",
                     "Education",
+                    "Electronic Devices",
+                    "Construction Materials",
                     "Emergency Communications and Connectivity",
                     "First Aid Kit Essentials",
+                    "Fire Prevention and Safety Products",
                     "Health",
+                    "Hygiene Supplies",
                     "Livelihood Support",
-                    "Meal Essentials",
-                    "Shelter",
-                    "Water, Sanitation, and Hygiene",
+                    "Livestock and Animal care",
+                    "Planting materials",
+                    "Food",
+                    "Shelter Materials",
+                    "Solar Energy Solutions",
+                    "Water Filtration and Purification Systems",
                   ].map((necessity) => (
                     <div key={necessity} className="relative flex items-center">
                       <label className="inline-flex items-center">
                         <input
                           type="checkbox"
                           name={necessity}
+                          className="checkbox checkbox-primary"
                           checked={formData.necessities.includes(necessity)}
                           onChange={handleCheckboxChange}
                         />
@@ -328,7 +329,7 @@ export default function DonationRequestPosting() {
                       </label>
                       {formData.necessities.includes(necessity) && (
                         <input
-                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ml-4"
+                          className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                           id={`specify-${necessity}`}
                           type="text"
                           name={necessity}
@@ -346,7 +347,7 @@ export default function DonationRequestPosting() {
                   className="block text-gray-700 text-sm font-bold mb-2"
                   htmlFor="proofFile"
                 >
-                  Proof of Residence (e.g., Government ID, Utility Bill)
+                  Proof of Situation (example: Image of calamity impact in your area)
                 </label>
                 <input
                   className="file-input file-input-bordered file-input-primary w-full"

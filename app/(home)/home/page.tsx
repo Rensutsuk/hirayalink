@@ -71,7 +71,7 @@ export default function Home() {
 					<h2 className="text-4xl font-bold mb-5 text-center">
 						CALAMITY IMPACT
 					</h2>
-					<EmblaCarousel slides={[ 
+					<EmblaCarousel slides={[
 						{
 							src: "https://as1.ftcdn.net/v2/jpg/03/84/47/48/1000_F_384474808_cogKpmVX9RrqthcevsWMlATgUwl2vZ4N.jpg",
 							description: "Rescue efforts in the aftermath of a devastating typhoon, showcasing volunteers working tirelessly to provide relief to affected families."
