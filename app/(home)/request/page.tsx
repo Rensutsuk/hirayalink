@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import imageCompression from 'browser-image-compression'; // You'll need to install this package
+import PhilippinesClock from './PhilippinesClock';
 
 export default function DonationRequestPosting() {
   const router = useRouter();
@@ -119,6 +120,7 @@ export default function DonationRequestPosting() {
 
   return (
     <div>
+      <PhilippinesClock />
       <div className="hero-background bg-cover max-h-[30rem]">
         <div className="py-10 text-center backdrop-blur-sm">
           <h1 className="text-5xl font-bold text-white">
@@ -270,9 +272,18 @@ export default function DonationRequestPosting() {
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Select Calamity Type</option>
                   <option value="Flood">Flood</option>
                   <option value="Earthquake">Earthquake</option>
+                  <option value="Tropical Disease">Tropical Disease</option>
+                  <option value="Drought">Drought</option>
+                  <option value="Dengue Fever">Dengue Fever</option>
+                  <option value="Water Shortage">Water Shortage</option>
+                  <option value="Heatwave">Heatwave</option>
+                  <option value="Tsunami">Tsunami</option>
+                  <option value="Leptospirosis">Leptospirosis</option>
+                  <option value="Volcanic Eruption">Volcanic Eruption</option>
+                  <option value="Landslide">Landslide</option>
+                  <option value="Typhoon">Typhoon</option>
                   <option value="Fire">Fire</option>
                 </select>
               </div>
@@ -288,14 +299,22 @@ export default function DonationRequestPosting() {
                   {[
                     "Child and Infant Care Items",
                     "Clothing and Footwear",
+                    "Cleaning and Sanitary Supplies",
                     "Education",
+                    "Electronic Devices",
+                    "Construction Materials",
                     "Emergency Communications and Connectivity",
                     "First Aid Kit Essentials",
+                    "Fire Prevention and Safety Products",
                     "Health",
+                    "Hygiene Supplies",
                     "Livelihood Support",
-                    "Meal Essentials",
-                    "Shelter",
-                    "Water, Sanitation, and Hygiene",
+                    "Livestock and Animal care",
+                    "Planting materials",
+                    "Food",
+                    "Shelter Materials",
+                    "Solar Energy Solutions",
+                    "Water Filtration and Purification Systems",
                   ].map((necessity) => (
                     <div key={necessity} className="relative flex items-center">
                       <label className="inline-flex items-center">
@@ -328,7 +347,7 @@ export default function DonationRequestPosting() {
                   className="block text-gray-700 text-sm font-bold mb-2"
                   htmlFor="proofFile"
                 >
-                  Proof of Residence (e.g., Government ID, Utility Bill)
+                  Proof of Situation (example: Image of calamity impact in your area)
                 </label>
                 <input
                   className="file-input file-input-bordered file-input-primary w-full"
