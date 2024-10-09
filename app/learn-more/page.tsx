@@ -1,112 +1,61 @@
 "use client";
-import "@/styles/embla.css";
-import { EmblaCarousel } from "@/components/EmblaCarousel";
+import React from "react";
 
-export default function Home() {
-	return (
-		<main>
-			{/* Hero Section */}
-			<div className="hero-background bg-cover max-h-[30rem] mb-20">
-				<div className="text-center pt-10 pb-20 backdrop-blur-sm">
-					<h1 className="mb-5 py-10 text-5xl font-bold text-white">
-						Your Help Matters
-					</h1>
-					<p className="text-xl text-white py-5">
-						Together we help those in need
-					</p>
-				</div>
-			</div>
+export default function LearnMore() {
+    return (
+        <main className="p-5">
+            <section className="text-center mb-10">
+                <h1 className="text-5xl font-bold mb-5">How Your Support Makes a Difference</h1>
+                <p className="text-xl">
+                    At HirayaLink, we believe that every contribution counts. By connecting donors directly with those in need, we ensure that your generosity has a meaningful impact.
+                </p>
+            </section>
 
-			{/* Mission and Vision Section */}
-			<div className="flex flex-col mx-5">
-				<div className="grid grid-flow-col auto-col-auto justify-center gap-20">
-					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
-						<div className="card-body">
-							<h2 className="card-title">Mission</h2>
-							<p>
-								To connect donors with those in need through a centralized
-								platform that enhances disaster relief efforts with transparency,
-								efficiency, and compassion.
-							</p>
-						</div>
-						<figure>
-							<img src="./mission-vission/mission.jpg" alt="Mission" />
-						</figure>
-					</div>
-					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
-						<div className="card-body">
-							<h2 className="card-title">Vision</h2>
-							<p>
-								To be a leading platform for in-kind donations, ensuring swift,
-								impactful support for vulnerable communities at all times.
-							</p>
-						</div>
-						<figure>
-							<img src="./mission-vission/vision.png" alt="Vision" />
-						</figure>
-					</div>
-				</div>
+            <section className="mb-10">
+                <h2 className="text-4xl font-bold mb-5">The Challenges We Face</h2>
+                <p>
+                    Most existing donation systems are inefficient, lacking transparency and streamlined communication flows. This slows down the delivery process of aid and reduces trust among stakeholders. Donors often find it difficult to interact directly with recipients or assess the impact of their donations, which can discourage continued support for disaster relief efforts.
+                </p>
+                <p>
+                    Potential donors struggle to obtain timely and accurate information about those affected by natural disasters, further complicating the donation process.
+                </p>
+            </section>
 
-				{/* Welcome Section */}
-				<div className="text-center mb-10">
-					<h1 className="mb-10 text-5xl font-bold">WELCOME!</h1>
-					<p className="text-xl">
-						Empowering Giving, Every Day, and in Every Way.
-					</p>
-					<a
-						role="button"
-						className="btn btn-outline btn-wide mt-10"
-						href="/donation-request-posting"
-					>
-						Learn More
-					</a>
-				</div>
-			</div>
+            <section className="mb-10">
+                <h2 className="text-4xl font-bold mb-5">Our Solution: HirayaLink</h2>
+                <p>
+                    HirayaLink offers a centralized, user-friendly platform to tackle these challenges. By increasing coordination and transparency in the in-kind donation process, we equip Local Government Units (LGUs) and Non-Governmental Organizations (NGOs) with the tools they need to facilitate faster donations.
+                </p>
+                <p>
+                    Our platform ensures that every donation reaches those in need swiftly and efficiently, fostering a stronger sense of community and support.
+                </p>
+            </section>
 
-			{/* Slideshow Section for Calamity Impact and Stories of Change */}
-			<div className="grid grid-cols-2 gap-20 px-10 py-20 justify-center items-start">
-				{/* Calamity Impact Slideshow */}
-				<div className="w-full h-[400px] shadow-2xl shadow-red-300 p-5 rounded-lg">
-					<h2 className="text-4xl font-bold mb-5 text-center">
-						CALAMITY IMPACT
-					</h2>
-					<EmblaCarousel slides={[
-						{
-							src: "https://as1.ftcdn.net/v2/jpg/03/84/47/48/1000_F_384474808_cogKpmVX9RrqthcevsWMlATgUwl2vZ4N.jpg",
-							description: "Rescue efforts in the aftermath of a devastating typhoon, showcasing volunteers working tirelessly to provide relief to affected families."
-						},
-						{
-							src: "https://w.ndtvimg.com/sites/3/2023/06/16124036/thumbnail_660-58.jpg",
-							description: "A community gathers to distribute essential supplies, highlighting the spirit of solidarity and support during challenging times."
-						},
-						{
-							src: "https://www.childfund.org/contentassets/7ccaf1fc17ec4b0da9843389c6fd3f45/rs18432.jpg",
-							description: "Children receiving educational materials post-disaster, emphasizing the importance of continued education despite calamities."
-						}
-					]} />
-				</div>
+            <section className="mb-10">
+                <h2 className="text-4xl font-bold mb-5">How You Can Help</h2>
+                <p>
+                    Your support is crucial in enabling us to continue our mission. Here’s how you can help:
+                </p>
+                <ul className="list-disc pl-10">
+                    <li>Make a donation to our platform.</li>
+                    <li>Share our initiative with your network.</li>
+                    <li>Volunteer your time or resources to assist in our efforts.</li>
+                </ul>
+            </section>
 
-				{/* Stories of Change Slideshow */}
-				<div className="w-full h-[400px] shadow-2xl shadow-blue-300 p-5 rounded-lg">
-					<h2 className="text-4xl font-bold mb-5 text-center">
-						STORIES OF CHANGE
-					</h2>
-					<EmblaCarousel slides={[
-						{
-							src: "https://www.neefusa.org/sites/default/files/field/image/WEB19-HealthWellness-GivingBack-Volunteering-Donating-4800x2699.jpg",
-							description: "Community members unite to rebuild homes, demonstrating resilience and the power of collective action after a disaster."
-						},
-						{
-							src: "https://image.savethechildren.org/three-friends-tanya-shathi-and-jhumur-ch11043036.jpg/pxvvof42byj6mv8betnp40w6ou100q50.jpg",
-							description: "A group of volunteers engaging with families, sharing resources, and creating lasting connections through in-kind donations."
-						},
-						{
-							src: "https://www.globalgiving.org/pfil/7790/pict_original.jpg",
-							description: "Success stories of families thriving after receiving support, highlighting the transformative impact of community-driven relief efforts."
-						}
-					]} />
-				</div>
-			</div>
-		</main>
-	);
+            <section className="text-center">
+                <h2 className="text-4xl font-bold mb-5">Join Us in Making a Difference</h2>
+                <p>
+                    Together, we can provide essential support to vulnerable communities and ensure that help reaches those who need it most.
+                </p>
+                <a
+                    role="button"
+                    className="btn btn-primary mt-10"
+                    href="/donation-request-posting"
+                >
+                    Donate Now
+                </a>
+            </section>
+        </main>
+    );
 }
