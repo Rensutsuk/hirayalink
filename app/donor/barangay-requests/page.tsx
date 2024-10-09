@@ -85,13 +85,13 @@ export default function BarangayRequests() {
     });
   };
 
-  const handleDonateClick = async (post: BarangayRequestPost) => {
+  const handleDonateClick = async (post: BarangayRequestPost, items: { name: string; quantity: number; specificName: string }[]) => {
     if (!session?.user) {
       setError("Please log in to donate.");
       return;
     }
 
-    if (selectedItems.length === 0) {
+    if (items.length === 0) {
       setError("Please select at least one item to donate.");
       return;
     }
@@ -99,8 +99,8 @@ export default function BarangayRequests() {
     try {
       const donationData = {
         postId: post.id,
-        items: selectedItems.map((item) => ({
-          name: item.name,
+        items: items.map((item) => ({
+          name: item.specificName || item.name,
           quantity: item.quantity,
         })),
       };
@@ -118,10 +118,10 @@ export default function BarangayRequests() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create donation");
+        console.error("Server response:", data);
+        throw new Error(data.error || data.details || "Failed to create donation");
       }
 
-      setSelectedItems([]);
       setError(null);
       setMessage("Donation created successfully!");
       handleCloseModal();
@@ -273,8 +273,6 @@ export default function BarangayRequests() {
         <DonationModal
           posts={posts}
           selectedPostId={selectedPostId}
-          selectedItems={selectedItems}
-          handleItemSelection={handleItemSelection}
           handleDonateClick={handleDonateClick}
           handleCloseModal={handleCloseModal}
         />
