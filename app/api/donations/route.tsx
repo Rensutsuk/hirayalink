@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   try {
     if (postId) {
       const post = await prisma.barangayRequestPost.findUnique({
-        where: { id: Number(postId) },
+        where: { id: postId }, // postId is already a string, no need for conversion
       });
 
       if (!post) {
