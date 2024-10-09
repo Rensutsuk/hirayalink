@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaThumbsUp, FaComment } from "react-icons/fa";
+import Post from "@/components/donor/posts/recipient-requests/Post";
 
 interface RecipientRequests {
   id: number;
@@ -22,9 +22,7 @@ interface RecipientRequests {
 
 export default function RecipientRequests() {
   const [posts, setPosts] = useState<RecipientRequests[]>([]);
-  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>(
-    {}
-  );
+  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>({});
   const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,15 +32,14 @@ export default function RecipientRequests() {
     const fetchPosts = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/posts?type=recipient"); // Add type parameter
+        const response = await fetch("/api/posts?type=recipient");
         if (!response.ok) {
           throw new Error("Failed to fetch posts");
         }
         const data = await response.json();
-        console.log("Fetched posts:", data);
         setPosts(data);
 
-        const initialLikedPosts = new Set();
+        const initialLikedPosts = new Set(data.filter(post => post.likedByUser).map(post => post.id));
         setLikedPosts(initialLikedPosts);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -62,18 +59,21 @@ export default function RecipientRequests() {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log("Like response:", data); // Log the response
+
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
             post.id === postId
               ? {
                   ...post,
                   likes: data.liked
-                    ? [...post.likes, { id: Date.now() }]
+                    ? [...post.likes, { id: Date.now() }] // This should ideally include the actual like ID
                     : post.likes.slice(0, -1),
                 }
               : post
           )
         );
+
         setLikedPosts((prevLikedPosts) => {
           const newLikedPosts = new Set(prevLikedPosts);
           if (data.liked) {
@@ -143,123 +143,17 @@ export default function RecipientRequests() {
           <p>{error}</p>
         ) : posts.length > 0 ? (
           posts.map((post) => (
-            <div
-              key={post.id}
-              className="relative p-4 bg-white shadow-md rounded-lg max-w-4xl mx-auto flex"
-            >
-              {/* Main post content */}
-              <div className="flex-grow">
-                {/* Header for Each Post */}
-                <div className="bg-primary text-white text-lg font-semi bold px-4 py-2 flex justify-between items-center rounded-t-lg">
-                  <span>{post.completeName}</span>
-                  <span className="text-sm">
-                    {new Date(post.dateTime).toLocaleString()}
-                  </span>
-                </div>
-
-                {/* Static Calamity Type Display */}
-                <div className="absolute top-1 left-1 bg-error text-white font-bold py-0 px-1 rounded-md">
-                  {post.typeOfCalamity}
-                </div>
-
-                <div className="p-4 border-2 border-primary rounded-b-lg">
-                  {/* Information in smaller, inline, bubbly text boxes */}
-                  <div className="flex flex-wrap gap-2 text-sm">
-                  <div className="p-1 px-2 bg-gray-100 rounded-full">
-                      <strong>Age:</strong> {post.age}
-                    </div>
-                    <div className="p-1 px-2 bg-gray-100 rounded-full">
-                      <strong>Barangay:</strong> {post.barangay}
-                    </div>
-                    <div className="p-1 px-2 bg-gray-100 rounded-full">
-                      <strong>Needs:</strong> {post.inKindNecessities}
-                    </div>
-                    <div className="p-1 px-2 bg-gray-100 rounded-full">
-                      <strong>Specifications:</strong> {post.specifications}
-                    </div>
-                    <div className="p-1 px-2 bg-gray-100 rounded-full">
-                      <strong>Phone:</strong> {post.contactNumber}
-                    </div>
-                    <div className="p-1 px-2 bg-gray-100 rounded-full">
-                      <strong>Email:</strong> {post.emailAddress || "N/A"}
-                    </div>
-                    <div className="p-1 px-2 bg-gray-100 rounded-full">
-                      <strong>Family Members:</strong> {post.noOfFamilyMembers}
-                    </div>
-                  </div>
-
-                  {post.uploadedPhoto && (
-                    <img
-                      src={`data:image/jpeg;base64,${Buffer.from(
-                        post.uploadedPhoto
-                      ).toString("base64")}`}
-                      alt="Donation Image"
-                      className="w-full h-auto rounded-lg mt-4"
-                    />
-                  )}
-
-                  <div className="flex justify-between items-center mt-4 text-xs">
-                    <div className="flex space-x-2">
-                      <div
-                        role="button"
-                        onClick={() => handleLikeClick(post.id)}
-                        className={`btn btn-sm ${
-                          likedPosts.has(post.id)
-                            ? "btn-primary text-white"
-                            : "btn-outline"
-                        } flex items-center`}
-                      >
-                        <FaThumbsUp className="mr-1" /> {post.likes.length}
-                      </div>
-                      <button
-                        className="btn btn-sm btn-outline text-primary flex items-center"
-                        onClick={() => toggleComments(post.id)}
-                      >
-                        <FaComment className="mr-1" /> {post.comments.length}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Comments section */}
-              {showComments[post.id] && (
-                <div className="w-max ml-4 border-l pl-4 max-h-96 overflow-y-auto">
-                  <h4 className="font-bold mb-2">Comments</h4>
-                  <div className="space-y-2">
-                    {post.comments.map((comment) => (
-                      <p
-                        key={comment.id}
-                        className="text-sm bg-gray-200 p-2 rounded"
-                      >
-                        {comment.content}
-                      </p>
-                    ))}
-                  </div>
-                  <div className="mt-2 sticky bottom-0 bg-white py-2">
-                    <input
-                      type="text"
-                      value={newComment[post.id] || ""}
-                      onChange={(e) =>
-                        setNewComment({
-                          ...newComment,
-                          [post.id]: e.target.value,
-                        })
-                      }
-                      placeholder="Add a comment..."
-                      className="input input-bordered w-full"
-                    />
-                    <div
-                      role="button"
-                      onClick={() => handleAddComment(post.id)}
-                      className="btn btn-primary w-full text-white mt-2"
-                    >
-                      Add Comment
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <Post 
+              key={post.id} 
+              post={post} 
+              handleLikeClick={handleLikeClick} 
+              toggleComments={toggleComments} 
+              showComments={showComments} 
+              newComment={newComment} 
+              setNewComment={setNewComment} 
+              handleAddComment={handleAddComment} 
+              likedPosts={likedPosts} 
+            />
           ))
         ) : (
           <p className="text-center">No posts available</p>

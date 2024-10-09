@@ -1,18 +1,18 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
-  const postId = parseInt(params.id);
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const postId = params.id; // Keep postId as a string (UUID)
   const session = await getServerSession(authOptions);
   const url = new URL(request.url);
-  const type = url.searchParams.get("type"); // Get the type parameter
-  if (!session || !session.user || !session.user.contactNumber) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const type = url.searchParams.get("type");
 
   try {
     const user = await prisma.donor.findUnique({
@@ -20,7 +20,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const userId = user.id;
@@ -77,7 +77,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       }
     }
   } catch (error) {
-    console.error('Error toggling like:', error);
-    return NextResponse.json({ error: 'Error toggling like' }, { status: 500 });
+    console.error("Error toggling like:", error);
+    return NextResponse.json({ error: "Error toggling like" }, { status: 500 });
   }
 }

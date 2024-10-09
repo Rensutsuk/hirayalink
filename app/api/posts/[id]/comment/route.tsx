@@ -6,7 +6,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 const prisma = new PrismaClient();
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
-  const postId = parseInt(params.id);
+  const postId = params.id; 
   const url = new URL(request.url);
   const type = url.searchParams.get("type"); // Get the type parameter
   const { content } = await request.json();
@@ -31,7 +31,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         data: {
           content,
           userId: user.id,
-          recipientRequestPostId: postId,
+          recipientRequestPostId: postId, // Use postId directly as a string
         },
       });
       return NextResponse.json(comment);
@@ -40,7 +40,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         data: {
           content,
           userId: user.id,
-          barangayRequestPostId: postId,
+          barangayRequestPostId: postId, // Use postId directly as a string
         },
       });
       return NextResponse.json(comment);
