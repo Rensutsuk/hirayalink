@@ -157,7 +157,7 @@ function DonationStatusUpdate({
         onChange={(e) => setRemarks(e.target.value)}
         className="input input-bordered"
       />
-      <button onClick={handleSubmit} className="btn btn-primary">
+      <button onClick={handleSubmit} className="btn btn-primary text-white">
         Update Status
       </button>
     </div>
