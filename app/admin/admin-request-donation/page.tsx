@@ -1,18 +1,16 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { useSession } from "next-auth/react";
 
 export default function AdminRequestDonation() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const barangay = status === "authenticated" ? session?.user.brgyName : ""; // Only access brgyName if authenticated
 
-  console.log(session?.user.brgyName);
-
-  const [formData, setFormData] = useState({
-    barangayArea: barangay,
+  const initialFormState = {
+    barangayArea: "",
     calamityType: "",
     contactPerson: "",
     contactNumber: "",
@@ -20,7 +18,28 @@ export default function AdminRequestDonation() {
     donationLandmark: "",
     necessities: [],
     proofFile: null,
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
+
+  useEffect(() => {
+    const necessities = searchParams.get("necessities")?.split(",") || [];
+    const area = searchParams.get("area") || "";
+    const calamityType = searchParams.get("calamityType") || "";
+
+    if (necessities.length > 0 || area || calamityType) {
+      setFormData((prevData) => ({
+        ...prevData,
+        barangayArea: area,
+        calamityType: calamityType,
+        necessities: necessities,
+      }));
+    }
+  }, [searchParams]);
+
+  const handleClear = () => {
+    setFormData(initialFormState);
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -107,14 +126,17 @@ export default function AdminRequestDonation() {
       </div>
       <div className="flex justify-center m-10">
         <div className="card w-full bg-base-100 shadow-xl">
-          <div className="card-title rounded-t-xl p-5 bg-primary">
+          <div className="card-title rounded-t-xl p-5 bg-primary flex justify-between items-center">
             <h2 className="text-white text-2xl">Fill in the details</h2>
+            <button onClick={handleClear} className="btn btn-secondary btn-sm">
+              Clear
+            </button>
           </div>
           <div className="card-body">
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="label">
-                  <span className="label-text">Barangay Number, Area</span>
+                  <span className="label-text">Barangay Area</span>
                 </label>
                 <input
                   className="input input-bordered input-secondary w-full"
@@ -123,18 +145,33 @@ export default function AdminRequestDonation() {
                   name="barangayArea"
                   value={formData.barangayArea}
                   onChange={handleChange}
-                  placeholder="e.g., Barangay 20, Tondo, Manila City"
+                  placeholder="e.g., Barangay, Tondo, Manila City"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="label">
-                    <span className="label-text">Type of Calamity</span>
+                    <span className="label-text">Barangay Area</span>
+                  </label>
+                  <input
+                    className="input input-bordered input-secondary w-full"
+                    id="barangayArea"
+                    type="text"
+                    name="barangayArea"
+                    value={formData.barangayArea}
+                    onChange={handleChange}
+                    placeholder="Barangay Area"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="label">
+                    <span className="label-text">Calamity Type</span>
                   </label>
                   <select
-                    className="select select-secondary w-full"
+                    className="select select-bordered select-secondary w-full"
                     id="calamityType"
                     name="calamityType"
                     value={formData.calamityType}
@@ -142,15 +179,17 @@ export default function AdminRequestDonation() {
                     required
                   >
                     <option value="">Select Calamity Type</option>
+                    <option value="Typhoon">Typhoon</option>
                     <option value="Flood">Flood</option>
                     <option value="Earthquake">Earthquake</option>
-                    <option value="Fire">Fire</option>
+                    <option value="Drought">Drought</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
                   <label className="label">
                     <span className="label-text">
-                      Barangay Donation Drop-Off Area Address
+                      Donation Drop-Off Address
                     </span>
                   </label>
                   <input
@@ -240,6 +279,26 @@ export default function AdminRequestDonation() {
                     "Clothing and Footware",
                     "Cleaning and Sanitary Supplies",
                     "Child and Infant Care Items",
+                    "Money",
+                    "Medical Supplies",
+                    "Water",
+                    "Tents",
+                    "Tools",
+                    "Blankets",
+                    "Seeds",
+                    "Agricultural Tools",
+                    "Water Purifiers",
+                    "Medicines",
+                    "Water Tanks",
+                    "Sandbags",
+                    "Water Pumps",
+                    "Heavy Equipment",
+                    "Irrigation Systems",
+                    "Drought-Resistant Seeds",
+                    "Solar Lamps",
+                    "Sleeping Bags",
+                    "Non-perishable Food",
+                    "Shoes",
                   ].map((necessity) => (
                     <div key={necessity} className="flex items-center">
                       <label className="label cursor-pointer">
