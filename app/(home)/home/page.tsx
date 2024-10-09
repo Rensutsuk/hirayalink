@@ -42,6 +42,7 @@ export default function Home() {
 							</p>
 						</div>
 						<figure>
+							{/* Ensure the image path is correct */}
 							<img src="./mission-vission/vision.png" alt="Vision" />
 						</figure>
 					</div>
