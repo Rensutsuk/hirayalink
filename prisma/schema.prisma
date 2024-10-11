@@ -37,11 +37,10 @@ model Donor {
 
 model BarangayRequestPost {
   id              String    @id @default(uuid()) // Change to UUID
-  controlNumber   String    @unique
-  barangay        String
+  area            String
   person          String
   typeOfCalamity  String
-  inKind          String    @db.VarChar(255)
+  inKind          String
   contactNumber   String
   dropOffAddress  String
   dropOffLandmark String
@@ -49,6 +48,8 @@ model BarangayRequestPost {
   dateTime        DateTime  @default(now())
   likes           Like[]    @relation("BarangayRequestPostLikes")
   comments        Comment[] @relation("BarangayRequestPostComments")
+  Barangay        Barangay? @relation(fields: [barangayId], references: [id])
+  barangayId      String?
 }
 
 model Like {
@@ -86,20 +87,22 @@ model Batch {
 }
 
 model RecipientRequestPost {
-  id                String    @id @default(uuid()) // Change to UUID
-  completeName      String    @db.VarChar(191) // Name of the head of the family
-  age               Int // Age of the head of the family
-  noOfFamilyMembers Int // Number of family members
+  id                String    @id @default(uuid())
+  completeName      String    @db.VarChar(191)
+  age               Int
+  area              String
+  noOfFamilyMembers Int
   contactNumber     String    @db.VarChar(191) // Contact number
   emailAddress      String?   @db.VarChar(191) // Optional email address
-  barangay          String    @db.VarChar(191) // Barangay number and area
   typeOfCalamity    String    @db.VarChar(191) // Type of calamity
-  inKindNecessities String    @db.VarChar(255) // Requested in-kind items
+  inKindNecessities String
   specifications    String    @db.Text // Detailed specifications
   uploadedPhoto     Bytes?    @db.LongBlob // Photo uploaded by the user (BLOB)
   dateTime          DateTime  @default(now()) // Date and time of request submission
   likes             Like[]    @relation("RecipientRequestPostLikes")
   comments          Comment[] @relation("RecipientRequestPostComments")
+  barangayId        String?
+  Barangay          Barangay? @relation(fields: [barangayId], references: [id])
 }
 
 model Donation {
@@ -134,10 +137,12 @@ model DonationStatusLog {
 }
 
 model Barangay {
-  id        String     @id @default(uuid()) // Change to UUID
-  name      String     @unique
-  donations Donation[] // Relationship with Donations
-  Admin     Admin[]
+  id                    String                 @id @default(uuid()) // Change to UUID
+  name                  String                 @unique
+  donations             Donation[] // Relationship with Donations
+  Admin                 Admin[]
+  barangayRequestPosts  BarangayRequestPost[]
+  recipientRequestPosts RecipientRequestPost[]
 }
 
 model SuccessStory {

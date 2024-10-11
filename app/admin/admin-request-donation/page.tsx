@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { useSession } from "next-auth/react";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export default function AdminRequestDonation() {
   const router = useRouter();
@@ -10,7 +13,8 @@ export default function AdminRequestDonation() {
   const { data: session, status } = useSession();
 
   const initialFormState = {
-    barangayArea: "",
+    barangayId: "",
+    barangayArea: "", // This will hold the name to display
     calamityType: "",
     contactPerson: "",
     contactNumber: "",
@@ -18,6 +22,7 @@ export default function AdminRequestDonation() {
     donationLandmark: "",
     necessities: [],
     proofFile: null,
+    area: "", // Added area field
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -27,15 +32,20 @@ export default function AdminRequestDonation() {
     const area = searchParams.get("area") || "";
     const calamityType = searchParams.get("calamityType") || "";
 
-    if (necessities.length > 0 || area || calamityType) {
+    if (session) {
+      const barangayName = session.user.brgyName;
+
+      console.log(barangayName);
+
       setFormData((prevData) => ({
         ...prevData,
-        barangayArea: area,
+        barangayArea: barangayName, // Set barangay name to display
         calamityType: calamityType,
         necessities: necessities,
+        area: area,
       }));
     }
-  }, [searchParams]);
+  }, [searchParams, session]);
 
   const handleClear = () => {
     setFormData(initialFormState);
@@ -74,28 +84,40 @@ export default function AdminRequestDonation() {
     e.preventDefault();
 
     try {
-      let compressedFile = null;
-      if (formData.proofFile) {
+      const formDataToSend = new FormData();
+      const {
+        barangayId = await prisma.barangay.findUnique({
+          where: { name: session.user.brgyName },
+          select: { id: true },
+        }),
+        calamityType,
+        contactPerson,
+        contactNumber,
+        donationDropOff,
+        donationLandmark,
+        necessities,
+        proofFile,
+        area,
+      } = formData;
+
+      // Append form data
+      formDataToSend.append("barangayId", barangayId);
+      formDataToSend.append("calamityType", calamityType);
+      formDataToSend.append("contactPerson", contactPerson);
+      formDataToSend.append("contactNumber", contactNumber);
+      formDataToSend.append("donationDropOff", donationDropOff);
+      formDataToSend.append("donationLandmark", donationLandmark);
+      formDataToSend.append("necessities", JSON.stringify(necessities));
+      formDataToSend.append("area", area); // Append area field
+
+      // Handle file compression if a file is present
+      if (proofFile) {
         const options = {
           maxSizeMB: 1,
           maxWidthOrHeight: 1920,
           useWebWorker: true,
         };
-        compressedFile = await imageCompression(formData.proofFile, options);
-      }
-
-      const formDataToSend = new FormData();
-      formDataToSend.append("barangayArea", formData.barangayArea);
-      formDataToSend.append("calamityType", formData.calamityType);
-      formDataToSend.append("contactPerson", formData.contactPerson);
-      formDataToSend.append("contactNumber", formData.contactNumber);
-      formDataToSend.append("donationDropOff", formData.donationDropOff);
-      formDataToSend.append("donationLandmark", formData.donationLandmark);
-      formDataToSend.append(
-        "necessities",
-        JSON.stringify(formData.necessities)
-      );
-      if (compressedFile) {
+        const compressedFile = await imageCompression(proofFile, options);
         formDataToSend.append("proofFile", compressedFile);
       }
 
@@ -136,7 +158,7 @@ export default function AdminRequestDonation() {
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="label">
-                  <span className="label-text">Barangay Area</span>
+                  <span className="label-text">Barangay</span>
                 </label>
                 <input
                   className="input input-bordered input-secondary w-full"
@@ -147,23 +169,25 @@ export default function AdminRequestDonation() {
                   onChange={handleChange}
                   placeholder="e.g., Barangay, Tondo, Manila City"
                   required
+                  readOnly
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="label">
-                    <span className="label-text">Barangay Area</span>
+                    <span className="label-text">Area</span>
                   </label>
                   <input
                     className="input input-bordered input-secondary w-full"
-                    id="barangayArea"
+                    id="area"
                     type="text"
-                    name="barangayArea"
-                    value={formData.barangayArea}
+                    name="area"
+                    value={formData.area}
                     onChange={handleChange}
-                    placeholder="Barangay Area"
+                    placeholder="Area"
                     required
+                    readOnly
                   />
                 </div>
                 <div>
@@ -177,6 +201,7 @@ export default function AdminRequestDonation() {
                     value={formData.calamityType}
                     onChange={handleChange}
                     required
+                    disabled
                   >
                     <option value="">Select Calamity Type</option>
                     <option value="Typhoon">Typhoon</option>
@@ -308,6 +333,7 @@ export default function AdminRequestDonation() {
                           checked={formData.necessities.includes(necessity)}
                           onChange={handleCheckboxChange}
                           className="checkbox checkbox-primary"
+                          disabled
                         />
                         <span className="ml-2">{necessity}</span>
                       </label>
@@ -330,7 +356,6 @@ export default function AdminRequestDonation() {
                   onChange={handleFileChange}
                 />
               </div>
-
               <div className="flex justify-end">
                 <button className="btn btn-primary text-white" type="submit">
                   Submit

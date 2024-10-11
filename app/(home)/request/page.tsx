@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
-import imageCompression from 'browser-image-compression'; // You'll need to install this package
-import PhilippinesClock from './PhilippinesClock';
+import { useRouter } from "next/navigation";
+import imageCompression from "browser-image-compression"; // You'll need to install this package
+import PhilippinesClock from "./PhilippinesClock";
 
 export default function DonationRequestPosting() {
   const router = useRouter();
@@ -13,7 +13,8 @@ export default function DonationRequestPosting() {
     familyMembers: "",
     contactNumber: "",
     email: "",
-    barangay: "",
+    barangayId: "",
+    area: "",
     calamityType: "",
     necessities: [],
     specifyNecessities: {},
@@ -24,28 +25,30 @@ export default function DonationRequestPosting() {
   useEffect(() => {
     const fetchBarangays = async () => {
       try {
-        const response = await fetch('/api/barangays'); // Adjust the API endpoint as needed
+        const response = await fetch("/api/barangays"); // Adjust the API endpoint as needed
         const data = await response.json();
         setBarangays(data);
       } catch (error) {
-        console.error('Error fetching barangays:', error);
+        console.error("Error fetching barangays:", error);
       }
     };
 
     fetchBarangays();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSpecifyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       specifyNecessities: { ...prevData.specifyNecessities, [name]: value },
     }));
@@ -53,19 +56,19 @@ export default function DonationRequestPosting() {
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       necessities: checked
         ? [...prevData.necessities, name]
-        : prevData.necessities.filter(item => item !== name)
+        : prevData.necessities.filter((item) => item !== name),
     }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        proofFile: e.target.files![0]
+        proofFile: e.target.files![0],
       }));
     }
   };
@@ -81,40 +84,49 @@ export default function DonationRequestPosting() {
         const options = {
           maxSizeMB: 1,
           maxWidthOrHeight: 1920,
-          useWebWorker: true
-        }
+          useWebWorker: true,
+        };
         compressedFile = await imageCompression(formData.proofFile, options);
       }
 
       // Create FormData object
       const formDataToSend = new FormData();
-      formDataToSend.append('completeName', formData.fullName);
-      formDataToSend.append('age', formData.age);
-      formDataToSend.append('noOfFamilyMembers', formData.familyMembers);
-      formDataToSend.append('contactNumber', formData.contactNumber);
-      formDataToSend.append('emailAddress', formData.email);
-      formDataToSend.append('barangay', formData.barangay);
-      formDataToSend.append('typeOfCalamity', formData.calamityType);
-      formDataToSend.append('inKindNecessities', formData.necessities.join(', '));
-      formDataToSend.append('specifications', JSON.stringify(formData.specifyNecessities));
+      formDataToSend.append("completeName", formData.fullName);
+      formDataToSend.append("age", formData.age);
+      formDataToSend.append("noOfFamilyMembers", formData.familyMembers);
+      formDataToSend.append("contactNumber", formData.contactNumber);
+      formDataToSend.append("emailAddress", formData.email);
+      formDataToSend.append("barangayId", formData.barangayId);
+      formDataToSend.append("typeOfCalamity", formData.calamityType);
+      formDataToSend.append("area", formData.area);
+      formDataToSend.append(
+        "inKindNecessities",
+        formData.necessities.join(", ")
+      );
+      formDataToSend.append(
+        "specifications",
+        JSON.stringify(formData.specifyNecessities)
+      );
       if (compressedFile) {
-        formDataToSend.append('proofOfResidence', compressedFile);
+        formDataToSend.append("proofOfResidence", compressedFile);
       }
 
-      const response = await fetch('/api/recipient-request', {
-        method: 'POST',
+      const response = await fetch("/api/recipient-request", {
+        method: "POST",
         body: formDataToSend,
       });
 
       if (response.ok) {
-        alert('Your request has been submitted successfully.');
-        router.push('/');
+        alert("Your request has been submitted successfully.");
+        router.push("/");
       } else {
-        throw new Error('Failed to submit request');
+        throw new Error("Failed to submit request");
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('An error occurred while submitting your request. Please try again.');
+      console.error("Error submitting form:", error);
+      alert(
+        "An error occurred while submitting your request. Please try again."
+      );
     }
   };
 
@@ -233,28 +245,52 @@ export default function DonationRequestPosting() {
                 </div>
               </div>
               {/* Barangay Number Area */}
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="barangay"
-                >
-                  Barangay Number, Area
-                </label>
-                <select
-                  className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  id="barangay"
-                  name="barangay"
-                  value={formData.barangay}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Barangay</option>
-                  {barangays.map((barangay) => ( // Map over the barangays state
-                    <option key={barangay.id} value={barangay.name}>
-                      {barangay.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="flex space-x-4 mb-4">
+                <div className="w-1/2">
+                  <label
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                    htmlFor="barangay"
+                  >
+                    Barangay
+                  </label>
+                  <select
+                    className="select select-primary w-full max-w-full"
+                    id="barangayId"
+                    name="barangayId"
+                    value={formData.barangayId}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select Barangay</option>
+                    {barangays.map(
+                      (
+                        barangay // Map over the barangays state
+                      ) => (
+                        <option key={barangay.id} value={barangay.id}>
+                          {barangay.name}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                    htmlFor="area"
+                  >
+                    Area
+                  </label>
+                  <input
+                    className="input input-bordered input-primary w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="area"
+                    type="text"
+                    name="area"
+                    value={formData.area} // Add area to formData
+                    onChange={handleChange}
+                    placeholder="Area"
+                    required
+                  />
+                </div>
               </div>
               {/* Type of Calamity */}
               <div className="mb-4">
@@ -347,7 +383,8 @@ export default function DonationRequestPosting() {
                   className="block text-gray-700 text-sm font-bold mb-2"
                   htmlFor="proofFile"
                 >
-                  Proof of Situation (example: Image of calamity impact in your area)
+                  Proof of Situation (example: Image of calamity impact in your
+                  area)
                 </label>
                 <input
                   className="file-input file-input-bordered file-input-primary w-full"
