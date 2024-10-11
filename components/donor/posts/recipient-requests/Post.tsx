@@ -8,7 +8,7 @@ const Post = ({ post, handleLikeClick, toggleComments, showComments, newComment,
       <div className="flex-grow">
         {/* Header for Each Post */}
         <div className="bg-primary text-white text-lg font-semi bold px-4 py-2 flex justify-between items-center rounded-t-lg">
-          <span>{post.completeName}</span>
+          <span className="font-bold">{post.completeName}: {post.area}</span>
           <span className="text-sm">
             {new Date(post.dateTime).toLocaleString()}
           </span>
@@ -26,13 +26,18 @@ const Post = ({ post, handleLikeClick, toggleComments, showComments, newComment,
               <strong>Age:</strong> {post.age}
             </div>
             <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Barangay:</strong> {post.barangay}
+              <strong>Barangay:</strong> {post.Barangay.name.replace('Barangay ', '')}
             </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Needs:</strong> {post.inKindNecessities}
-            </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Specifications:</strong> {post.specifications}
+            <div className="flex flex-wrap gap-2">
+              {post.inKindNecessities.split(',').map((necessity, index) => {
+                const trimmedNecessity = necessity.trim().replace(/['{}"]/g, '');
+                const correspondingSpecification = post.specifications.split(',').find(spec => spec.trim().includes(trimmedNecessity));
+                return (
+                  <div key={index} className="p-1 px-2 bg-gray-100 rounded-full">
+                    <strong>{trimmedNecessity}:</strong> {correspondingSpecification ? correspondingSpecification.trim().replace(/['{}"]/g, '').replace(trimmedNecessity, '').trim() : 'N/A'}
+                  </div>
+                );
+              })}
             </div>
             <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Phone:</strong> {post.contactNumber}
