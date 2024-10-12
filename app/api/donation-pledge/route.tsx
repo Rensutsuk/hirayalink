@@ -25,63 +25,30 @@ function validateDonationData(postId: string, items: any[]): string | null {
 }
 
 export async function POST(request: Request) {
-  console.log("Received donation pledge request");
-
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { postId, items } = await request.json();
-    console.log("Received data:", { postId, items });
-
-    const donor = await prisma.donor.findUnique({
-      where: { name: session.user.name },
-    });
-
-    if (!donor) {
-      console.log("Donor not found for user:", session.user.name);
-      return NextResponse.json({ error: "Donor not found" }, { status: 404 });
-    }
 
     const post = await prisma.barangayRequestPost.findUnique({
       where: { id: postId },
+      include: { Barangay: true },
     });
 
-    if (!post) {
-      console.log("BarangayRequestPost not found for id:", postId);
-      return NextResponse.json({ error: "BarangayRequestPost not found" }, { status: 404 });
+    if (!post || !post.barangayId) {
+      return NextResponse.json({ error: "Invalid post or barangay" }, { status: 404 });
     }
 
-    let barangay = await prisma.barangay.findUnique({
-      where: { name: post.barangay },
-    });
-
-    if (!barangay) {
-      console.log("Creating new barangay:", post.barangay);
-      barangay = await prisma.barangay.create({
-        data: { name: post.barangay },
-      });
-    }
-
-    // Generate a unique controlNumber
     const controlNumber = uuidv4();
-
-    // Log the data before creating the donation
-    console.log("Creating donation with data:", {
-      controlNumber: controlNumber,
-      donorId: donor.id,
-      barangayId: barangay.id,
-      items: items,
-    });
 
     const donation = await prisma.donation.create({
       data: {
         controlNumber: controlNumber,
-        donorId: donor.id,
-        barangayId: barangay.id,
+        donorId: session.user.id,
+        barangayId: post.barangayId, // Use the barangayId from the post
         donationStatus: "PLEDGED",
         donationItems: {
           create: items.map((item) => ({
@@ -99,21 +66,16 @@ export async function POST(request: Request) {
       include: {
         donationItems: true,
         statusLogs: true,
+        barangay: true,
+        donor: true,
       },
     });
-
-    console.log("Donation created:", donation);
 
     return NextResponse.json({ success: true, donation });
   } catch (error) {
     console.error("Error creating donation:", error);
-    // Return more detailed error information
     return NextResponse.json(
-      { 
-        error: "Failed to create donation", 
-        details: error.message,
-        stack: error.stack,
-      },
+      { error: "Failed to create donation", details: error.message },
       { status: 500 }
     );
   }
