@@ -6,6 +6,7 @@ interface Request {
   area: string;
   typeOfCalamity: string;
   dateTime: string;
+  inKindNecessities: string;
 }
 
 const calamityTypes = [
@@ -93,36 +94,36 @@ const DonationRequestsTable = () => {
       <table className="table w-full bg-white rounded-lg shadow-md border border-gray-200">
         <thead>
           <tr>
-            <th colSpan={5} className="p-4 border-b">
-              <div className="flex justify-between items-center">
+            <th colSpan={6} className="p-4 border-b">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                 <h2 className="text-2xl font-bold text-black">
                   Recipient Donation Requests for your Barangay
                 </h2>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-4">
                   <label className="flex items-center">
-                    Start Date:
+                    <span className="mr-2">Start Date:</span>
                     <input
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="ml-2 p-1 border rounded"
+                      className="p-1 border rounded"
                     />
                   </label>
                   <label className="flex items-center">
-                    End Date:
+                    <span className="mr-2">End Date:</span>
                     <input
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="ml-2 p-1 border rounded"
+                      className="p-1 border rounded"
                     />
                   </label>
                   <label className="flex items-center">
-                    Calamity Type:
+                    <span className="mr-2">Calamity Type:</span>
                     <select
                       value={calamityType}
                       onChange={(e) => setCalamityType(e.target.value)}
-                      className="ml-2 p-1 border rounded"
+                      className="p-1 border rounded"
                     >
                       {calamityTypes.map((type) => (
                         <option key={type} value={type === "All" ? "" : type}>
@@ -139,6 +140,7 @@ const DonationRequestsTable = () => {
             <th className="p-3 text-black border-b">Name</th>
             <th className="p-3 text-black border-b">Area</th>
             <th className="p-3 text-black border-b">Calamity Type</th>
+            <th className="p-3 text-black border-b">Necessities</th>
             <th className="p-3 text-black border-b">Date</th>
             <th className="p-3 text-black border-b w-40">
               <div className="flex justify-center">
@@ -167,6 +169,12 @@ const DonationRequestsTable = () => {
                 <td className="p-3 border-b">{request.completeName}</td>
                 <td className="p-3 border-b">{request.area}</td>
                 <td className="p-3 border-b">{request.typeOfCalamity}</td>
+                <td className="p-3 border-b">
+                  {request.inKindNecessities && typeof request.inKindNecessities === 'string'
+                    ? request.inKindNecessities
+                    : 'No necessities specified'
+                  }
+                </td>
                 <td className="p-3 border-b">{new Date(request.dateTime).toLocaleDateString()}</td>
                 <td className="p-3 border-b w-40">
                   <div className="flex items-center justify-center">
