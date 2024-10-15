@@ -7,22 +7,24 @@ interface Request {
   typeOfCalamity: string;
   dateTime: string;
   inKindNecessities: string;
+  specifications: string;
 }
 
 const calamityTypes = [
-  "All", 
-  "Earthquake",
-  "Tropical Disease",
-  "Drought",
+  "All",
   "Dengue Fever",
-  "Water Shortage",
+  "Drought",
+  "Earthquake",
+  "Fire",
+  "Flood",
   "Heatwave",
-  "Tsunami",
-  "Leptospirosis",
-  "Volcanic Eruption",
   "Landslide",
+  "Leptospirosis",
+  "Tropical Disease",
+  "Tsunami",
   "Typhoon",
-  "Fire", 
+  "Volcanic Eruption",
+  "Water Shortage"
 ];
 
 const DonationRequestsTable = () => {
@@ -36,6 +38,13 @@ const DonationRequestsTable = () => {
   const [calamityType, setCalamityType] = useState("");
   const itemsPerPage = 10;
   const [selectedRequests, setSelectedRequests] = useState<number[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedRequest(null);
+  };
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -89,41 +98,46 @@ const DonationRequestsTable = () => {
 
   const hasSelectedRequests = selectedRequests.length > 0;
 
+  const handleViewRequest = (request: Request) => {
+    setSelectedRequest(request);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="overflow-x-auto mt-8">
       <table className="table w-full bg-white rounded-lg shadow-md border border-gray-200">
         <thead>
           <tr>
-            <th colSpan={6} className="p-4 border-b">
+            <th colSpan={7} className="p-4 border-b">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                <h2 className="text-2xl font-bold text-black">
+                <h2 className="text-2xl font-bold text-black mb-2 md:mb-0">
                   Recipient Donation Requests for your Barangay
                 </h2>
-                <div className="flex flex-wrap gap-4">
-                  <label className="flex items-center">
-                    <span className="mr-2">Start Date:</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center">
+                    <span className="mr-2 whitespace-nowrap text-sm">Start Date:</span>
                     <input
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="p-1 border rounded"
+                      className="p-1 border rounded text-sm w-32"
                     />
-                  </label>
-                  <label className="flex items-center">
-                    <span className="mr-2">End Date:</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="mr-2 whitespace-nowrap text-sm">End Date:</span>
                     <input
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="p-1 border rounded"
+                      className="p-1 border rounded text-sm w-32"
                     />
-                  </label>
-                  <label className="flex items-center">
-                    <span className="mr-2">Calamity Type:</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="mr-2 whitespace-nowrap text-sm">Calamity Type:</span>
                     <select
                       value={calamityType}
                       onChange={(e) => setCalamityType(e.target.value)}
-                      className="p-1 border rounded"
+                      className="p-1 border rounded text-sm w-40"
                     >
                       {calamityTypes.map((type) => (
                         <option key={type} value={type === "All" ? "" : type}>
@@ -131,7 +145,7 @@ const DonationRequestsTable = () => {
                         </option>
                       ))}
                     </select>
-                  </label>
+                  </div>
                 </div>
               </div>
             </th>
@@ -142,6 +156,7 @@ const DonationRequestsTable = () => {
             <th className="p-3 text-black border-b">Calamity Type</th>
             <th className="p-3 text-black border-b">Necessities</th>
             <th className="p-3 text-black border-b">Date</th>
+            <th className="p-3 text-black border-b w-40"></th>
             <th className="p-3 text-black border-b w-40">
               <div className="flex justify-center">
                 <button
@@ -176,6 +191,14 @@ const DonationRequestsTable = () => {
                   }
                 </td>
                 <td className="p-3 border-b">{new Date(request.dateTime).toLocaleDateString()}</td>
+                <td className="p-3 border-b">
+                  <button
+                    onClick={() => handleViewRequest(request)}
+                    className="btn btn-sm btn-primary text-white"
+                  >
+                    View
+                  </button>
+                </td>
                 <td className="p-3 border-b w-40">
                   <div className="flex items-center justify-center">
                     <label className="flex items-center justify-center cursor-pointer">
@@ -211,13 +234,17 @@ const DonationRequestsTable = () => {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={5} className="p-4">
-              <div className="flex justify-center">
+            <td colSpan={7} className="p-4">
+              <div className="flex justify-center items-center">
                 {Array.from({ length: totalPages }, (_, index) => (
                   <button
                     key={index + 1}
                     onClick={() => handlePageChange(index + 1)}
-                    className="btn btn-sm bg-green-500 hover:bg-green-600 text-white mx-1"
+                    className={`btn btn-sm mx-1 ${
+                      currentPage === index + 1
+                        ? 'bg-green-600 text-white'
+                        : 'bg-green-500 hover:bg-green-600 text-white'
+                    }`}
                   >
                     {index + 1}
                   </button>
@@ -227,6 +254,29 @@ const DonationRequestsTable = () => {
           </tr>
         </tfoot>
       </table>
+      {isModalOpen && selectedRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-4">Request Details</h2>
+            <div className="space-y-4">
+              <p><span className="font-semibold">Name:</span> {selectedRequest.completeName}</p>
+              <p><span className="font-semibold">Area:</span> {selectedRequest.area}</p>
+              <p><span className="font-semibold">Calamity Type:</span> {selectedRequest.typeOfCalamity}</p>
+              <p><span className="font-semibold">In-Kind Necessities:</span> {selectedRequest.inKindNecessities}</p>
+              <p><span className="font-semibold">Specifications:</span> {selectedRequest.specifications}</p>
+              <p><span className="font-semibold">Date:</span> {new Date(selectedRequest.dateTime).toLocaleDateString()}</p>
+            </div>
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={closeModal}
+                className="btn btn-primary"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
