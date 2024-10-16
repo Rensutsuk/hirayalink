@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
 
 interface Request {
   id: number;
@@ -40,6 +41,8 @@ const DonationRequestsTable = () => {
   const [selectedRequests, setSelectedRequests] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+  const [isPostButtonEnabled, setIsPostButtonEnabled] = useState(false);
+  const router = useRouter();
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -66,7 +69,13 @@ const DonationRequestsTable = () => {
         }
 
         const responseData = await response.json();
-        setRequests(responseData.requests || []);
+        
+        // Sort the requests by date in descending order (newest first)
+        const sortedRequests = (responseData.requests || []).sort((a, b) => 
+          new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
+        );
+
+        setRequests(sortedRequests);
         setTotalPages(responseData.totalPages || 0);
       } catch (error) {
         setError(error instanceof Error ? error.message : "An error occurred");
@@ -77,6 +86,10 @@ const DonationRequestsTable = () => {
 
     fetchRequests();
   }, [currentPage, startDate, endDate, calamityType]);
+
+  useEffect(() => {
+    setIsPostButtonEnabled(selectedRequests.length > 0);
+  }, [selectedRequests]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -101,6 +114,23 @@ const DonationRequestsTable = () => {
   const handleViewRequest = (request: Request) => {
     setSelectedRequest(request);
     setIsModalOpen(true);
+  };
+
+  const handlePostClick = () => {
+    const selectedData = requests.filter(request => selectedRequests.includes(request.id));
+    const necessities = [...new Set(selectedData.flatMap(request => request.inKindNecessities.split(', ')))];
+    const specifications = [...new Set(selectedData.flatMap(request => request.specifications.split(', ')))];
+    const areas = [...new Set(selectedData.map(request => request.area))];
+    const calamityTypes = [...new Set(selectedData.map(request => request.typeOfCalamity))];
+    
+    const queryParams = new URLSearchParams({
+      necessities: necessities.join(','),
+      specifications: specifications.join(','),
+      area: areas.join(', '),
+      calamityType: calamityTypes.join(', ')
+    });
+    
+    router.push(`/admin/admin-request-donation?${queryParams.toString()}`);
   };
 
   return (
@@ -146,6 +176,13 @@ const DonationRequestsTable = () => {
                       ))}
                     </select>
                   </div>
+                  <button
+                    onClick={handlePostClick}
+                    disabled={!isPostButtonEnabled}
+                    className={`btn btn-primary ${!isPostButtonEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Post
+                  </button>
                 </div>
               </div>
             </th>

@@ -14,7 +14,7 @@ export default function AdminRequestDonation() {
 
   const initialFormState = {
     barangayId: "",
-    barangayArea: "", // This will hold the name to display
+    barangayArea: "",
     calamityType: "",
     contactPerson: "",
     contactNumber: "",
@@ -22,7 +22,8 @@ export default function AdminRequestDonation() {
     donationLandmark: "",
     necessities: [],
     proofFile: null,
-    area: "", // Added area field
+    area: "",
+    specifications: "", // Add this new field
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -31,18 +32,18 @@ export default function AdminRequestDonation() {
     const necessities = searchParams.get("necessities")?.split(",") || [];
     const area = searchParams.get("area") || "";
     const calamityType = searchParams.get("calamityType") || "";
+    const specifications = searchParams.get("specifications") || "";
 
     if (session) {
       const barangayName = session.user.brgyName;
 
-      console.log(barangayName);
-
       setFormData((prevData) => ({
         ...prevData,
-        barangayArea: barangayName, // Set barangay name to display
+        barangayArea: barangayName,
         calamityType: calamityType,
         necessities: necessities,
         area: area,
+        specifications: specifications, // Add this line
       }));
     }
   }, [searchParams, session]);
@@ -98,6 +99,7 @@ export default function AdminRequestDonation() {
         necessities,
         proofFile,
         area,
+        specifications,
       } = formData;
 
       // Append form data
@@ -109,6 +111,7 @@ export default function AdminRequestDonation() {
       formDataToSend.append("donationLandmark", donationLandmark);
       formDataToSend.append("necessities", JSON.stringify(necessities));
       formDataToSend.append("area", area); // Append area field
+      formDataToSend.append("specifications", specifications);
 
       // Handle file compression if a file is present
       if (proofFile) {
@@ -135,6 +138,34 @@ export default function AdminRequestDonation() {
     } catch (error) {
       console.error("Error:", error);
     }
+  };
+
+  const renderNecessitiesAndSpecifications = () => {
+    const necessities = formData.necessities;
+    const allSpecs = formData.specifications.split('\n\n');
+
+    return (
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          {necessities.map((necessity, index) => (
+            <div key={index} className="mb-2 font-bold">
+              {necessity}
+            </div>
+          ))}
+        </div>
+        <div className="col-span-2">
+          {allSpecs.map((specGroup, index) => (
+            <div key={index} className="mb-4">
+              {specGroup.split('\n').map((spec, specIndex) => (
+                <div key={specIndex} className="text-sm">
+                  {spec}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -282,63 +313,10 @@ export default function AdminRequestDonation() {
 
               <div className="mb-4">
                 <label className="label">
-                  <span className="label-text">In-Kind Necessities List</span>
+                  <span className="label-text">In-Kind Necessities</span>
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    "Education",
-                    "Health",
-                    "Food",
-                    "Electronic Devices",
-                    "Livelihood Support",
-                    "Construction Materials",
-                    "Solar Energy Solutions",
-                    "Water Filtration and Purification Systems",
-                    "Livestock and Animal care",
-                    "Planting materials",
-                    "Emergency Communication and Connectivity",
-                    "Shelter Materials",
-                    "Hygiene Supplies",
-                    "First Aid Kit Essentials",
-                    "Fire Prevention and Safety Products",
-                    "Clothing and Footware",
-                    "Cleaning and Sanitary Supplies",
-                    "Child and Infant Care Items",
-                    "Money",
-                    "Medical Supplies",
-                    "Water",
-                    "Tents",
-                    "Tools",
-                    "Blankets",
-                    "Seeds",
-                    "Agricultural Tools",
-                    "Water Purifiers",
-                    "Medicines",
-                    "Water Tanks",
-                    "Sandbags",
-                    "Water Pumps",
-                    "Heavy Equipment",
-                    "Irrigation Systems",
-                    "Drought-Resistant Seeds",
-                    "Solar Lamps",
-                    "Sleeping Bags",
-                    "Non-perishable Food",
-                    "Shoes",
-                  ].map((necessity) => (
-                    <div key={necessity} className="flex items-center">
-                      <label className="label cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name={necessity}
-                          checked={formData.necessities.includes(necessity)}
-                          onChange={handleCheckboxChange}
-                          className="checkbox checkbox-primary"
-                          disabled
-                        />
-                        <span className="ml-2">{necessity}</span>
-                      </label>
-                    </div>
-                  ))}
+                <div className="p-4 rounded-lg">
+                  {renderNecessitiesAndSpecifications()}
                 </div>
               </div>
 
@@ -356,6 +334,7 @@ export default function AdminRequestDonation() {
                   onChange={handleFileChange}
                 />
               </div>
+
               <div className="flex justify-end">
                 <button className="btn btn-primary text-white" type="submit">
                   Submit
