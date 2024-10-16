@@ -2,67 +2,53 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { PrismaClient } from "@prisma/client";
+import { v4 as uuidv4 } from 'uuid'; // Make sure to install this package: npm install uuid
 
 const prisma = new PrismaClient();
 
-export async function POST(request: Request) {
-  console.log("Received donation pledge request");
+function validateDonationData(postId: string, items: any[]): string | null {
+  if (typeof postId !== 'string' || postId.trim() === '') {
+    return 'Invalid postId';
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    return 'Invalid items array';
+  }
+  for (const item of items) {
+    if (typeof item.name !== 'string' || item.name.trim() === '') {
+      return 'Invalid item name';
+    }
+    if (typeof item.quantity !== 'number' || item.quantity <= 0) {
+      return 'Invalid item quantity';
+    }
+  }
+  return null;
+}
 
+export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { postId, items } = await request.json();
-    console.log("Received data:", { postId, items });
 
-    if (!postId || !items || !Array.isArray(items)) {
-      console.log("Invalid request body");
-      return NextResponse.json(
-        { error: "Invalid request body" },
-        { status: 400 }
-      );
-    }
-
-    const donor = await prisma.donor.findUnique({
-      where: { name: session.user.name },
-    });
-
-    if (!donor) {
-      console.log("Donor not found");
-      return NextResponse.json({ error: "Donor not found" }, { status: 404 });
-    }
-
-    console.log("Donor found:", donor.id);
-
-    // Get the barangay from the BarangayRequestPost
     const post = await prisma.barangayRequestPost.findUnique({
-      where: { id: Number(postId) },
+      where: { id: postId },
+      include: { Barangay: true },
     });
 
-    if (!post) {
-      console.log("BarangayRequestPost not found");
-      return NextResponse.json(
-        { error: "BarangayRequestPost not found" },
-        { status: 404 }
-      );
+    if (!post || !post.barangayId) {
+      return NextResponse.json({ error: "Invalid post or barangay" }, { status: 404 });
     }
 
-    // Find or create the Barangay
-    let barangay = await prisma.barangay.findUnique({
-      where: { name: post.barangay },
-    });
+    const controlNumber = uuidv4();
 
-    if (!barangay) {
-      barangay = await prisma.barangay.create({
-        data: { name: post.barangay },
-      });
-    }
-
-    // Create the donation
     const donation = await prisma.donation.create({
       data: {
-        controlNumber: post.controlNumber, // Use the post's controlNumber instead of generating a new one
-        donorId: donor.id,
-        barangayId: barangay.id,
+        controlNumber: controlNumber,
+        donorId: session.user.id,
+        barangayId: post.barangayId, // Use the barangayId from the post
         donationStatus: "PLEDGED",
         donationItems: {
           create: items.map((item) => ({
@@ -80,10 +66,10 @@ export async function POST(request: Request) {
       include: {
         donationItems: true,
         statusLogs: true,
+        barangay: true,
+        donor: true,
       },
     });
-
-    console.log("Donation created:", donation);
 
     return NextResponse.json({ success: true, donation });
   } catch (error) {

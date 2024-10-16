@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const { donationId, status, remarks } = await request.json();
 
     const updatedDonation = await prisma.donation.update({
-      where: { id: Number(donationId) },
+      where: { id: donationId },
       data: {
         donationStatus: status,
         statusLogs: {
@@ -20,6 +20,7 @@ export async function POST(request: Request) {
       },
       include: {
         statusLogs: true,
+        donationItems: true,
       },
     });
 
@@ -27,8 +28,11 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error updating donation status:", error);
     return NextResponse.json(
-      { error: "Failed to update donation status" },
+      { error: "Failed to update donation status", details: error.message },
       { status: 500 }
     );
   }
 }
+
+
+

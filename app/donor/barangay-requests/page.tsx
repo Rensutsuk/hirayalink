@@ -3,12 +3,11 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import PostList from "@/components/donor/posts/barangay-requests/PostList";
-import DonationModal from "@/components/donor/posts/barangay-requests/DonationModal"; 
+import DonationModal from "@/components/donor/posts/barangay-requests/DonationModal";
 
 interface BarangayRequestPost {
   id: string;
-  controlNumber: string;
-  barangay: string;
+  area: string;
   person: string;
   typeOfCalamity: string;
   inKind: string;
@@ -25,20 +24,15 @@ interface BarangayRequestPost {
 export default function BarangayRequests() {
   const { data: session } = useSession();
   const [posts, setPosts] = useState<BarangayRequestPost[]>([]);
-  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>(
-    {}
-  );
+  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>({});
   const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [selectedBarangay, setSelectedBarangay] = useState<string>("");
-  const [selectedItems, setSelectedItems] = useState<
-    { name: string; quantity: number }[]
-  >([]);
-  const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -65,47 +59,35 @@ export default function BarangayRequests() {
     fetchPosts();
   }, []);
 
-  const handleOpenModal = (postId: number) => {
+  const handleOpenModal = (postId: string) => {
     setSelectedPostId(postId);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setSelectedPostId(null);
   };
 
-  const handleItemSelection = (item) => {
-    setSelectedItems((prev) => {
-      const exists = prev.find((i) => i.name === item.name);
-      if (exists) {
-        return prev.filter((i) => i.name !== item.name);
-      } else {
-        return [...prev, { ...item, quantity: 1 }];
-      }
-    });
-  };
-
-  const handleDonateClick = async (post: BarangayRequestPost) => {
+  const handleDonateClick = async (postId: string, items: { name: string; quantity: number; specificName: string }[]) => {
     if (!session?.user) {
       setError("Please log in to donate.");
       return;
     }
 
-    if (selectedItems.length === 0) {
+    if (items.length === 0) {
       setError("Please select at least one item to donate.");
       return;
     }
 
     try {
       const donationData = {
-        postId: post.id,
-        items: selectedItems.map((item) => ({
-          name: item.name,
+        postId: postId,
+        items: items.map((item) => ({
+          name: item.specificName || item.name,
           quantity: item.quantity,
         })),
       };
-
-      console.log("Attempting to pledge donation:", donationData);
 
       const response = await fetch("/api/donation-pledge", {
         method: "POST",
@@ -118,17 +100,15 @@ export default function BarangayRequests() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create donation");
+        throw new Error(data.error || 'Failed to create donation');
       }
 
-      setSelectedItems([]);
-      setError(null);
       setMessage("Donation created successfully!");
       handleCloseModal();
       // You might want to refresh the posts or update the UI here
     } catch (error) {
       console.error("Error creating donation:", error);
-      setError(`Failed to create donation: ${error.message}`);
+      setError(error.message || 'Failed to create donation. Please try again.');
     }
   };
 
@@ -145,16 +125,8 @@ export default function BarangayRequests() {
               ? {
                   ...post,
                   likes: data.liked
-                    ? [
-                        ...post.likes,
-                        {
-                          id: Date.now().toString(),
-                          userId: session?.user?.id,
-                        },
-                      ]
-                    : post.likes.filter(
-                        (like) => like.userId !== session?.user?.id
-                      ),
+                    ? [...post.likes, { id: Date.now().toString(), userId: session?.user?.id }]
+                    : post.likes.filter((like) => like.userId !== session?.user?.id),
                 }
               : post
           )
@@ -184,14 +156,11 @@ export default function BarangayRequests() {
   const handleAddComment = async (postId: number) => {
     if (newComment[postId]?.trim()) {
       try {
-        const response = await fetch(
-          `/api/posts/${postId}/comment?type=barangay`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: newComment[postId] }),
-          }
-        );
+        const response = await fetch(`/api/posts/${postId}/comment?type=barangay`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: newComment[postId] }),
+        });
         if (response.ok) {
           const newCommentData = await response.json();
           setPosts((prevPosts) =>
@@ -210,7 +179,7 @@ export default function BarangayRequests() {
   };
 
   const filteredPosts = selectedBarangay
-    ? posts.filter((post) => post.barangay === selectedBarangay)
+    ? posts.filter((post) => post.area === selectedBarangay)
     : posts;
 
   return (
@@ -231,15 +200,12 @@ export default function BarangayRequests() {
               onChange={(e) => setSelectedBarangay(e.target.value)}
               className="select select-bordered w-min max-w-xs"
             >
-              <option value="">All Barangays</option>
-              {/* Add options for each barangay */}
-              {Array.from(new Set(posts.map((post) => post.barangay))).map(
-                (barangay) => (
-                  <option key={barangay} value={barangay}>
-                    {barangay}
-                  </option>
-                )
-              )}
+              <option value="">All Areas</option>
+              {Array.from(new Set(posts.map((post) => post.area))).map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -259,25 +225,18 @@ export default function BarangayRequests() {
         error={error}
       />
 
-      {message && (
-        <p
-          className={
-            message.includes("successfully") ? "text-green-500" : "text-red-500"
-          }
-        >
-          {message}
-        </p>
-      )}
-
       {isModalOpen && (
         <DonationModal
-          posts={posts}
-          selectedPostId={selectedPostId}
-          selectedItems={selectedItems}
-          handleItemSelection={handleItemSelection}
+          post={posts.find(p => p.id === selectedPostId)}
           handleDonateClick={handleDonateClick}
           handleCloseModal={handleCloseModal}
         />
+      )}
+
+      {message && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg">
+          {message}
+        </div>
       )}
     </div>
   );

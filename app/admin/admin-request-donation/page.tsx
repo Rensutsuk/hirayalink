@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { useSession } from "next-auth/react";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export default function AdminRequestDonation() {
   const router = useRouter();
@@ -18,6 +21,8 @@ export default function AdminRequestDonation() {
     donationLandmark: "",
     necessities: [],
     proofFile: null,
+    area: "",
+    specifications: "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -26,16 +31,21 @@ export default function AdminRequestDonation() {
     const necessities = searchParams.get("necessities")?.split(",") || [];
     const area = searchParams.get("area") || "";
     const calamityType = searchParams.get("calamityType") || "";
+    const specifications = searchParams.get("specifications") || "";
 
-    if (necessities.length > 0 || area || calamityType) {
+    if (session) {
+      const barangayName = session.user.brgyName;
+
       setFormData((prevData) => ({
         ...prevData,
-        barangayArea: area,
+        barangayArea: barangayName,
         calamityType: calamityType,
         necessities: necessities,
+        area: area,
+        specifications: specifications,
       }));
     }
-  }, [searchParams]);
+  }, [searchParams, session]);
 
   const handleClear = () => {
     setFormData(initialFormState);
@@ -48,16 +58,6 @@ export default function AdminRequestDonation() {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
-    }));
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      necessities: checked
-        ? [...prevData.necessities, name]
-        : prevData.necessities.filter((item) => item !== name),
     }));
   };
 
@@ -74,28 +74,39 @@ export default function AdminRequestDonation() {
     e.preventDefault();
 
     try {
-      let compressedFile = null;
-      if (formData.proofFile) {
+      const formDataToSend = new FormData();
+      const {
+        barangayArea,
+        area,
+        calamityType,
+        contactPerson,
+        contactNumber,
+        donationDropOff,
+        donationLandmark,
+        necessities,
+        specifications,
+        proofFile,
+      } = formData;
+
+      // Append form data
+      formDataToSend.append("barangayArea", barangayArea);
+      formDataToSend.append("area", area);
+      formDataToSend.append("calamityType", calamityType);
+      formDataToSend.append("contactPerson", contactPerson);
+      formDataToSend.append("contactNumber", contactNumber);
+      formDataToSend.append("donationDropOff", donationDropOff);
+      formDataToSend.append("donationLandmark", donationLandmark);
+      formDataToSend.append("necessities", JSON.stringify(necessities));
+      formDataToSend.append("specifications", specifications);
+
+      // Handle file compression if a file is present
+      if (proofFile) {
         const options = {
           maxSizeMB: 1,
           maxWidthOrHeight: 1920,
           useWebWorker: true,
         };
-        compressedFile = await imageCompression(formData.proofFile, options);
-      }
-
-      const formDataToSend = new FormData();
-      formDataToSend.append("barangayArea", formData.barangayArea);
-      formDataToSend.append("calamityType", formData.calamityType);
-      formDataToSend.append("contactPerson", formData.contactPerson);
-      formDataToSend.append("contactNumber", formData.contactNumber);
-      formDataToSend.append("donationDropOff", formData.donationDropOff);
-      formDataToSend.append("donationLandmark", formData.donationLandmark);
-      formDataToSend.append(
-        "necessities",
-        JSON.stringify(formData.necessities)
-      );
-      if (compressedFile) {
+        const compressedFile = await imageCompression(proofFile, options);
         formDataToSend.append("proofFile", compressedFile);
       }
 
@@ -113,6 +124,34 @@ export default function AdminRequestDonation() {
     } catch (error) {
       console.error("Error:", error);
     }
+  };
+
+  const renderNecessitiesAndSpecifications = () => {
+    const necessities = formData.necessities;
+    const allSpecs = formData.specifications.split("\n\n");
+
+    return (
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          {necessities.map((necessity, index) => (
+            <div key={index} className="mb-2 font-bold">
+              {necessity}
+            </div>
+          ))}
+        </div>
+        <div className="col-span-2">
+          {allSpecs.map((specGroup, index) => (
+            <div key={index} className="mb-4">
+              {specGroup.split("\n").map((spec, specIndex) => (
+                <div key={specIndex} className="text-sm">
+                  {spec}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -136,7 +175,7 @@ export default function AdminRequestDonation() {
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="label">
-                  <span className="label-text">Barangay Area</span>
+                  <span className="label-text">Barangay</span>
                 </label>
                 <input
                   className="input input-bordered input-secondary w-full"
@@ -147,23 +186,25 @@ export default function AdminRequestDonation() {
                   onChange={handleChange}
                   placeholder="e.g., Barangay, Tondo, Manila City"
                   required
+                  readOnly
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="label">
-                    <span className="label-text">Barangay Area</span>
+                    <span className="label-text">Area</span>
                   </label>
                   <input
                     className="input input-bordered input-secondary w-full"
-                    id="barangayArea"
+                    id="area"
                     type="text"
-                    name="barangayArea"
-                    value={formData.barangayArea}
+                    name="area"
+                    value={formData.area}
                     onChange={handleChange}
-                    placeholder="Barangay Area"
+                    placeholder="Area"
                     required
+                    readOnly
                   />
                 </div>
                 <div>
@@ -177,13 +218,24 @@ export default function AdminRequestDonation() {
                     value={formData.calamityType}
                     onChange={handleChange}
                     required
+                    disabled
                   >
-                    <option value="">Select Calamity Type</option>
-                    <option value="Typhoon">Typhoon</option>
+                    <option value="" disabled selected>
+                      Select Calamity Type
+                    </option>
                     <option value="Flood">Flood</option>
                     <option value="Earthquake">Earthquake</option>
+                    <option value="Tropical Disease">Tropical Disease</option>
                     <option value="Drought">Drought</option>
-                    <option value="Other">Other</option>
+                    <option value="Dengue Fever">Dengue Fever</option>
+                    <option value="Water Shortage">Water Shortage</option>
+                    <option value="Heatwave">Heatwave</option>
+                    <option value="Tsunami">Tsunami</option>
+                    <option value="Leptospirosis">Leptospirosis</option>
+                    <option value="Volcanic Eruption">Volcanic Eruption</option>
+                    <option value="Landslide">Landslide</option>
+                    <option value="Typhoon">Typhoon</option>
+                    <option value="Fire">Fire</option>
                   </select>
                 </div>
                 <div>
@@ -257,62 +309,10 @@ export default function AdminRequestDonation() {
 
               <div className="mb-4">
                 <label className="label">
-                  <span className="label-text">In-Kind Necessities List</span>
+                  <span className="label-text">In-Kind Necessities</span>
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    "Education",
-                    "Health",
-                    "Food",
-                    "Electronic Devices",
-                    "Livelihood Support",
-                    "Construction Materials",
-                    "Solar Energy Solutions",
-                    "Water Filtration and Purification Systems",
-                    "Livestock and Animal care",
-                    "Planting materials",
-                    "Emergency Communication and Connectivity",
-                    "Shelter Materials",
-                    "Hygiene Supplies",
-                    "First Aid Kit Essentials",
-                    "Fire Prevention and Safety Products",
-                    "Clothing and Footware",
-                    "Cleaning and Sanitary Supplies",
-                    "Child and Infant Care Items",
-                    "Money",
-                    "Medical Supplies",
-                    "Water",
-                    "Tents",
-                    "Tools",
-                    "Blankets",
-                    "Seeds",
-                    "Agricultural Tools",
-                    "Water Purifiers",
-                    "Medicines",
-                    "Water Tanks",
-                    "Sandbags",
-                    "Water Pumps",
-                    "Heavy Equipment",
-                    "Irrigation Systems",
-                    "Drought-Resistant Seeds",
-                    "Solar Lamps",
-                    "Sleeping Bags",
-                    "Non-perishable Food",
-                    "Shoes",
-                  ].map((necessity) => (
-                    <div key={necessity} className="flex items-center">
-                      <label className="label cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name={necessity}
-                          checked={formData.necessities.includes(necessity)}
-                          onChange={handleCheckboxChange}
-                          className="checkbox checkbox-primary"
-                        />
-                        <span className="ml-2">{necessity}</span>
-                      </label>
-                    </div>
-                  ))}
+                <div className="p-4 rounded-lg">
+                  {renderNecessitiesAndSpecifications()}
                 </div>
               </div>
 
