@@ -13,7 +13,6 @@ export default function AdminRequestDonation() {
   const { data: session, status } = useSession();
 
   const initialFormState = {
-    barangayId: "",
     barangayArea: "",
     calamityType: "",
     contactPerson: "",
@@ -23,7 +22,7 @@ export default function AdminRequestDonation() {
     necessities: [],
     proofFile: null,
     area: "",
-    specifications: "", // Add this new field
+    specifications: "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -43,7 +42,7 @@ export default function AdminRequestDonation() {
         calamityType: calamityType,
         necessities: necessities,
         area: area,
-        specifications: specifications, // Add this line
+        specifications: specifications,
       }));
     }
   }, [searchParams, session]);
@@ -62,16 +61,6 @@ export default function AdminRequestDonation() {
     }));
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      necessities: checked
-        ? [...prevData.necessities, name]
-        : prevData.necessities.filter((item) => item !== name),
-    }));
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFormData((prevData) => ({
@@ -87,30 +76,27 @@ export default function AdminRequestDonation() {
     try {
       const formDataToSend = new FormData();
       const {
-        barangayId = await prisma.barangay.findUnique({
-          where: { name: session.user.brgyName },
-          select: { id: true },
-        }),
+        barangayArea,
+        area,
         calamityType,
         contactPerson,
         contactNumber,
         donationDropOff,
         donationLandmark,
         necessities,
-        proofFile,
-        area,
         specifications,
+        proofFile,
       } = formData;
 
       // Append form data
-      formDataToSend.append("barangayId", barangayId);
+      formDataToSend.append("barangayArea", barangayArea);
+      formDataToSend.append("area", area);
       formDataToSend.append("calamityType", calamityType);
       formDataToSend.append("contactPerson", contactPerson);
       formDataToSend.append("contactNumber", contactNumber);
       formDataToSend.append("donationDropOff", donationDropOff);
       formDataToSend.append("donationLandmark", donationLandmark);
       formDataToSend.append("necessities", JSON.stringify(necessities));
-      formDataToSend.append("area", area); // Append area field
       formDataToSend.append("specifications", specifications);
 
       // Handle file compression if a file is present
@@ -142,7 +128,7 @@ export default function AdminRequestDonation() {
 
   const renderNecessitiesAndSpecifications = () => {
     const necessities = formData.necessities;
-    const allSpecs = formData.specifications.split('\n\n');
+    const allSpecs = formData.specifications.split("\n\n");
 
     return (
       <div className="grid grid-cols-3 gap-4">
@@ -156,7 +142,7 @@ export default function AdminRequestDonation() {
         <div className="col-span-2">
           {allSpecs.map((specGroup, index) => (
             <div key={index} className="mb-4">
-              {specGroup.split('\n').map((spec, specIndex) => (
+              {specGroup.split("\n").map((spec, specIndex) => (
                 <div key={specIndex} className="text-sm">
                   {spec}
                 </div>
@@ -234,12 +220,22 @@ export default function AdminRequestDonation() {
                     required
                     disabled
                   >
-                    <option value="">Select Calamity Type</option>
-                    <option value="Typhoon">Typhoon</option>
+                    <option value="" disabled selected>
+                      Select Calamity Type
+                    </option>
                     <option value="Flood">Flood</option>
                     <option value="Earthquake">Earthquake</option>
+                    <option value="Tropical Disease">Tropical Disease</option>
                     <option value="Drought">Drought</option>
-                    <option value="Other">Other</option>
+                    <option value="Dengue Fever">Dengue Fever</option>
+                    <option value="Water Shortage">Water Shortage</option>
+                    <option value="Heatwave">Heatwave</option>
+                    <option value="Tsunami">Tsunami</option>
+                    <option value="Leptospirosis">Leptospirosis</option>
+                    <option value="Volcanic Eruption">Volcanic Eruption</option>
+                    <option value="Landslide">Landslide</option>
+                    <option value="Typhoon">Typhoon</option>
+                    <option value="Fire">Fire</option>
                   </select>
                 </div>
                 <div>

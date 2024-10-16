@@ -7,14 +7,16 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
+    console.log(formData);
+
     const barangayArea = formData.get("barangayArea") as string;
+    const area = formData.get("area") as string;
     const calamityType = formData.get("calamityType") as string;
     const contactPerson = formData.get("contactPerson") as string;
     const contactNumber = formData.get("contactNumber") as string;
     const donationDropOff = formData.get("donationDropOff") as string;
     const donationLandmark = formData.get("donationLandmark") as string;
     const necessities = formData.get("necessities") as string;
-    const area = formData.get("area") as string; // New field
     const proofFile = formData.get("proofFile") as File;
 
     let proofFileBuffer: Buffer | null = null;
@@ -24,24 +26,25 @@ export async function POST(request: Request) {
     }
 
     const barangay = await prisma.barangay.findUnique({
-      where: { name: barangayArea },
+      where: {
+        name: barangayArea,
+      },
+      select: {
+        id: true,
+      },
     });
-
-    if (!barangay) {
-      throw new Error("Barangay not found");
-    }
 
     const newPost = await prisma.barangayRequestPost.create({
       data: {
-        barangayId: barangay.id,
         area,
-        calamityType,
-        contactPerson,
+        typeOfCalamity: calamityType,
+        person: contactPerson,
         contactNumber,
-        donationDropOff,
-        donationLandmark,
+        dropOffAddress: donationDropOff,
+        dropOffLandmark: donationLandmark,
         inKind: necessities,
         image: proofFileBuffer,
+        barangayId: barangay?.id,
       },
     });
 
