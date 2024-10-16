@@ -1,112 +1,113 @@
 "use client";
-import "@/styles/embla.css";
-import { EmblaCarousel } from "@/components/EmblaCarousel";
+import React from "react";
 
-export default function Home() {
-	return (
-		<main>
-			{/* Hero Section */}
-			<div className="hero-background bg-cover max-h-[30rem] mb-20">
-				<div className="text-center pt-10 pb-20 backdrop-blur-sm">
-					<h1 className="mb-5 py-10 text-5xl font-bold text-white">
-						Your Help Matters
-					</h1>
-					<p className="text-xl text-white py-5">
-						Together we help those in need
-					</p>
-				</div>
-			</div>
+export default function LearnMore() {
+    return (
+        <main className="p-5">
+            {/* Hero Section with Full-Page Background Image */}
+                      <section className="hero-background bg-cover h-screen mb-20" style={{ backgroundImage: 'url(https://cashmart.ph/wp-content/uploads/2023/03/Kyah-Pembarya-Should-You-Give-Money-to-Street-Children.jpg)' }}>
+              <div className="bg-black bg-opacity-60 h-full flex flex-col justify-center items-center text-center px-5">
+                  <h1 className="text-white text-6xl font-bold mb-5">
+                      Every Act of Kindness Counts
+                  </h1>
+                  <p className="text-white text-2xl max-w-2xl">
+                      Your generosity directly impacts the lives of those affected by calamities. Together, we can rebuild lives, one donation at a time.
+                  </p>
+              </div>
+          </section>
+            {/* Intro Section */}
+            <section className="bg-green-100 py-16 mb-16 rounded-lg">
+                <div className="max-w-4xl mx-auto text-center px-5">
+                    <h2 className="text-5xl font-bold mb-5 text-green-800">Empowering Relief Efforts</h2>
+                    <p className="text-xl text-green-700">
+                        At HirayaLink, we believe that every contribution counts. By connecting donors directly with those in need, we ensure that your generosity has a meaningful impact.
+                    </p>
+                </div>
+            </section>
 
-			{/* Mission and Vision Section */}
-			<div className="flex flex-col mx-5">
-				<div className="grid grid-flow-col auto-col-auto justify-center gap-20">
-					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
-						<div className="card-body">
-							<h2 className="card-title">Mission</h2>
-							<p>
-								To connect donors with those in need through a centralized
-								platform that enhances disaster relief efforts with transparency,
-								efficiency, and compassion.
-							</p>
-						</div>
-						<figure>
-							<img src="./mission-vission/mission.jpg" alt="Mission" />
-						</figure>
-					</div>
-					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
-						<div className="card-body">
-							<h2 className="card-title">Vision</h2>
-							<p>
-								To be a leading platform for in-kind donations, ensuring swift,
-								impactful support for vulnerable communities at all times.
-							</p>
-						</div>
-						<figure>
-							<img src="./mission-vission/vision.png" alt="Vision" />
-						</figure>
-					</div>
-				</div>
+            {/* Challenges Section */}
+            <section className="bg-white py-16 mb-16 rounded-lg shadow-lg">
+                <div className="max-w-4xl mx-auto px-5">
+                    <h2 className="text-4xl font-bold mb-5 text-green-800">The Challenges We Face</h2>
+                    <p className="text-lg mb-3 text-gray-700">
+                        Existing donation systems often lack transparency and communication efficiency, leading to delayed aid and reduced trust among stakeholders. Potential donors find it difficult to interact with recipients or assess the impact of their donations, reducing their motivation to contribute.
+                    </p>
+                    <p className="text-lg text-gray-700">
+                        Additionally, acquiring timely information about those affected by disasters is complicated, which further hinders the donation process.
+                    </p>
+                </div>
+            </section>
 
-				{/* Welcome Section */}
-				<div className="text-center mb-10">
-					<h1 className="mb-10 text-5xl font-bold">WELCOME!</h1>
-					<p className="text-xl">
-						Empowering Giving, Every Day, and in Every Way.
-					</p>
-					<a
-						role="button"
-						className="btn btn-outline btn-wide mt-10"
-						href="/donation-request-posting"
-					>
-						Learn More
-					</a>
-				</div>
-			</div>
+            {/* Solution Section */}
+            <section className="bg-green-100 py-16 mb-16 rounded-lg">
+                <div className="max-w-4xl mx-auto px-5">
+                    <h2 className="text-4xl font-bold mb-5 text-green-800">Our Solution: HirayaLink</h2>
+                    <p className="text-lg mb-3 text-green-700">
+                        HirayaLink offers a centralized platform to improve transparency and coordination in the donation process. We empower LGUs and NGOs to verify the needs of recipients and create official donation requests on behalf of their constituents.
+                    </p>
+                    <p className="text-lg text-green-700">
+                        Our system helps prevent misuse, ensuring that only verified needs are posted, and that donors can track their contributions from start to finish.
+                    </p>
+                </div>
+            </section>
 
-			{/* Slideshow Section for Calamity Impact and Stories of Change */}
-			<div className="grid grid-cols-2 gap-20 px-10 py-20 justify-center items-start">
-				{/* Calamity Impact Slideshow */}
-				<div className="w-full h-[400px] shadow-2xl shadow-red-300 p-5 rounded-lg">
-					<h2 className="text-4xl font-bold mb-5 text-center">
-						CALAMITY IMPACT
-					</h2>
-					<EmblaCarousel slides={[
-						{
-							src: "https://as1.ftcdn.net/v2/jpg/03/84/47/48/1000_F_384474808_cogKpmVX9RrqthcevsWMlATgUwl2vZ4N.jpg",
-							description: "Rescue efforts in the aftermath of a devastating typhoon, showcasing volunteers working tirelessly to provide relief to affected families."
-						},
-						{
-							src: "https://w.ndtvimg.com/sites/3/2023/06/16124036/thumbnail_660-58.jpg",
-							description: "A community gathers to distribute essential supplies, highlighting the spirit of solidarity and support during challenging times."
-						},
-						{
-							src: "https://www.childfund.org/contentassets/7ccaf1fc17ec4b0da9843389c6fd3f45/rs18432.jpg",
-							description: "Children receiving educational materials post-disaster, emphasizing the importance of continued education despite calamities."
-						}
-					]} />
-				</div>
+            {/* System Details Section */}
+            <section className="bg-white py-16 mb-16 rounded-lg shadow-lg">
+                <div className="max-w-4xl mx-auto px-5">
+                    <h2 className="text-4xl font-bold mb-5 text-green-800">How Our System Works</h2>
 
-				{/* Stories of Change Slideshow */}
-				<div className="w-full h-[400px] shadow-2xl shadow-blue-300 p-5 rounded-lg">
-					<h2 className="text-4xl font-bold mb-5 text-center">
-						STORIES OF CHANGE
-					</h2>
-					<EmblaCarousel slides={[
-						{
-							src: "https://www.neefusa.org/sites/default/files/field/image/WEB19-HealthWellness-GivingBack-Volunteering-Donating-4800x2699.jpg",
-							description: "Community members unite to rebuild homes, demonstrating resilience and the power of collective action after a disaster."
-						},
-						{
-							src: "https://image.savethechildren.org/three-friends-tanya-shathi-and-jhumur-ch11043036.jpg/pxvvof42byj6mv8betnp40w6ou100q50.jpg",
-							description: "A group of volunteers engaging with families, sharing resources, and creating lasting connections through in-kind donations."
-						},
-						{
-							src: "https://www.globalgiving.org/pfil/7790/pict_original.jpg",
-							description: "Success stories of families thriving after receiving support, highlighting the transformative impact of community-driven relief efforts."
-						}
-					]} />
-				</div>
-			</div>
-		</main>
-	);
+                    {/* Recipients Info */}
+                    <div className="bg-green-50 p-6 rounded-lg shadow-md mb-10">
+                        <h3 className="text-3xl font-bold mb-3 text-green-800">For Recipients:</h3>
+                        <p className="text-lg mb-2 text-green-700">
+                            Recipients do not need to register. They can post donation requests directly, which will be visible to the public and barangay admins. Each request should include:
+                        </p>
+                        <ul className="list-disc pl-10 mb-3 text-lg text-green-700">
+                            <li>Complete name of the head of the family</li>
+                            <li>Age of the head of the family</li>
+                            <li>Number of family members</li>
+                            <li>Contact number</li>
+                            <li>Barangay number</li>
+                            <li>Email address (optional)</li>
+                            <li>Type of calamity or reason for the request</li>
+                            <li>Photo evidence of the situation</li>
+                        </ul>
+                        <p className="text-lg text-green-700">
+                            Barangay admins will verify the needs and post an official request for donors to pledge.
+                        </p>
+                    </div>
+
+                    {/* Donors Info */}
+                    <div className="bg-green-50 p-6 rounded-lg shadow-md">
+                        <h3 className="text-3xl font-bold mb-3 text-green-800">For Donors:</h3>
+                        <p className="text-lg mb-2 text-green-700">
+                            Donors will need to register on the platform to access official donation requests posted by barangay admins. After registration, donors can:
+                        </p>
+                        <ul className="list-disc pl-10 mb-3 text-lg text-green-700">
+                            <li>View verified donation requests from various barangays</li>
+                            <li>Track the status of their donation from pledge to delivery</li>
+                            <li>See success stories of previous donations</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            {/* Call to Action */}
+            <section className="bg-green-200 py-16 text-center mb-10 rounded-lg">
+                <div className="max-w-4xl mx-auto px-5">
+                    <h2 className="text-4xl font-bold mb-5 text-green-900">Join Us in Making a Difference</h2>
+                    <p className="text-xl text-green-800">
+                        Together, we can provide essential support to vulnerable communities and ensure that help reaches those who need it most.
+                    </p>
+                    <a
+                        role="button"
+                        className="btn btn-primary mt-5"
+                        href="/donation-request-posting"
+                    >
+                        Donate Now
+                    </a>
+                </div>
+            </section>
+        </main>
+    );
 }
