@@ -117,7 +117,7 @@ export default function AdminRequestDonation() {
 
       if (response.ok) {
         alert("Your request has been submitted successfully.");
-        router.push("/admin");
+        router.push("/admin/dashboard");
       } else {
         console.error("Failed to submit form data");
       }
@@ -131,25 +131,26 @@ export default function AdminRequestDonation() {
     const allSpecs = formData.specifications.split("\n\n");
 
     return (
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          {necessities.map((necessity, index) => (
-            <div key={index} className="mb-2 font-bold">
-              {necessity}
-            </div>
-          ))}
-        </div>
-        <div className="col-span-2">
-          {allSpecs.map((specGroup, index) => (
-            <div key={index} className="mb-4">
-              {specGroup.split("\n").map((spec, specIndex) => (
-                <div key={specIndex} className="text-sm">
-                  {spec}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+      <div className="gap-4">
+        {formData.necessities
+          .map((necessity, index) => {
+            const trimmedNecessity = necessity.trim().replace(/['{}"]/g, "");
+            const correspondingSpecification = formData.specifications
+              .split(",")
+              .find((spec) => spec.trim().includes(trimmedNecessity));
+            return (
+              <div key={index} className="m-2">
+                <strong>{trimmedNecessity}:</strong>{" "}
+                {correspondingSpecification
+                  ? correspondingSpecification
+                      .trim()
+                      .replace(/['{}"]/g, "")
+                      .replace(trimmedNecessity, "")
+                      .trim()
+                  : "N/A"}
+              </div>
+            );
+          })}
       </div>
     );
   };
