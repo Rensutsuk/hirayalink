@@ -101,8 +101,8 @@ export default function LearnMore() {
                     </p>
                     <a
                         role="button"
-                        className="btn btn-primary mt-5"
-                        href="/donation-request-posting"
+                        className="btn btn-primary mt-5 bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded transition duration-300"
+                        href="/signup"
                     >
                         Donate Now
                     </a>
