@@ -62,34 +62,32 @@ export default function DonationTracking() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const url = postId ? `/api/donations?postId=${postId}` : '/api/donations';
-        const response = await fetch(url);
+        const response = await fetch(`/api/donations?postId=${postId}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch donations: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log("Fetched donations:", data);
         setDonations(data);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setError(`Failed to fetch data: ${error.message}`);
+        console.error("Error fetching donations:", error);
+        setError("Failed to load donations.");
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+
+    if (postId) {
+      fetchData();
+    }
   }, [postId]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">
-        {postId ? `Donations for Post ID: ${postId}` : "Your Donations"}
-      </h2>
+    <div>
       {donations.length === 0 ? (
-        <p>No donations found.</p>
+        <p>No donations found for this post.</p>
       ) : (
         donations.map((donation) => (
           <DonationTrackingCard key={donation.id} donation={donation} />

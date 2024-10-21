@@ -41,18 +41,9 @@ export async function GET(request: Request) {
       });
     } else if (postId) {
       // Donor view: fetch donations for a specific post's barangay
-      const post = await prisma.barangayRequestPost.findUnique({
-        where: { id: postId },
-        select: { barangayId: true },
-      });
-
-      if (!post) {
-        return NextResponse.json({ error: "Post not found" }, { status: 404 });
-      }
-
       donations = await prisma.donation.findMany({
         where: {
-          barangayId: post.barangayId,
+          barangayRequestPostId: postId,
           donorId: session.user.id,
         },
         include: {
