@@ -184,7 +184,7 @@ export default function BarangayRequests() {
 
   return (
     <div>
-      <div className="hero-background bg-cover max-h-[20rem] mb-5">
+      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-10 z-30">
         <div className="py-14 backdrop-blur-sm bg-black/25">
           <h1 className="mb-0 py-0 text-5xl font-bold text-center text-white">
             Barangay Donation Request Post
@@ -234,7 +234,7 @@ export default function BarangayRequests() {
       )}
 
       {message && (
-        <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-primary text-white p-4 rounded-lg shadow-lg">
           {message}
         </div>
       )}

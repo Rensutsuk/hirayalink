@@ -1,16 +1,31 @@
-import React from 'react';
+import React from "react";
 import { FaThumbsUp, FaComment } from "react-icons/fa";
 import Link from "next/link";
-import CommentSection from './CommentSection';
+import CommentSection from "./CommentSection";
 
-const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComments, likedPosts, newComment, setNewComment, handleAddComment, showComments }) => {
+const PostItem = ({
+  post,
+  session,
+  handleOpenModal,
+  handleLikeClick,
+  toggleComments,
+  likedPosts,
+  newComment,
+  setNewComment,
+  handleAddComment,
+  showComments,
+}) => {
   return (
     <div className="relative p-4 bg-white shadow-md rounded-lg max-w-4xl mx-auto flex">
       <div className="flex-grow">
         <div className="bg-primary text-white text-lg font-semi bold px-4 py-2 flex justify-between items-center rounded-t-lg">
-          <span className="font-bold">{post.completeName}: {post.area}</span> {/* Updated to match Post.tsx */}
+          <span className="font-bold">
+            {post.person}: {post.area}
+          </span>{" "}
+          {/* Updated to match Post.tsx */}
           <span className="text-sm">
-            {new Date(post.dateTime).toLocaleString()} {/* Updated to match Post.tsx */}
+            {new Date(post.dateTime).toLocaleString()}{" "}
+            {/* Updated to match Post.tsx */}
           </span>
         </div>
 
@@ -39,10 +54,24 @@ const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComme
               <strong>Age:</strong> {post.age} {/* Added Age display */}
             </div>
             <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Barangay:</strong> {post.Barangay.name.replace('Barangay ', '')} {/* Added Barangay display */}
+              <strong>Barangay:</strong>{" "}
+              {post.Barangay.name.replace("Barangay ", "")}{" "}
+              {/* Added Barangay display */}
             </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Needs:</strong> {post.inKind}
+            <div className="flex flex-wrap gap-2">
+              {post.inKind.split(",").map((necessity, index) => {
+                const trimmedNecessity = necessity
+                  .trim()
+                  .replace(/['{}"]/g, "");
+                return (
+                  <div
+                    key={index}
+                    className="p-1 px-2 bg-gray-100 rounded-full"
+                  >
+                    <strong>{trimmedNecessity}</strong>
+                  </div>
+                );
+              })}
             </div>
             <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Calamity:</strong> {post.typeOfCalamity}
@@ -61,9 +90,11 @@ const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComme
             </div>
           </div>
 
-          {post.uploadedPhoto && (
+          {post.image && (
             <img
-              src={`data:image/jpeg;base64,${Buffer.from(post.uploadedPhoto).toString("base64")}`}
+              src={`data:image/jpeg;base64,${Buffer.from(
+                post.image
+              ).toString("base64")}`}
               alt="Donation Image"
               className="w-full h-auto rounded-lg mt-4"
             />
@@ -74,7 +105,11 @@ const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComme
               <div
                 role="button"
                 onClick={() => handleLikeClick(post.id)}
-                className={`btn btn-sm ${likedPosts.has(post.id) ? "btn-primary text-white" : "btn-outline"} flex items-center`}
+                className={`btn btn-sm ${
+                  likedPosts.has(post.id)
+                    ? "btn-primary text-white"
+                    : "btn-outline"
+                } flex items-center`}
               >
                 <FaThumbsUp className="mr-1" /> {post.likes.length}
               </div>
@@ -98,11 +133,11 @@ const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComme
       </div>
 
       {showComments[post.id] && (
-        <CommentSection 
-          post={post} 
-          newComment={newComment} 
-          setNewComment={setNewComment} 
-          handleAddComment={handleAddComment} 
+        <CommentSection
+          post={post}
+          newComment={newComment}
+          setNewComment={setNewComment}
+          handleAddComment={handleAddComment}
         />
       )}
     </div>
