@@ -29,9 +29,9 @@ const Post = ({ post, handleLikeClick, toggleComments, showComments, newComment,
               <strong>Barangay:</strong> {post.Barangay.name.replace('Barangay ', '')}
             </div>
             <div className="flex flex-wrap gap-2">
-              {post.inKindNecessities.split(',').map((necessity, index) => {
+              {post.inKindNecessities.split(',').map((necessity: string, index: number) => {
                 const trimmedNecessity = necessity.trim().replace(/['{}"]/g, '');
-                const correspondingSpecification = post.specifications.split(',').find(spec => spec.trim().includes(trimmedNecessity));
+                const correspondingSpecification = post.specifications.split(',').find((spec: string) => spec.trim().includes(trimmedNecessity));
                 return (
                   <div key={index} className="p-1 px-2 bg-gray-100 rounded-full">
                     <strong>{trimmedNecessity}:</strong> {correspondingSpecification ? correspondingSpecification.trim().replace(/['{}"]/g, '').replace(trimmedNecessity, '').trim() : 'N/A'}
