@@ -8,6 +8,10 @@ const prisma = new PrismaClient();
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const type = url.searchParams.get("type");
+  const area = url.searchParams.get("area") || "";
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+  const offset = (page - 1) * limit;
   const session = await getServerSession(authOptions);
   const userContactNumber = session?.user?.contactNumber;
 
@@ -21,11 +25,19 @@ export async function GET(request: Request) {
       },
     });
 
+    let posts;
+    let totalPosts;
+
+    const whereCondition = area ? { Barangay: { name: area } } : {};
+
     if (type === "barangay") {
-      const posts = await prisma.barangayRequestPost.findMany({
+      posts = await prisma.barangayRequestPost.findMany({
+        where: whereCondition,
         orderBy: {
           dateTime: 'desc',
         },
+        skip: offset,
+        take: limit,
         include: {
           likes: {
             select: {
@@ -50,19 +62,17 @@ export async function GET(request: Request) {
         },
       });
 
-      // Add likedByUser property
-      const postsWithLikes = posts.map((post) => ({
-        ...post,
-        likedByUser: post.likes.some((like) => like.userId === user?.id),
-      }));
-
-      return NextResponse.json(postsWithLikes);
-    }
-    if (type === "recipient") {
-      const posts = await prisma.recipientRequestPost.findMany({
+      totalPosts = await prisma.barangayRequestPost.count({
+        where: whereCondition,
+      });
+    } else if (type === "recipient") {
+      posts = await prisma.recipientRequestPost.findMany({
+        where: whereCondition,
         orderBy: {
           dateTime: 'desc',
         },
+        skip: offset,
+        take: limit,
         include: {
           likes: {
             select: {
@@ -87,14 +97,25 @@ export async function GET(request: Request) {
         },
       });
 
-      // Add likedByUser property
-      const postsWithLikes = posts.map((post) => ({
-        ...post,
-        likedByUser: post.likes.some((like) => like.userId === user?.id),
-      }));
-
-      return NextResponse.json(postsWithLikes);
+      totalPosts = await prisma.recipientRequestPost.count({
+        where: whereCondition,
+      });
+    } else {
+      return NextResponse.json(
+        { error: "Invalid type parameter" },
+        { status: 400 }
+      );
     }
+
+    // Add likedByUser property
+    const postsWithLikes = posts.map((post) => ({
+      ...post,
+      likedByUser: post.likes.some((like) => like.userId === user?.id),
+    }));
+
+    const hasMore = offset + posts.length < totalPosts;
+
+    return NextResponse.json({ posts: postsWithLikes, hasMore });
   } catch (error) {
     console.error("Error fetching posts:", error);
     return NextResponse.json(

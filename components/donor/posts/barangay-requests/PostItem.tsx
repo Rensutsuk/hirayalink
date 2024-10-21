@@ -59,19 +59,14 @@ const PostItem = ({
               {/* Added Barangay display */}
             </div>
             <div className="flex flex-wrap gap-2">
-              {post.inKind.split(",").map((necessity, index) => {
-                const trimmedNecessity = necessity
-                  .trim()
-                  .replace(/['{}"]/g, "");
-                return (
-                  <div
-                    key={index}
-                    className="p-1 px-2 bg-gray-100 rounded-full"
-                  >
-                    <strong>{trimmedNecessity}</strong>
-                  </div>
-                );
-              })}
+              {Object.entries(post.inKind).map(([key, value], index) => (
+                <div
+                  key={index}
+                  className="p-1 px-2 bg-gray-100 rounded-full"
+                >
+                  <strong>{value}</strong>
+                </div>
+              ))}
             </div>
             <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Calamity:</strong> {post.typeOfCalamity}

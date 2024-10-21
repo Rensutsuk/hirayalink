@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Poppins } from "next/font/google";
 import Providers from "@/components/SessionProvider";
 import "@/styles/globals.css";
-const inter = Manrope({ subsets: ["latin"] });
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "300", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: "HirayaLink",
@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={poppins.className}>
         <Providers>{children}</Providers>
       </body>
     </html>
