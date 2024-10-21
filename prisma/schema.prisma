@@ -40,7 +40,7 @@ model BarangayRequestPost {
   area            String
   person          String
   typeOfCalamity  String
-  inKind          String
+  inKind          Json
   contactNumber   String
   dropOffAddress  String
   dropOffLandmark String
@@ -93,13 +93,13 @@ model RecipientRequestPost {
   age               Int
   area              String
   noOfFamilyMembers Int
-  contactNumber     String    @db.VarChar(191) 
-  emailAddress      String?   @db.VarChar(191) 
-  typeOfCalamity    String    @db.VarChar(191) 
+  contactNumber     String    @db.VarChar(191)
+  emailAddress      String?   @db.VarChar(191)
+  typeOfCalamity    String    @db.VarChar(191)
   inKindNecessities String
   specifications    String    @db.Text
-  uploadedPhoto     Bytes?    @db.LongBlob 
-  dateTime          DateTime  @default(now()) 
+  uploadedPhoto     Bytes?    @db.LongBlob
+  dateTime          DateTime  @default(now())
   likes             Like[]    @relation("RecipientRequestPostLikes")
   comments          Comment[] @relation("RecipientRequestPostComments")
   barangayId        String?
@@ -107,19 +107,19 @@ model RecipientRequestPost {
 }
 
 model Donation {
-  id                  String              @id @default(uuid()) 
-  controlNumber       String              @unique
-  donorId             String
-  donor               Donor               @relation(fields: [donorId], references: [id], onDelete: Cascade)
-  barangayId          String
-  barangay            Barangay            @relation(fields: [barangayId], references: [id], onDelete: Cascade)
-  donationStatus      DonationStatus
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  donationItems       DonationItem[]
-  statusLogs          DonationStatusLog[]
+  id                    String              @id @default(uuid())
+  controlNumber         String              @unique
+  donorId               String
+  donor                 Donor               @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  barangayId            String
+  barangay              Barangay            @relation(fields: [barangayId], references: [id], onDelete: Cascade)
+  donationStatus        DonationStatus
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  donationItems         DonationItem[]
+  statusLogs            DonationStatusLog[]
   barangayRequestPostId String
-  BarangayRequestPost BarangayRequestPost @relation(fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
+  BarangayRequestPost   BarangayRequestPost @relation(fields: [barangayRequestPostId], references: [id], onDelete: Cascade)
 }
 
 model DonationItem {
