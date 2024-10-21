@@ -7,8 +7,6 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
-    console.log(formData);
-
     const barangayArea = formData.get("barangayArea") as string;
     const area = formData.get("area") as string;
     const calamityType = formData.get("calamityType") as string;

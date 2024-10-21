@@ -97,7 +97,6 @@ export default function AdminRequestDonation() {
       formDataToSend.append("donationDropOff", donationDropOff);
       formDataToSend.append("donationLandmark", donationLandmark);
       formDataToSend.append("necessities", JSON.stringify(necessities));
-      formDataToSend.append("specifications", specifications);
 
       // Handle file compression if a file is present
       if (proofFile) {
