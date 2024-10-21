@@ -49,6 +49,7 @@ export async function POST(request: Request) {
         controlNumber: controlNumber,
         donorId: session.user.id,
         barangayId: post.barangayId, // Use the barangayId from the post
+        barangayRequestPostId: postId, // Add this line to associate the donation with the BarangayRequestPost
         donationStatus: "PLEDGED",
         donationItems: {
           create: items.map((item) => ({

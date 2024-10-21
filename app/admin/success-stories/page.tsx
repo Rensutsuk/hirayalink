@@ -5,10 +5,10 @@ import { useSession } from 'next-auth/react';
 interface BarangayRequestPost {
   id: string;
   dateTime: string;
-  area: string;
+  area: string; // Include area in the interface
   barangayId: string;
   typeOfCalamity: string;
-  donorIds: string[]; // Change this to an array of strings
+  donorIds: string[];
 }
 
 export default function SuccessStoryForm() {
@@ -16,6 +16,7 @@ export default function SuccessStoryForm() {
     const [barangayNo, setBarangayNo] = useState('');
     const [barangayRequestPosts, setBarangayRequestPosts] = useState<BarangayRequestPost[]>([]);
     const [selectedPostId, setSelectedPostId] = useState('');
+    const [selectedPostArea, setSelectedPostArea] = useState(''); // State to hold selected post area
     const [donorIds, setDonorIds] = useState('');
 
     // State to hold form data
@@ -54,11 +55,6 @@ export default function SuccessStoryForm() {
         }
     };
 
-    const fetchDonorIds = async (postId: string) => {
-        // This function is no longer needed as we'll get donor IDs when creating the success story
-        // You can remove this function
-    };
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'photo') {
@@ -67,6 +63,7 @@ export default function SuccessStoryForm() {
             setSelectedPostId(value);
             const selectedPost = barangayRequestPosts.find(post => post.id === value);
             if (selectedPost) {
+                setSelectedPostArea(selectedPost.area); // Set the area of the selected post
                 setFormData({
                     ...formData,
                     calamityName: selectedPost.typeOfCalamity,
@@ -90,11 +87,9 @@ export default function SuccessStoryForm() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    postId: formData.controlNumber,
-                    barangayNumberArea: formData.barangayNo,
+                    postId: selectedPostId, // Use selectedPostId here
                     nameOfCalamity: formData.calamityName,
                     controlNumber: formData.controlNumber,
-                    transactionIds: formData.transactionIds,
                     batchNumber: formData.batchNumber,
                     numberOfRecipients: formData.numberOfRecipients,
                     storyText: formData.storyText,
@@ -105,11 +100,9 @@ export default function SuccessStoryForm() {
             if (response.ok) {
                 const result = await response.json();
                 console.log("Success story submitted successfully", result);
-                // Show success message
                 setShowSuccessMessage(true);
-                // Reset form
                 setFormData({
-                    barangayNo: formData.barangayNo, // Keep the barangay number
+                    barangayNo: formData.barangayNo,
                     calamityName: '',
                     controlNumber: '',
                     transactionIds: '',
@@ -119,7 +112,7 @@ export default function SuccessStoryForm() {
                     photo: null,
                 });
                 setSelectedPostId('');
-                // Hide success message after 3 seconds
+                setSelectedPostArea(''); // Reset selected post area
                 setTimeout(() => setShowSuccessMessage(false), 3000);
             } else {
                 const errorData = await response.json();
@@ -196,6 +189,19 @@ export default function SuccessStoryForm() {
                                         </option>
                                     ))}
                                 </select>
+                            </div>
+
+                            {/* Display Area of Selected Post */}
+                            <div className="mb-4">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">
+                                    Area of Selected Post
+                                </label>
+                                <input
+                                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                    type="text"
+                                    value={selectedPostArea}
+                                    readOnly
+                                />
                             </div>
 
                             {/* Calamity Name */}
@@ -276,7 +282,7 @@ export default function SuccessStoryForm() {
                                 />
                             </div>
 
-                            {/* Success Story Text */}
+                            {/* Story Text */}
                             <div className="mb-4">
                                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="storyText">
                                     Success Story
