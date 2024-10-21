@@ -18,20 +18,18 @@ export async function GET(req: Request) {
     }
 
     const adminId = session.user.id;
-    console.log("Admin ID:", adminId);
 
-    // Get admin's barangay number
+    // Fetch admin's barangay number
     const admin = await prisma.admin.findUnique({
       where: { id: adminId },
       select: { barangayId: true },
     });
-    console.log("Admin:", admin);
 
     if (!admin) {
       return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
     }
 
-    // Get barangay request posts for this admin
+    // Fetch barangay request posts for this admin
     const barangayRequestPosts = await prisma.barangayRequestPost.findMany({
       where: { barangayId: admin.barangayId },
       select: {
@@ -40,30 +38,19 @@ export async function GET(req: Request) {
         area: true,
         barangayId: true,
         typeOfCalamity: true,
+        donations: {
+          select: {
+            donorId: true,
+          },
+        },
       },
       orderBy: { dateTime: 'desc' },
     });
 
-    // Fetch donor IDs for each barangay request post
+    // Map posts to include unique donorIds
     const postsWithDonorIds = await Promise.all(
       barangayRequestPosts.map(async (post) => {
-        const donations = await prisma.donation.findMany({
-          where: {
-            barangayId: post.barangayId,
-            donationStatus: {
-              in: ['COLLECTED', 'PROCESSING', 'IN_TRANSIT', 'RECEIVED']
-            },
-            createdAt: {
-              gte: post.dateTime, // Donations made after the post was created
-              lte: new Date(post.dateTime.getTime() + 7 * 24 * 60 * 60 * 1000) // Within 7 days of the post
-            }
-          },
-          select: {
-            donorId: true,
-          },
-          distinct: ['donorId'],
-        });
-        const donorIds = donations.map(donation => donation.donorId);
+        const donorIds = [...new Set(post.donations.map(donation => donation.donorId))]; // Get unique donorIds
         return { ...post, donorIds };
       })
     );
@@ -83,25 +70,52 @@ export async function POST(req: Request) {
     }
 
     const { 
-      postId,
-      barangayNumberArea,
+      postId, // Ensure postId is included in the request body
       nameOfCalamity,
       controlNumber,
-      transactionIds,
       batchNumber,
       numberOfRecipients,
       storyText,
-      image
+      image,
     } = await req.json();
+
+    // Fetch the BarangayRequestPost to get the barangayId and area
+    const barangayRequestPost = await prisma.barangayRequestPost.findUnique({
+      where: { id: postId },
+      select: { barangayId: true, area: true }, // Get both barangayId and area
+    });
+
+    if (!barangayRequestPost) {
+      return NextResponse.json({ error: 'Invalid Barangay Request Post ID' }, { status: 404 });
+    }
+
+    // Fetch donorIds based on the postId
+    const donorIds = await prisma.donation.findMany({
+      where: {
+        barangayRequestPostId: postId,
+        donationStatus: {
+          in: ['COLLECTED', 'PROCESSING', 'IN_TRANSIT', 'RECEIVED'],
+        },
+      },
+      select: {
+        donorId: true,
+      },
+    });
+
+    // Extract all donorIds without uniqueness check
+    const allDonorIds = donorIds.map(donation => donation.donorId).join('; '); // Change separator to semicolon
+
+    // Log the donor IDs for debugging
+    console.log("All Donor IDs:", allDonorIds);
 
     // Create success story
     const successStory = await prisma.successStory.create({
       data: {
-        postId,
-        barangayNumberArea,
+        area: barangayRequestPost.area, // Use area from the fetched post
+        barangayId: barangayRequestPost.barangayId, // Set the barangayId from the fetched post
         nameOfCalamity,
         controlNumber,
-        transactionIds,
+        transactionIds: allDonorIds, // Use all donorIds without filtering
         batchNumber,
         numberOfRecipients: parseInt(numberOfRecipients),
         storyText,
