@@ -25,7 +25,7 @@ export default function Contact() {
             <div className="bg-white p-6 rounded-lg shadow-md border-2 border-gray-300 px-8">
               <h3 className="text-xl md:text-2xl font-semibold text-gray-800">Phone</h3>
               <p className="mt-2 text-gray-600 text-sm md:text-base">
-                Ermel Burca<br />
+                Elmer Burca<br />
                 +63 916 698 6880<br /><br />
                 <span className="text-gray-600">or Viber</span><br /><br />
                 Apply Joy Ruben<br />
