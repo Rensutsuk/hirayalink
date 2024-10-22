@@ -214,7 +214,7 @@ export default function AdminSignUp() {
               <h3 className="font-semibold mt-2">7. Contact</h3>
               <p>
                 If you have any questions regarding these terms, feel free to
-                contact us at HirayaLink.2024@gmail.com.
+                contact us at hirayalink.2024@gmail.com.
               </p>
             </div>
 
@@ -272,7 +272,7 @@ export default function AdminSignUp() {
               <h3 className="font-semibold mt-2">6. Contact Us</h3>
               <p>
                 If you have any questions about this privacy policy, please
-                contact us at HirayaLink.2024@gmail.com.
+                contact us at hirayalink.2024@gmail.com.
               </p>
             </div>
 

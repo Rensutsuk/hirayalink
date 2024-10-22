@@ -26,15 +26,20 @@ export default function LearnMore() {
       <section className="bg-green-100 py-16 mb-16 rounded-lg">
         <div className="max-w-4xl mx-auto text-center px-5">
           <h2 className="text-5xl font-bold mb-5 text-green-800">
-            Empowering Relief Efforts
+          Empowering Giving, Every Day, and in Every Way.
           </h2>
           <p className="text-xl text-green-700">
             At HirayaLink, we believe that every contribution counts. By
             connecting donors directly with those in need, we ensure that your
-            generosity has a meaningful impact.
+            generosity has a meaningful impact. 
+          </p><br />
+          <p className="text-xl text-green-700">
+          For Filipino families, especially in disaster-prone areas, in-kind donations are lifelines. From food and clothing to medical and educational materials and construction items, all represent fundamental resources affecting people's lives. Food feeds children; clothing brings warmth and dignity; school materials open up hope for a brighter future; hygiene and health goods ward off infections; and reconstruction of homes and life is done through construction material supplies. In-kind contributions are meant to address urgent needs but often remind the recipient that one is not alone, thus creating a sense of community and solidarity. Contributions of this nature and others can inspire hope and produce lasting positive change.
           </p>
         </div>
       </section>
+
+       
 
       {/* Challenges Section */}
       <section className="bg-white py-16 mb-16 rounded-lg shadow-lg">
