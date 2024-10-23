@@ -57,7 +57,7 @@ export default function Home() {
 					<a
 						role="button"
 						className="btn btn-outline btn-wide mt-10"
-						href="/donation-request-posting"
+						href="/learn-more"
 					>
 						Learn More
 					</a>

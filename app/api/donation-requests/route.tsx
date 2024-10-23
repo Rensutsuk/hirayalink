@@ -56,6 +56,8 @@ export async function GET(request: Request) {
         area: true,
         typeOfCalamity: true,
         dateTime: true,
+        inKindNecessities: true,
+        specifications: true,
       },
     });
 

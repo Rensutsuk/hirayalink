@@ -11,7 +11,7 @@ export default function FullMenu() {
     { href: "/admin/success-stories", label: "Success Stories" },
     { href: "/admin/admin-request-donation", label: "Request Donation" },
     { href: "/admin/manage-donation-request-posts", label: "Manage Donation Request Posts" },
-    { href: "/admin/feedbacks-and-comments", label: "Feedbacks and Comments" },
+    { href: "/admin/feedbacks-and-comments", label: "Calamity Impact" },
   ];
 
   return (

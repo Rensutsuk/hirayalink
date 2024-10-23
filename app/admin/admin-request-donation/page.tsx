@@ -3,47 +3,59 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { useSession } from "next-auth/react";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 export default function AdminRequestDonation() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const initialFormState = {
-    barangayId: "",
-    barangayArea: "", // This will hold the name to display
+    barangayArea: "",
     calamityType: "",
     contactPerson: "",
     contactNumber: "",
     donationDropOff: "",
     donationLandmark: "",
-    necessities: [],
+    necessities: {},
+    specifications: {},
     proofFile: null,
-    area: "", // Added area field
+    area: "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
 
   useEffect(() => {
-    const necessities = searchParams.get("necessities")?.split(",") || [];
-    const area = searchParams.get("area") || "";
-    const calamityType = searchParams.get("calamityType") || "";
+    const areas = searchParams.get("areas")?.split(",") || [];
+    const calamityTypes = searchParams.get("calamityTypes")?.split(",") || [];
+    let necessities = {};
+    let specifications = {};
+
+    try {
+      necessities = JSON.parse(searchParams.get("necessities") || "{}");
+    } catch (error) {
+      console.error("Error parsing necessities:", error);
+    }
+
+    try {
+      specifications = JSON.parse(searchParams.get("specifications") || "{}");
+    } catch (error) {
+      console.error("Error parsing specifications:", error);
+    }
 
     if (session) {
-      const barangayName = session.user.brgyName;
+      const barangayName = session?.user?.brgyName || "";
 
-      console.log(barangayName);
-
-      setFormData((prevData) => ({
-        ...prevData,
-        barangayArea: barangayName, // Set barangay name to display
-        calamityType: calamityType,
-        necessities: necessities,
-        area: area,
-      }));
+      setFormData((prevData) => {
+        const newData = {
+          ...prevData,
+          barangayArea: barangayName,
+          area: areas.join(", "),
+          calamityType: calamityTypes.join(", "),
+          necessities: necessities,
+          specifications: specifications,
+        };
+        return newData;
+      });
     }
   }, [searchParams, session]);
 
@@ -58,16 +70,6 @@ export default function AdminRequestDonation() {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
-    }));
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      necessities: checked
-        ? [...prevData.necessities, name]
-        : prevData.necessities.filter((item) => item !== name),
     }));
   };
 
@@ -86,29 +88,28 @@ export default function AdminRequestDonation() {
     try {
       const formDataToSend = new FormData();
       const {
-        barangayId = await prisma.barangay.findUnique({
-          where: { name: session.user.brgyName },
-          select: { id: true },
-        }),
+        barangayArea,
+        area,
         calamityType,
         contactPerson,
         contactNumber,
         donationDropOff,
         donationLandmark,
         necessities,
+        specifications,
         proofFile,
-        area,
       } = formData;
 
       // Append form data
-      formDataToSend.append("barangayId", barangayId);
+      formDataToSend.append("barangayArea", barangayArea);
+      formDataToSend.append("area", area);
       formDataToSend.append("calamityType", calamityType);
       formDataToSend.append("contactPerson", contactPerson);
       formDataToSend.append("contactNumber", contactNumber);
       formDataToSend.append("donationDropOff", donationDropOff);
       formDataToSend.append("donationLandmark", donationLandmark);
       formDataToSend.append("necessities", JSON.stringify(necessities));
-      formDataToSend.append("area", area); // Append area field
+      formDataToSend.append("specifications", JSON.stringify(specifications));
 
       // Handle file compression if a file is present
       if (proofFile) {
@@ -128,7 +129,7 @@ export default function AdminRequestDonation() {
 
       if (response.ok) {
         alert("Your request has been submitted successfully.");
-        router.push("/admin");
+        router.push("/admin/dashboard");
       } else {
         console.error("Failed to submit form data");
       }
@@ -136,6 +137,31 @@ export default function AdminRequestDonation() {
       console.error("Error:", error);
     }
   };
+
+  const renderNecessitiesAndSpecifications = () => {
+    console.log("Rendering necessities:", formData.necessities);
+    console.log("Rendering specifications:", formData.specifications);
+
+    return (
+      <div className="gap-4">
+        {Object.entries(formData.necessities).map(([category, items], index) => (
+          <div key={index} className="m-2">
+            <strong>{category}:</strong>{" "}
+            {Array.isArray(items) ? items.join(", ") : items}
+            <span className="ml-2">
+              {formData.specifications[category] 
+                ? (Array.isArray(formData.specifications[category]) 
+                   ? formData.specifications[category].join(", ") 
+                   : formData.specifications[category])
+                : "No Specifications"}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  console.log("Component rendered, current formData:", formData);
 
   return (
     <div>
@@ -203,12 +229,22 @@ export default function AdminRequestDonation() {
                     required
                     disabled
                   >
-                    <option value="">Select Calamity Type</option>
-                    <option value="Typhoon">Typhoon</option>
+                    <option value="" disabled selected>
+                      Select Calamity Type
+                    </option>
                     <option value="Flood">Flood</option>
                     <option value="Earthquake">Earthquake</option>
+                    <option value="Tropical Disease">Tropical Disease</option>
                     <option value="Drought">Drought</option>
-                    <option value="Other">Other</option>
+                    <option value="Dengue Fever">Dengue Fever</option>
+                    <option value="Water Shortage">Water Shortage</option>
+                    <option value="Heatwave">Heatwave</option>
+                    <option value="Tsunami">Tsunami</option>
+                    <option value="Leptospirosis">Leptospirosis</option>
+                    <option value="Volcanic Eruption">Volcanic Eruption</option>
+                    <option value="Landslide">Landslide</option>
+                    <option value="Typhoon">Typhoon</option>
+                    <option value="Fire">Fire</option>
                   </select>
                 </div>
                 <div>
@@ -282,63 +318,10 @@ export default function AdminRequestDonation() {
 
               <div className="mb-4">
                 <label className="label">
-                  <span className="label-text">In-Kind Necessities List</span>
+                  <span className="label-text">In-Kind Necessities</span>
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    "Education",
-                    "Health",
-                    "Food",
-                    "Electronic Devices",
-                    "Livelihood Support",
-                    "Construction Materials",
-                    "Solar Energy Solutions",
-                    "Water Filtration and Purification Systems",
-                    "Livestock and Animal care",
-                    "Planting materials",
-                    "Emergency Communication and Connectivity",
-                    "Shelter Materials",
-                    "Hygiene Supplies",
-                    "First Aid Kit Essentials",
-                    "Fire Prevention and Safety Products",
-                    "Clothing and Footware",
-                    "Cleaning and Sanitary Supplies",
-                    "Child and Infant Care Items",
-                    "Money",
-                    "Medical Supplies",
-                    "Water",
-                    "Tents",
-                    "Tools",
-                    "Blankets",
-                    "Seeds",
-                    "Agricultural Tools",
-                    "Water Purifiers",
-                    "Medicines",
-                    "Water Tanks",
-                    "Sandbags",
-                    "Water Pumps",
-                    "Heavy Equipment",
-                    "Irrigation Systems",
-                    "Drought-Resistant Seeds",
-                    "Solar Lamps",
-                    "Sleeping Bags",
-                    "Non-perishable Food",
-                    "Shoes",
-                  ].map((necessity) => (
-                    <div key={necessity} className="flex items-center">
-                      <label className="label cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name={necessity}
-                          checked={formData.necessities.includes(necessity)}
-                          onChange={handleCheckboxChange}
-                          className="checkbox checkbox-primary"
-                          disabled
-                        />
-                        <span className="ml-2">{necessity}</span>
-                      </label>
-                    </div>
-                  ))}
+                <div className="p-4 rounded-lg">
+                  {renderNecessitiesAndSpecifications()}
                 </div>
               </div>
 
@@ -356,6 +339,7 @@ export default function AdminRequestDonation() {
                   onChange={handleFileChange}
                 />
               </div>
+
               <div className="flex justify-end">
                 <button className="btn btn-primary text-white" type="submit">
                   Submit

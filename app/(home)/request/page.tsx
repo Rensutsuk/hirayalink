@@ -308,6 +308,7 @@ export default function DonationRequestPosting() {
                   onChange={handleChange}
                   required
                 >
+                  <option value="" disabled selected>Select Calamity</option>
                   <option value="Flood">Flood</option>
                   <option value="Earthquake">Earthquake</option>
                   <option value="Tropical Disease">Tropical Disease</option>

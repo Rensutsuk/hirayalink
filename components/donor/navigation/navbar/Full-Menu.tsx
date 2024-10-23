@@ -34,7 +34,7 @@ export default function FullMenu() {
   };
 
   return (
-    <div className="navbar bg-base-100">
+    <div className="navbar bg-base-100 sticky top-0 z-40">
       <div className="flex-1">
         <Link href="/donor" className="btn btn-ghost text-xl">
           <img src="/aidlink.svg" alt="HirayaLink Logo" className="max-w-12" />

@@ -1,22 +1,32 @@
-import React from 'react';
+import React from "react";
 import { FaThumbsUp, FaComment } from "react-icons/fa";
 import Link from "next/link";
-import CommentSection from './CommentSection';
+import CommentSection from "./CommentSection";
 
-const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComments, likedPosts, newComment, setNewComment, handleAddComment, showComments }) => {
+const PostItem = ({
+  post,
+  session,
+  handleOpenModal,
+  handleLikeClick,
+  toggleComments,
+  likedPosts,
+  newComment,
+  setNewComment,
+  handleAddComment,
+  showComments,
+}) => {
   return (
     <div className="relative p-4 bg-white shadow-md rounded-lg max-w-4xl mx-auto flex">
       <div className="flex-grow">
         <div className="bg-primary text-white text-lg font-semi bold px-4 py-2 flex justify-between items-center rounded-t-lg">
-          <span className="font-bold">{post.completeName}: {post.area}</span> {/* Updated to match Post.tsx */}
+          <span className="font-bold">
+            {post.person}: {post.area}
+          </span>{" "}
+          {/* Updated to match Post.tsx */}
           <span className="text-sm">
-            {new Date(post.dateTime).toLocaleString()} {/* Updated to match Post.tsx */}
+            {new Date(post.dateTime).toLocaleString()}{" "}
+            {/* Updated to match Post.tsx */}
           </span>
-        </div>
-
-        {/* Static Calamity Type Display */}
-        <div className="absolute top-1 left-1 bg-error text-white font-bold py-0 px-1 rounded-md">
-          {post.typeOfCalamity} {/* Updated to match Post.tsx */}
         </div>
 
         {session ? (
@@ -36,13 +46,8 @@ const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComme
         <div className="p-4 border-2 border-primary rounded-b-lg">
           <div className="flex flex-wrap gap-2 text-sm">
             <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Age:</strong> {post.age} {/* Added Age display */}
-            </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Barangay:</strong> {post.Barangay.name.replace('Barangay ', '')} {/* Added Barangay display */}
-            </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Needs:</strong> {post.inKind}
+              <strong>Barangay:</strong>{" "}
+              {post.Barangay.name.replace("Barangay ", "")}
             </div>
             <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Calamity:</strong> {post.typeOfCalamity}
@@ -59,11 +64,44 @@ const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComme
             <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Landmark:</strong> {post.dropOffLandmark}
             </div>
+            {post.inKind && post.specifications && (
+              <div className="flex flex-wrap gap-2 text-sm">
+                {Object.entries(post.inKind).map(
+                  ([key, value]) =>
+                    value && (
+                      <div
+                        key={key}
+                        className="p-1 px-2 bg-gray-100 rounded-full"
+                      >
+                        <strong>{key}:</strong>{" "}
+                        {post.specifications[key]
+                          ? (Array.isArray(post.specifications[key])
+                              ? post.specifications[key]
+                              : [post.specifications[key]]
+                            )
+                              .flatMap((item) =>
+                                typeof item === "string"
+                                  ? item.split(",")
+                                  : item
+                              )
+                              .map((item) =>
+                                typeof item === "string" ? item.trim() : item
+                              )
+                              .filter(Boolean)
+                              .join(", ")
+                          : "Nothing Specific"}
+                      </div>
+                    )
+                )}
+              </div>
+            )}
           </div>
 
-          {post.uploadedPhoto && (
+          {post.image && (
             <img
-              src={`data:image/jpeg;base64,${Buffer.from(post.uploadedPhoto).toString("base64")}`}
+              src={`data:image/jpeg;base64,${Buffer.from(post.image).toString(
+                "base64"
+              )}`}
               alt="Donation Image"
               className="w-full h-auto rounded-lg mt-4"
             />
@@ -74,7 +112,11 @@ const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComme
               <div
                 role="button"
                 onClick={() => handleLikeClick(post.id)}
-                className={`btn btn-sm ${likedPosts.has(post.id) ? "btn-primary text-white" : "btn-outline"} flex items-center`}
+                className={`btn btn-sm ${
+                  likedPosts.has(post.id)
+                    ? "btn-primary text-white"
+                    : "btn-outline"
+                } flex items-center`}
               >
                 <FaThumbsUp className="mr-1" /> {post.likes.length}
               </div>
@@ -98,11 +140,11 @@ const PostItem = ({ post, session, handleOpenModal, handleLikeClick, toggleComme
       </div>
 
       {showComments[post.id] && (
-        <CommentSection 
-          post={post} 
-          newComment={newComment} 
-          setNewComment={setNewComment} 
-          handleAddComment={handleAddComment} 
+        <CommentSection
+          post={post}
+          newComment={newComment}
+          setNewComment={setNewComment}
+          handleAddComment={handleAddComment}
         />
       )}
     </div>

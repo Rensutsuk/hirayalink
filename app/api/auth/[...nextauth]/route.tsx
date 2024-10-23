@@ -2,7 +2,7 @@ import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import { verify } from "argon2"; // Change from bcrypt to argon2
+import { verify } from "argon2";
 
 const prisma = new PrismaClient();
 
@@ -38,8 +38,8 @@ export const authOptions: AuthOptions = {
               barangay: {
                 select: {
                   name: true,
-                }
-              }
+                },
+              },
             },
           });
         } else if (credentials.userType === "donor") {

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import PostList from "@/components/donor/posts/barangay-requests/PostList";
-import DonationModal from "@/components/donor/posts/barangay-requests/DonationModal"; 
+import DonationModal from "@/components/donor/posts/barangay-requests/DonationModal";
+import debounce from "lodash.debounce";
 
 interface BarangayRequestPost {
   id: string;
-  controlNumber: string;
-  barangay: string;
+  area: string;
   person: string;
   typeOfCalamity: string;
   inKind: string;
@@ -33,59 +33,102 @@ export default function BarangayRequests() {
   const [error, setError] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [selectedBarangay, setSelectedBarangay] = useState<string>("");
-  const [selectedItems, setSelectedItems] = useState<
-    { name: string; quantity: number }[]
-  >([]);
-  const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const [barangays, setBarangays] = useState<{ id: string; name: string }[]>(
+    []
+  );
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const observer = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchBarangays = async () => {
+      try {
+        const response = await fetch("/api/barangays");
+        if (!response.ok) {
+          throw new Error("Failed to fetch barangays");
+        }
+        const data = await response.json();
+        setBarangays(data);
+      } catch (error) {
+        console.error("Error fetching barangays:", error);
+      }
+    };
+
+    fetchBarangays();
+  }, []);
+
+  const fetchPosts = useCallback(
+    debounce(async (barangay: string, page: number) => {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/posts?type=barangay");
+        const response = await fetch(
+          `/api/posts?type=barangay&area=${barangay}&page=${page}&limit=10`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch posts");
         }
         const data = await response.json();
-        setPosts(data);
+        setPosts((prevPosts) => [...prevPosts, ...data.posts]);
+        setHasMore(data.hasMore);
         const initialLikedPosts = new Set(
-          data.filter((post) => post.likedByUser).map((post) => post.id)
+          data.posts.filter((post) => post.likedByUser).map((post) => post.id)
         );
-        setLikedPosts(initialLikedPosts);
+        setLikedPosts(
+          (prevLikedPosts) => new Set([...prevLikedPosts, ...initialLikedPosts])
+        );
       } catch (error) {
         console.error("Error fetching posts:", error);
         setError("Failed to load posts. Please try again later.");
       } finally {
         setIsLoading(false);
       }
-    };
+    }, 300), // Debounce for 300ms
+    []
+  );
 
-    fetchPosts();
-  }, []);
+  useEffect(() => {
+    setPosts([]); // Clear posts when barangay changes
+    setPage(1); // Reset page number
+    fetchPosts(selectedBarangay, 1);
+  }, [selectedBarangay, fetchPosts]);
 
-  const handleOpenModal = (postId: number) => {
+  const lastPostElementRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, hasMore]
+  );
+
+  useEffect(() => {
+    if (page > 1) {
+      fetchPosts(selectedBarangay, page);
+    }
+  }, [page, selectedBarangay, fetchPosts]);
+
+  const handleOpenModal = (postId: string) => {
     setSelectedPostId(postId);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setSelectedPostId(null);
   };
 
-  const handleItemSelection = (item) => {
-    setSelectedItems((prev) => {
-      const exists = prev.find((i) => i.name === item.name);
-      if (exists) {
-        return prev.filter((i) => i.name !== item.name);
-      } else {
-        return [...prev, { ...item, quantity: 1 }];
-      }
-    });
-  };
-
-  const handleDonateClick = async (post: BarangayRequestPost, items: { name: string; quantity: number; specificName: string }[]) => {
+  const handleDonateClick = async (
+    postId: string,
+    items: { name: string; quantity: number; specificName: string }[]
+  ) => {
     if (!session?.user) {
       setError("Please log in to donate.");
       return;
@@ -98,14 +141,12 @@ export default function BarangayRequests() {
 
     try {
       const donationData = {
-        postId: post.id,
+        postId: postId,
         items: items.map((item) => ({
           name: item.specificName || item.name,
           quantity: item.quantity,
         })),
       };
-
-      console.log("Attempting to pledge donation:", donationData);
 
       const response = await fetch("/api/donation-pledge", {
         method: "POST",
@@ -118,17 +159,15 @@ export default function BarangayRequests() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Server response:", data);
-        throw new Error(data.error || data.details || "Failed to create donation");
+        throw new Error(data.error || "Failed to create donation");
       }
 
-      setError(null);
       setMessage("Donation created successfully!");
       handleCloseModal();
       // You might want to refresh the posts or update the UI here
     } catch (error) {
       console.error("Error creating donation:", error);
-      setError(`Failed to create donation: ${error.message}`);
+      setError(error.message || "Failed to create donation. Please try again.");
     }
   };
 
@@ -209,43 +248,40 @@ export default function BarangayRequests() {
     }
   };
 
-  const filteredPosts = selectedBarangay
-    ? posts.filter((post) => post.barangay === selectedBarangay)
-    : posts;
-
   return (
     <div>
-      <div className="hero-background bg-cover max-h-[20rem] mb-5">
-        <div className="py-14 backdrop-blur-sm bg-black/25">
-          <h1 className="mb-0 py-0 text-5xl font-bold text-center text-white">
-            Barangay Donation Request Post
-          </h1>
-          <p className="text-center text-white mt-2 text-xl">
-            {selectedBarangay
-              ? `Official requests from ${selectedBarangay}`
-              : "Official requests from all Barangays"}
-          </p>
-          <div className="flex items-center justify-end mt-4 mr-10">
+      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-40">
+        <div className="flex justify-between pt-10 pb-5 backdrop-blur-sm bg-black/25 w-full">
+          <div className="invisible"></div>
+          <div></div>
+          <div className="flex flex-col">
+            <h1 className="mb-0 py-0 text-3xl font-bold text-center text-white">
+              Barangay Donation Request Post
+            </h1>
+            <p className="text-center text-white mt-2 text-lg">
+              {selectedBarangay
+                ? `Official requests from ${selectedBarangay}`
+                : "Official requests from all Barangays"}
+            </p>
+          </div>
+          <div className="mt-4 mr-10">
             <select
               value={selectedBarangay}
               onChange={(e) => setSelectedBarangay(e.target.value)}
               className="select select-bordered w-min max-w-xs"
             >
-              <option value="">All Barangays</option>
-              {/* Add options for each barangay */}
-              {Array.from(new Set(posts.map((post) => post.barangay))).map(
-                (barangay) => (
-                  <option key={barangay} value={barangay}>
-                    {barangay}
-                  </option>
-                )
-              )}
+              <option value="">All Areas</option>
+              {barangays.map((barangay) => (
+                <option key={barangay.id} value={barangay.name}>
+                  {barangay.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
       </div>
       <PostList
-        posts={filteredPosts}
+        posts={posts}
         session={session}
         handleOpenModal={handleOpenModal}
         handleLikeClick={handleLikeClick}
@@ -257,25 +293,21 @@ export default function BarangayRequests() {
         showComments={showComments}
         isLoading={isLoading}
         error={error}
+        lastPostElementRef={lastPostElementRef} // Pass the ref to the PostList
       />
-
-      {message && (
-        <p
-          className={
-            message.includes("successfully") ? "text-green-500" : "text-red-500"
-          }
-        >
-          {message}
-        </p>
-      )}
 
       {isModalOpen && (
         <DonationModal
-          posts={posts}
-          selectedPostId={selectedPostId}
+          post={posts.find((p) => p.id === selectedPostId)}
           handleDonateClick={handleDonateClick}
           handleCloseModal={handleCloseModal}
         />
+      )}
+
+      {message && (
+        <div className="fixed bottom-4 right-4 bg-primary text-white p-4 rounded-lg shadow-lg">
+          {message}
+        </div>
       )}
     </div>
   );

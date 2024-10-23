@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 interface DonationItem {
   itemName: string;
@@ -21,16 +22,38 @@ interface GroupedDonations {
 }
 
 export default function ManageDonationRequestPosts() {
+  const { data: session, status } = useSession();
   const [groupedDonations, setGroupedDonations] = useState<GroupedDonations>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("Session status:", status);
+    console.log("Session data:", session);
+
     const fetchDonations = async () => {
+      if (status === "loading") return;
+
+      if (!session) {
+        console.log("No user session found");
+        setError("Please log in to view donations");
+        setLoading(false);
+        return;
+      }
+
+      if (session.user.userType !== "admin") {
+        console.log("User is not an admin");
+        setError("You do not have permission to view this page");
+        setLoading(false);
+        return;
+      }
+
       try {
+        console.log("Fetching donations for admin");
         const res = await fetch("/api/donations");
         if (!res.ok) throw new Error("Failed to fetch donations");
         const data: Donation[] = await res.json();
+        console.log("Fetched donations:", data);
         
         // Group donations by barangayRequestPostId
         const grouped = data.reduce((acc, donation) => {
@@ -42,6 +65,7 @@ export default function ManageDonationRequestPosts() {
           return acc;
         }, {} as GroupedDonations);
 
+        console.log("Grouped donations:", grouped);
         setGroupedDonations(grouped);
       } catch (error) {
         console.error("Failed to fetch donations:", error);
@@ -52,7 +76,7 @@ export default function ManageDonationRequestPosts() {
     };
 
     fetchDonations();
-  }, []);
+  }, [session, status]);
 
   const handleUpdateStatus = async (
     donationId: number,
@@ -90,29 +114,11 @@ export default function ManageDonationRequestPosts() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="loading loading-spinner loading-lg text-primary"></div>
-    );
-  if (error)
-    return (
-      <div role="alert" className="alert alert-error">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 shrink-0 stroke-current"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <span>Error: {error}</span>
-      </div>
-    );
+  if (status === "loading") return <div>Loading session...</div>;
+  if (!session) return <div>Please log in to view this page</div>;
+  if (session.user.userType !== "admin") return <div>You do not have permission to view this page</div>;
+  if (loading) return <div>Loading donations...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="container mx-auto p-4">
