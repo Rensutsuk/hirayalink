@@ -146,7 +146,7 @@ export default function RecipientRequests() {
     <div>
       <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-10 z-30">
         <div className="text-center py-14 backdrop-blur-sm bg-black/25">
-          <h1 className="mb-0 py-0 text-5xl font-bold text-white">
+          <h1 className="mb-0 py-0 text-3xl font-bold text-white">
             Recipient Donation Request Post
           </h1>
         </div>

@@ -250,17 +250,21 @@ export default function BarangayRequests() {
 
   return (
     <div>
-      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-10 z-30">
-        <div className="pt-10 pb-5 backdrop-blur-sm bg-black/25">
-          <h1 className="mb-0 py-0 text-5xl font-bold text-center text-white">
-            Barangay Donation Request Post
-          </h1>
-          <p className="text-center text-white mt-2 text-xl">
-            {selectedBarangay
-              ? `Official requests from ${selectedBarangay}`
-              : "Official requests from all Barangays"}
-          </p>
-          <div className="flex items-center justify-end mt-4 mr-10">
+      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-40">
+        <div className="flex justify-between pt-10 pb-5 backdrop-blur-sm bg-black/25 w-full">
+          <div className="invisible"></div>
+          <div></div>
+          <div className="flex flex-col">
+            <h1 className="mb-0 py-0 text-3xl font-bold text-center text-white">
+              Barangay Donation Request Post
+            </h1>
+            <p className="text-center text-white mt-2 text-lg">
+              {selectedBarangay
+                ? `Official requests from ${selectedBarangay}`
+                : "Official requests from all Barangays"}
+            </p>
+          </div>
+          <div className="mt-4 mr-10">
             <select
               value={selectedBarangay}
               onChange={(e) => setSelectedBarangay(e.target.value)}

@@ -1,23 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
+import { useSession } from "next-auth/react";
 
-const DonationModal = ({ post, handleDonateClick, handleCloseModal }) => {
-  console.log("DonationModal rendered", { post });
-
-  useEffect(() => {
-    console.log("DonationModal mounted or updated");
-  });
-
-  const [selectedItems, setSelectedItems] = useState<{ name: string; quantity: number; specificName: string }[]>([]);
+const DonationModal = ({
+  post,
+  handleCloseModal,
+}: {
+  post: any;
+  handleCloseModal: any;
+}) => {
+  const { data: session } = useSession();
+  const [selectedItems, setSelectedItems] = useState<
+    { name: string; quantity: number; specificName: string }[]
+  >([]);
 
   const handleItemSelection = (itemName: string, isChecked: boolean) => {
     if (isChecked) {
-      setSelectedItems([...selectedItems, { name: itemName, quantity: 1, specificName: '' }]);
+      setSelectedItems([
+        ...selectedItems,
+        { name: itemName, quantity: 1, specificName: "" },
+      ]);
     } else {
-      setSelectedItems(selectedItems.filter(item => item.name !== itemName));
+      setSelectedItems(selectedItems.filter((item) => item.name !== itemName));
     }
   };
 
-  const handleItemChange = (index: number, field: 'quantity' | 'specificName', value: string | number) => {
+  const handleItemChange = (
+    index: number,
+    field: "quantity" | "specificName",
+    value: string | number
+  ) => {
     const updatedItems = [...selectedItems];
     updatedItems[index][field] = value;
     setSelectedItems(updatedItems);
@@ -28,65 +39,113 @@ const DonationModal = ({ post, handleDonateClick, handleCloseModal }) => {
     return null; // or return a loading indicator or error message
   }
 
-  const necessitiesArray = post.inKind.split(",").map(item => item.trim());
-  console.log("Necessities array:", necessitiesArray);
+  const necessitiesArray = Object.keys(post.inKind);
 
-  console.log("Rendering modal content");
+  const handleDonateClick = async () => {
+    try {
+      const response = await fetch("/api/submit-donation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          donorId: session?.user?.id,
+          barangayId: post.barangayId,
+          barangayRequestPostId: post.id,
+          items: selectedItems.map((item) => ({
+            itemName: item.specificName || item.name,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      alert("Donation has been Pleged. Please await the next steps.");
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error submitting donation:", error);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">Select Items to Donate</h2>
-        {console.log("Mapping necessities:", necessitiesArray)}
-        {necessitiesArray.map((item, index) => {
-          console.log("Rendering item:", item);
-          const isSelected = selectedItems.some(i => i.name === item);
-          const selectedIndex = selectedItems.findIndex(i => i.name === item);
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
+      <div className="modal-box bg-base-100 w-11/12 max-w-md">
+        <div className="bg-primary text-white p-5 rounded-t-lg sticky top-0 w-full z-50">
+          <h2 className="text-xl font-bold">Select Items to Donate</h2>
+        </div>
+        <div className="px-5 my-5">
+          {necessitiesArray.map((item, index) => {
+            const isSelected = selectedItems.some((i) => i.name === item);
+            const selectedIndex = selectedItems.findIndex(
+              (i) => i.name === item
+            );
 
-          return (
-            <div key={index} className="mb-4">
-              <div className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={(e) => handleItemSelection(item, e.target.checked)}
-                  className="mr-2"
-                />
-                <span>{item}</span>
+            return (
+              <div key={index} className="form-control mb-4">
+                <label className="label cursor-pointer justify-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={(e) =>
+                      handleItemSelection(item, e.target.checked)
+                    }
+                    className="checkbox checkbox-primary"
+                  />
+                  <span className="label-text text-lg">{item}</span>
+                </label>
+                {isSelected && (
+                  <div className="ml-6 space-y-2 mt-2">
+                    <input
+                      type="text"
+                      placeholder="Specific item name"
+                      value={selectedItems[selectedIndex].specificName}
+                      onChange={(e) =>
+                        handleItemChange(
+                          selectedIndex,
+                          "specificName",
+                          e.target.value
+                        )
+                      }
+                      required
+                      className="input input-bordered w-full"
+                    />
+                    <input
+                      type="number"
+                      min="1"
+                      value={selectedItems[selectedIndex].quantity}
+                      onChange={(e) =>
+                        handleItemChange(
+                          selectedIndex,
+                          "quantity",
+                          parseInt(e.target.value) || 1
+                        )
+                      }
+                      required
+                      className="input input-bordered w-full"
+                    />
+                  </div>
+                )}
               </div>
-              {isSelected && (
-                <div className="ml-6 space-y-2">
-                  <input
-                    type="text"
-                    placeholder="Specific item name"
-                    value={selectedItems[selectedIndex].specificName}
-                    onChange={(e) => handleItemChange(selectedIndex, 'specificName', e.target.value)}
-                    className="w-full p-2 border rounded"
-                  />
-                  <input
-                    type="number"
-                    min="1"
-                    value={selectedItems[selectedIndex].quantity}
-                    onChange={(e) => handleItemChange(selectedIndex, 'quantity', parseInt(e.target.value) || 1)}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
-        <button
-          onClick={() => handleDonateClick(post.id, selectedItems)}
-          disabled={selectedItems.length === 0}
-          className="w-full mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
-        >
-          Confirm
-        </button>
-        <button
-          onClick={handleCloseModal}
-          className="w-full mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          Cancel
-        </button>
+            );
+          })}
+        </div>
+        <div className="modal-action pb-5 pr-5">
+          <button
+            onClick={handleDonateClick}
+            disabled={selectedItems.length === 0}
+            className="btn btn-primary text-white"
+          >
+            Confirm
+          </button>
+          <button onClick={handleCloseModal} className="btn btn-error">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );

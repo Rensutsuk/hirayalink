@@ -51,22 +51,8 @@ const PostItem = ({
         <div className="p-4 border-2 border-primary rounded-b-lg">
           <div className="flex flex-wrap gap-2 text-sm">
             <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Age:</strong> {post.age} {/* Added Age display */}
-            </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Barangay:</strong>{" "}
-              {post.Barangay.name.replace("Barangay ", "")}{" "}
-              {/* Added Barangay display */}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(post.inKind).map(([key, value], index) => (
-                <div
-                  key={index}
-                  className="p-1 px-2 bg-gray-100 rounded-full"
-                >
-                  <strong>{value}</strong>
-                </div>
-              ))}
+              {post.Barangay.name.replace("Barangay ", "")}
             </div>
             <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Calamity:</strong> {post.typeOfCalamity}
@@ -83,13 +69,44 @@ const PostItem = ({
             <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Landmark:</strong> {post.dropOffLandmark}
             </div>
+            {post.inKind && post.specifications && (
+              <div className="flex flex-wrap gap-2 text-sm">
+                {Object.entries(post.inKind).map(
+                  ([key, value]) =>
+                    value && (
+                      <div
+                        key={key}
+                        className="p-1 px-2 bg-gray-100 rounded-full"
+                      >
+                        <strong>{key}:</strong>{" "}
+                        {post.specifications[key]
+                          ? (Array.isArray(post.specifications[key])
+                              ? post.specifications[key]
+                              : [post.specifications[key]]
+                            )
+                              .flatMap((item) =>
+                                typeof item === "string"
+                                  ? item.split(",")
+                                  : item
+                              )
+                              .map((item) =>
+                                typeof item === "string" ? item.trim() : item
+                              )
+                              .filter(Boolean)
+                              .join(", ")
+                          : "Nothing Specific"}
+                      </div>
+                    )
+                )}
+              </div>
+            )}
           </div>
 
           {post.image && (
             <img
-              src={`data:image/jpeg;base64,${Buffer.from(
-                post.image
-              ).toString("base64")}`}
+              src={`data:image/jpeg;base64,${Buffer.from(post.image).toString(
+                "base64"
+              )}`}
               alt="Donation Image"
               className="w-full h-auto rounded-lg mt-4"
             />

@@ -103,14 +103,14 @@ function DonationTrackingCard({ donation }: { donation: Donation }) {
 
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden mb-6">
-      <div className="bg-green-500 text-white py-2 px-4">{donation.controlNumber}</div>
+      <div className="bg-primary text-white py-2 px-4">{donation.controlNumber}</div>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           {statusOrder.map((status, index) => (
             <div key={status} className="flex flex-col items-center">
               <div
                 className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  index <= currentStatusIndex ? "bg-green-500 text-white" : "bg-gray-200 text-gray-400"
+                  index <= currentStatusIndex ? "bg-primary text-white" : "bg-gray-200 text-gray-400"
                 }`}
               >
                 {getStatusIcon(status)}
@@ -128,7 +128,7 @@ function DonationTrackingCard({ donation }: { donation: Donation }) {
         <div className="space-y-3">
           {donation.statusLogs.map((log) => (
             <div key={log.id} className="flex items-start">
-              <div className="w-3 h-3 rounded-full bg-green-500 mt-1.5 mr-3"></div>
+              <div className="w-3 h-3 rounded-full bg-primary mt-1.5 mr-3"></div>
               <div>
                 <div className="text-sm font-semibold">{formatDate(log.timestamp)}</div>
                 <div className="text-sm text-gray-600">{log.remarks}</div>
