@@ -97,7 +97,7 @@ model RecipientRequestPost {
   contactNumber     String    @db.VarChar(191)
   emailAddress      String?   @db.VarChar(191)
   typeOfCalamity    String    @db.VarChar(191)
-  inKindNecessities String
+  inKindNecessities String    @db.Text
   specifications    String    @db.Text
   uploadedPhoto     Bytes?    @db.LongBlob
   dateTime          DateTime  @default(now())

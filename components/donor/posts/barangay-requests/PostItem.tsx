@@ -29,11 +29,6 @@ const PostItem = ({
           </span>
         </div>
 
-        {/* Static Calamity Type Display */}
-        <div className="absolute top-1 left-1 bg-error text-white font-bold py-0 px-1 rounded-md">
-          {post.typeOfCalamity} {/* Updated to match Post.tsx */}
-        </div>
-
         {session ? (
           <div
             role="button"
