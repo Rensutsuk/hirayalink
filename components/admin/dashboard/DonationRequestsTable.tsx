@@ -123,26 +123,83 @@ const DonationRequestsTable = () => {
     const selectedData = requests.filter((request) =>
       selectedRequests.includes(request.id)
     );
-    const necessities = [
-      ...new Set(
-        selectedData.flatMap((request) => request.inKindNecessities.split(", "))
-      ),
-    ];
-    const specifications = [
-      ...new Set(
-        selectedData.flatMap((request) => request.specifications.split(", "))
-      ),
-    ];
-    const areas = [...new Set(selectedData.map((request) => request.area))];
-    const calamityTypes = [
-      ...new Set(selectedData.map((request) => request.typeOfCalamity)),
-    ];
+    
+    const combinedData = selectedData.reduce((acc, request) => {
+      // Combine areas
+      acc.areas = [...new Set([...(acc.areas || []), request.area])];
+      
+      // Combine calamity types
+      acc.calamityTypes = [...new Set([...(acc.calamityTypes || []), request.typeOfCalamity])];
+      
+      // Parse and combine necessities and specifications
+      let necessities, specifications;
+      try {
+        // Try parsing as JSON, if it fails, treat as comma-separated string
+        try {
+          necessities = JSON.parse(request.inKindNecessities.replace(/'/g, '"'));
+        } catch {
+          necessities = request.inKindNecessities.split(',').reduce((acc, item) => {
+            const [key, value] = item.split(':').map(s => s.trim());
+            acc[key] = value;
+            return acc;
+          }, {});
+        }
 
+        try {
+          specifications = JSON.parse(request.specifications.replace(/'/g, '"'));
+        } catch {
+          specifications = request.specifications.split(',').reduce((acc, item) => {
+            const [key, value] = item.split(':').map(s => s.trim());
+            acc[key] = value;
+            return acc;
+          }, {});
+        }
+      } catch (error) {
+        console.error("Error parsing data for request:", request.id, error);
+        necessities = {};
+        specifications = {};
+      }
+      
+      // Combine necessities
+      Object.entries(necessities).forEach(([category, items]) => {
+        if (!acc.necessities) acc.necessities = {};
+        if (!acc.necessities[category]) acc.necessities[category] = new Set();
+        if (Array.isArray(items)) {
+          items.forEach(item => acc.necessities[category].add(item));
+        } else {
+          acc.necessities[category].add(items);
+        }
+      });
+      
+      // Combine specifications
+      Object.entries(specifications).forEach(([category, spec]) => {
+        if (!acc.specifications) acc.specifications = {};
+        if (!acc.specifications[category]) acc.specifications[category] = new Set();
+        acc.specifications[category].add(spec);
+      });
+      
+      return acc;
+    }, {});
+    
+    // Convert Sets to Arrays
+    if (combinedData.necessities) {
+      Object.keys(combinedData.necessities).forEach(category => {
+        combinedData.necessities[category] = Array.from(combinedData.necessities[category]);
+      });
+    }
+    if (combinedData.specifications) {
+      Object.keys(combinedData.specifications).forEach(category => {
+        combinedData.specifications[category] = Array.from(combinedData.specifications[category]);
+      });
+    }
+    
+    console.log("Combined data:", combinedData);
+    
     const queryParams = new URLSearchParams({
-      necessities: necessities.join(","),
-      specifications: specifications.join(","),
-      area: areas.join(", "),
-      calamityType: calamityTypes.join(", "),
+      areas: combinedData.areas.join(','),
+      calamityTypes: combinedData.calamityTypes.join(','),
+      necessities: JSON.stringify(combinedData.necessities || {}),
+      specifications: JSON.stringify(combinedData.specifications || {}),
     });
 
     router.push(`/admin/admin-request-donation?${queryParams.toString()}`);
@@ -351,29 +408,54 @@ const DonationRequestsTable = () => {
               </p>
               <p>
                 <span className="font-semibold">In-Kind Necessities:</span>
-                {selectedRequest.inKindNecessities.split(",").map((necessity, index) => {
-                  const trimmedNecessity = necessity
-                    .trim()
-                    .replace(/['{}"]/g, "");
-                  const correspondingSpecification = selectedRequest.specifications
-                    .split(",")
-                    .find((spec) => spec.trim().includes(trimmedNecessity));
-                  return (
-                    <div
-                      key={index}
-                      className="m-2"
-                    >
-                      <strong>{trimmedNecessity}:</strong>{" "}
-                      {correspondingSpecification
-                        ? correspondingSpecification
-                            .trim()
-                            .replace(/['{}"]/g, "")
-                            .replace(trimmedNecessity, "")
-                            .trim()
-                        : "N/A"}
-                    </div>
-                  );
-                })}
+                {(() => {
+                  try {
+                    let necessities, specifications;
+
+                    // Try parsing as JSON, if it fails, treat as comma-separated string
+                    try {
+                      necessities = JSON.parse(selectedRequest.inKindNecessities.replace(/'/g, '"'));
+                    } catch {
+                      necessities = selectedRequest.inKindNecessities.split(',').reduce((acc, item) => {
+                        const [key, value] = item.split(':').map(s => s.trim());
+                        acc[key] = value;
+                        return acc;
+                      }, {});
+                    }
+
+                    try {
+                      specifications = JSON.parse(selectedRequest.specifications.replace(/'/g, '"'));
+                    } catch {
+                      specifications = selectedRequest.specifications.split(',').reduce((acc, item) => {
+                        const [key, value] = item.split(':').map(s => s.trim());
+                        acc[key] = value;
+                        return acc;
+                      }, {});
+                    }
+
+                    return Object.entries(necessities).map(([category, items], index) => (
+                      <div key={index} className="m-2">
+                        <strong>{category}:</strong>{" "}
+                        {Array.isArray(items) 
+                          ? items.join(", ")
+                          : items}
+                        <span className="ml-2">
+                          {specifications[category] 
+                            ? specifications[category]
+                            : "No Specifications"}
+                        </span>
+                      </div>
+                    ));
+                  } catch (error) {
+                    console.error("Error parsing necessities or specifications:", error);
+                    return (
+                      <div>
+                        <div>{selectedRequest.inKindNecessities}</div>
+                        <div>{selectedRequest.specifications}</div>
+                      </div>
+                    );
+                  }
+                })()}
               </p>
               <p>
                 <span className="font-semibold">Date:</span>{" "}

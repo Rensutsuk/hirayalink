@@ -15,6 +15,7 @@ export async function POST(request: Request) {
     const donationDropOff = formData.get("donationDropOff") as string;
     const donationLandmark = formData.get("donationLandmark") as string;
     const necessities = formData.get("necessities") as string;
+    const specifications = formData.get("specifications") as string;
     const proofFile = formData.get("proofFile") as File;
 
     let proofFileBuffer: Buffer | null = null;
@@ -40,7 +41,8 @@ export async function POST(request: Request) {
         contactNumber,
         dropOffAddress: donationDropOff,
         dropOffLandmark: donationLandmark,
-        inKind: necessities,
+        inKind: JSON.parse(necessities),
+        specifications: JSON.parse(specifications),
         image: proofFileBuffer,
         barangayId: barangay?.id,
       },

@@ -41,7 +41,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-base-100 sticky top-0 z-40">
+    <div className="navbar bg-base-100 sticky top-0 z-50">
       <div className="flex-1">
         <Link href="/home" className="btn btn-ghost text-xl">
           <Image
@@ -119,7 +119,7 @@ const Navbar = () => {
                   <Link href="/login">Login</Link>
                 </li>
                 <li>
-                  <Link href="/register">Sign Up</Link>
+                  <Link href="/signup">Sign Up</Link>
                 </li>
               </>
             )}

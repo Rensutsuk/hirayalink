@@ -3,14 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { useSession } from "next-auth/react";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 export default function AdminRequestDonation() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const initialFormState = {
     barangayArea: "",
@@ -19,31 +16,46 @@ export default function AdminRequestDonation() {
     contactNumber: "",
     donationDropOff: "",
     donationLandmark: "",
-    necessities: [],
+    necessities: {},
+    specifications: {},
     proofFile: null,
     area: "",
-    specifications: "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
 
   useEffect(() => {
-    const necessities = searchParams.get("necessities")?.split(",") || [];
-    const area = searchParams.get("area") || "";
-    const calamityType = searchParams.get("calamityType") || "";
-    const specifications = searchParams.get("specifications") || "";
+    const areas = searchParams.get("areas")?.split(",") || [];
+    const calamityTypes = searchParams.get("calamityTypes")?.split(",") || [];
+    let necessities = {};
+    let specifications = {};
+
+    try {
+      necessities = JSON.parse(searchParams.get("necessities") || "{}");
+    } catch (error) {
+      console.error("Error parsing necessities:", error);
+    }
+
+    try {
+      specifications = JSON.parse(searchParams.get("specifications") || "{}");
+    } catch (error) {
+      console.error("Error parsing specifications:", error);
+    }
 
     if (session) {
-      const barangayName = session.user.brgyName;
+      const barangayName = session?.user?.brgyName || "";
 
-      setFormData((prevData) => ({
-        ...prevData,
-        barangayArea: barangayName,
-        calamityType: calamityType,
-        necessities: necessities,
-        area: area,
-        specifications: specifications,
-      }));
+      setFormData((prevData) => {
+        const newData = {
+          ...prevData,
+          barangayArea: barangayName,
+          area: areas.join(", "),
+          calamityType: calamityTypes.join(", "),
+          necessities: necessities,
+          specifications: specifications,
+        };
+        return newData;
+      });
     }
   }, [searchParams, session]);
 
@@ -97,6 +109,7 @@ export default function AdminRequestDonation() {
       formDataToSend.append("donationDropOff", donationDropOff);
       formDataToSend.append("donationLandmark", donationLandmark);
       formDataToSend.append("necessities", JSON.stringify(necessities));
+      formDataToSend.append("specifications", JSON.stringify(specifications));
 
       // Handle file compression if a file is present
       if (proofFile) {
@@ -126,33 +139,29 @@ export default function AdminRequestDonation() {
   };
 
   const renderNecessitiesAndSpecifications = () => {
-    const necessities = formData.necessities;
-    const allSpecs = formData.specifications.split("\n\n");
+    console.log("Rendering necessities:", formData.necessities);
+    console.log("Rendering specifications:", formData.specifications);
 
     return (
       <div className="gap-4">
-        {formData.necessities
-          .map((necessity, index) => {
-            const trimmedNecessity = necessity.trim().replace(/['{}"]/g, "");
-            const correspondingSpecification = formData.specifications
-              .split(",")
-              .find((spec) => spec.trim().includes(trimmedNecessity));
-            return (
-              <div key={index} className="m-2">
-                <strong>{trimmedNecessity}:</strong>{" "}
-                {correspondingSpecification
-                  ? correspondingSpecification
-                      .trim()
-                      .replace(/['{}"]/g, "")
-                      .replace(trimmedNecessity, "")
-                      .trim()
-                  : "N/A"}
-              </div>
-            );
-          })}
+        {Object.entries(formData.necessities).map(([category, items], index) => (
+          <div key={index} className="m-2">
+            <strong>{category}:</strong>{" "}
+            {Array.isArray(items) ? items.join(", ") : items}
+            <span className="ml-2">
+              {formData.specifications[category] 
+                ? (Array.isArray(formData.specifications[category]) 
+                   ? formData.specifications[category].join(", ") 
+                   : formData.specifications[category])
+                : "No Specifications"}
+            </span>
+          </div>
+        ))}
       </div>
     );
   };
+
+  console.log("Component rendered, current formData:", formData);
 
   return (
     <div>

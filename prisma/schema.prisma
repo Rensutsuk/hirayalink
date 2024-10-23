@@ -41,6 +41,7 @@ model BarangayRequestPost {
   person          String
   typeOfCalamity  String
   inKind          Json
+  specifications  Json
   contactNumber   String
   dropOffAddress  String
   dropOffLandmark String
