@@ -14,7 +14,7 @@ export default function SignupLayout({
 						</span>
 						<span className="inline-block align-middle text-2xl mx-5">to</span>
 						<span className="inline-block align-middle text-5xl font-bold">
-							AIDLINK
+							HIRAYALINK
 						</span>
 					</h1>
 
