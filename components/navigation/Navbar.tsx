@@ -105,7 +105,12 @@ const Navbar = () => {
                 <li className="menu-title text-primary">
                   <span>{session.user.name || "User"}</span>
                 </li>
-                <li>
+                <li className="menu-item">
+                  <button onClick={() => router.push("/donor/profile")}>
+                    Profile
+                  </button>
+                </li>
+                <li className="menu-item">
                   <button onClick={handleSignOut}>Sign Out</button>
                 </li>
               </>
