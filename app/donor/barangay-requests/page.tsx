@@ -252,31 +252,32 @@ export default function BarangayRequests() {
     <div>
       <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-40">
         <div className="flex justify-between pt-10 pb-5 backdrop-blur-sm bg-black/25 w-full">
-          <div className="invisible"></div>
-          <div></div>
-          <div className="flex flex-col">
-            <h1 className="mb-0 py-0 text-3xl font-bold text-center text-white">
-              Barangay Donation Request Post
-            </h1>
-            <p className="text-center text-white mt-2 text-lg">
-              {selectedBarangay
-                ? `Official requests from ${selectedBarangay}`
-                : "Official requests from all Barangays"}
-            </p>
-          </div>
-          <div className="mt-4 mr-10">
-            <select
-              value={selectedBarangay}
-              onChange={(e) => setSelectedBarangay(e.target.value)}
-              className="select select-bordered w-min max-w-xs"
-            >
-              <option value="">All Areas</option>
-              {barangays.map((barangay) => (
-                <option key={barangay.id} value={barangay.name}>
-                  {barangay.name}
-                </option>
-              ))}
-            </select>
+          <div className="flex justify-between items-center w-full">
+            <div className="invisible shrink-0 w-1/4"></div>
+            <div className="flex flex-col items-center flex-grow">
+              <h1 className="mb-0 py-0 text-3xl font-bold text-center text-white">
+                Barangay Donation Request Post
+              </h1>
+              <p className="text-center text-white mt-2 text-lg">
+                {selectedBarangay
+                  ? `Official requests from ${selectedBarangay}`
+                  : "Official requests from all Barangays"}
+              </p>
+            </div>
+            <div className="w-1/4 flex justify-end mr-5">
+              <select
+                value={selectedBarangay}
+                onChange={(e) => setSelectedBarangay(e.target.value)}
+                className="select select-bordered w-min max-w-xs"
+              >
+                <option value="">All Areas</option>
+                {barangays.map((barangay) => (
+                  <option key={barangay.id} value={barangay.name}>
+                    {barangay.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>

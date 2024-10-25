@@ -1,18 +1,16 @@
 import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
 
-export default function RootLayout({
+export default function DonorLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
-			<body>
-        <Navbar />
-				{children}
-        <Footer />
-			</body>
-		</html>
+		<>
+			<Navbar />
+			<main>{children}</main>
+			<Footer />
+		</>
 	);
 }

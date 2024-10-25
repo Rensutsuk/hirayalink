@@ -4,19 +4,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import NavLink from './NavLink';
 
 const Navbar = () => {
   const router = useRouter();
-  const [isDonor, setIsDonor] = useState(false); // State to track if user is a donor
+  const [isDonor, setIsDonor] = useState(false);
   const { data: session, status } = useSession();
+  const pathname = usePathname();
 
   useEffect(() => {
-    console.log("Session data:", session);
-    console.log("Session status:", status);
-    // Set donor status based on session data
-    if (session?.user) {
-      setIsDonor(true); // Adjust this logic based on your actual donor check
+    if (session?.user?.userType === "donor") {
+      setIsDonor(true);
+    }
+    if (session?.user?.userType === "admin") {
+      router.push("/admin/manage-donation-request-posts");
     }
   }, [session, status]);
 
@@ -31,7 +33,7 @@ const Navbar = () => {
 
       if (response.ok) {
         await signOut({ redirect: false });
-        window.location.href = "/";
+        router.push("/");
       } else {
         console.error("Sign out failed");
       }
@@ -39,6 +41,18 @@ const Navbar = () => {
       console.error("Error during sign out:", error);
     }
   };
+
+  const donorLinks = [
+    { href: "/donor/recipient-requests", label: "Recipients" },
+    { href: "/donor/barangay-requests", label: "Barangays" },
+  ];
+
+  const defaultLinks = [
+    { href: "/home", label: "Home" },
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
+    { href: "/faqs", label: "FAQs" },
+  ];
 
   return (
     <div className="navbar bg-base-100 sticky top-0 z-50">
@@ -59,31 +73,13 @@ const Navbar = () => {
       </div>
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
-          {session?.user && isDonor ? (
-            <>
-              <li className={router.pathname === "/donor/recipient-requests" ? "active" : ""}>
-                <Link href="/donor/recipient-requests">Recipients</Link>
-              </li>
-              <li className={router.pathname === "/donor/barangay-requests" ? "active" : ""}>
-                <Link href="/donor/barangay-requests">Barangays</Link>
-              </li>
-            </>
-          ) : (
-            <>
-              <li className={router.pathname === "/home" ? "active" : ""}>
-                <Link href="/home">Home</Link>
-              </li>
-              <li className={router.pathname === "/about" ? "active" : ""}>
-                <Link href="/about">About</Link>
-              </li>
-              <li className={router.pathname === "/contact" ? "active" : ""}>
-                <Link href="/contact">Contact</Link>
-              </li>
-              <li className={router.pathname === "/faqs" ? "active" : ""}>
-                <Link href="/faqs">FAQs</Link>
-              </li>
-            </>
-          )}
+          {session?.user && isDonor
+            ? donorLinks.map((link) => (
+                <NavLink key={link.href} {...link} pathname={pathname} />
+              ))
+            : defaultLinks.map((link) => (
+                <NavLink key={link.href} {...link} pathname={pathname} />
+              ))}
         </ul>
         <div className="dropdown dropdown-end">
           <div
