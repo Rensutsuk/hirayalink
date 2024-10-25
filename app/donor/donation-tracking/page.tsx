@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Loading from "@/app/loading";
 import {
   FaClipboardList,
   FaCheckCircle,
@@ -33,6 +34,7 @@ interface Donation {
   updatedAt: string;
   barangayId: string;
   donorId: string;
+  barangayName: string;
 }
 
 enum DonationStatus {
@@ -40,7 +42,7 @@ enum DonationStatus {
   COLLECTED = "COLLECTED",
   PROCESSING = "PROCESSING",
   IN_TRANSIT = "IN_TRANSIT",
-  RECEIVED = "RECEIVED"
+  RECEIVED = "RECEIVED",
 }
 
 interface Post {
@@ -81,11 +83,21 @@ export default function DonationTracking() {
     }
   }, [postId]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
   if (error) return <p>{error}</p>;
 
   return (
     <div>
+      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-40">
+        <div className="flex flex-col justify-center py-5 backdrop-blur-sm bg-black/25 w-full">
+          <h1 className="mb-0 py-0 text-3xl font-bold text-center text-white">
+            Donation Tracking for {donations.length > 0 ? donations[0].barangayName : "Barangay"}
+          </h1>
+          <p className="text-center text-white mt-2 text-lg">
+            {postId}
+          </p>
+        </div>
+      </div>
       {donations.length === 0 ? (
         <p>No donations found for this post.</p>
       ) : (
@@ -98,19 +110,29 @@ export default function DonationTracking() {
 }
 
 function DonationTrackingCard({ donation }: { donation: Donation }) {
-  const statusOrder = ["PLEDGED", "COLLECTED", "PROCESSING", "IN_TRANSIT", "RECEIVED"];
+  const statusOrder = [
+    "PLEDGED",
+    "COLLECTED",
+    "PROCESSING",
+    "IN_TRANSIT",
+    "RECEIVED",
+  ];
   const currentStatusIndex = statusOrder.indexOf(donation.donationStatus);
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden mb-6">
-      <div className="bg-primary text-white py-2 px-4">{donation.controlNumber}</div>
+    <div className="bg-white shadow-md rounded-lg overflow-hidden m-10">
+      <div className="bg-primary text-white py-2 px-4">
+        {donation.controlNumber}
+      </div>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           {statusOrder.map((status, index) => (
             <div key={status} className="flex flex-col items-center">
               <div
                 className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  index <= currentStatusIndex ? "bg-primary text-white" : "bg-gray-200 text-gray-400"
+                  index <= currentStatusIndex
+                    ? "bg-primary text-white"
+                    : "bg-gray-200 text-gray-400"
                 }`}
               >
                 {getStatusIcon(status)}
@@ -119,7 +141,9 @@ function DonationTrackingCard({ donation }: { donation: Donation }) {
                 {formatStatus(status)}
                 <br />
                 <span className="text-gray-500">
-                  {index <= currentStatusIndex ? getStatusDate(donation, status) : "Date"}
+                  {index <= currentStatusIndex
+                    ? getStatusDate(donation, status)
+                    : "Date"}
                 </span>
               </div>
             </div>
@@ -130,7 +154,9 @@ function DonationTrackingCard({ donation }: { donation: Donation }) {
             <div key={log.id} className="flex items-start">
               <div className="w-3 h-3 rounded-full bg-primary mt-1.5 mr-3"></div>
               <div>
-                <div className="text-sm font-semibold">{formatDate(log.timestamp)}</div>
+                <div className="text-sm font-semibold">
+                  {formatDate(log.timestamp)}
+                </div>
                 <div className="text-sm text-gray-600">{log.remarks}</div>
               </div>
             </div>
@@ -173,7 +199,10 @@ function getStatusIcon(status: string) {
 }
 
 function formatStatus(status: string) {
-  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase().replace("_", " ");
+  return (
+    status.charAt(0).toUpperCase() +
+    status.slice(1).toLowerCase().replace("_", " ")
+  );
 }
 
 function getStatusDate(donation: Donation, status: string) {
@@ -183,7 +212,10 @@ function getStatusDate(donation: Donation, status: string) {
 
 function formatDate(dateString: string) {
   const date = new Date(dateString);
-  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)} ${formatTime(date)}`;
+  return `${date.getMonth() + 1}/${date.getDate()}/${date
+    .getFullYear()
+    .toString()
+    .substr(-2)} ${formatTime(date)}`;
 }
 
 function formatTime(date: Date) {

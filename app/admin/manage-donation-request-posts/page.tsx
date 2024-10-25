@@ -28,26 +28,7 @@ export default function ManageDonationRequestPosts() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("Session status:", status);
-    console.log("Session data:", session);
-
     const fetchDonations = async () => {
-      if (status === "loading") return;
-
-      if (!session) {
-        console.log("No user session found");
-        setError("Please log in to view donations");
-        setLoading(false);
-        return;
-      }
-
-      if (session.user.userType !== "admin") {
-        console.log("User is not an admin");
-        setError("You do not have permission to view this page");
-        setLoading(false);
-        return;
-      }
-
       try {
         console.log("Fetching donations for admin");
         const res = await fetch("/api/donations");

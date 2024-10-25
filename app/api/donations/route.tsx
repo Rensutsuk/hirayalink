@@ -37,10 +37,31 @@ export async function GET(request: Request) {
           barangay: true,
           donor: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
     } else if (postId) {
       // Donor view: fetch donations for a specific post's barangay
+      const post = await prisma.barangayRequestPost.findUnique({
+        where: { id: postId },
+        select: { barangayId: true },
+      });
+
+      if (!post) {
+        return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      }
+
+      const barangay = await prisma.barangay.findUnique({
+        where: { id: post.barangayId },
+        select: { name: true },
+      });
+
+      if (!barangay) {
+        return NextResponse.json(
+          { error: "Barangay not found" },
+          { status: 404 }
+        );
+      }
+
       donations = await prisma.donation.findMany({
         where: {
           barangayRequestPostId: postId,
@@ -52,8 +73,13 @@ export async function GET(request: Request) {
           barangay: true,
           donor: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
+
+      donations = donations.map((donation) => ({
+        ...donation,
+        barangayName: barangay.name,
+      }));
     } else {
       // Donor view: fetch all donations for the donor
       donations = await prisma.donation.findMany({
@@ -64,7 +90,7 @@ export async function GET(request: Request) {
           barangay: true,
           donor: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
     }
 
