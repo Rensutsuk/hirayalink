@@ -34,6 +34,7 @@ interface Donation {
   updatedAt: string;
   barangayId: string;
   donorId: string;
+  name: string;
   barangayName: string;
 }
 
@@ -122,7 +123,7 @@ function DonationTrackingCard({ donation }: { donation: Donation }) {
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden m-10">
       <div className="bg-primary text-white py-2 px-4">
-        {donation.controlNumber}
+        {donation.controlNumber} 
       </div>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
