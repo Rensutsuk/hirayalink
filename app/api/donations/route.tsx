@@ -16,10 +16,9 @@ export async function GET(request: Request) {
   const isAdmin = session.user.userType === "admin";
 
   try {
-    let donations;
+    let posts;
 
     if (isAdmin) {
-      // Admin view: fetch all donations for the admin's barangay
       const admin = await prisma.admin.findUnique({
         where: { id: session.user.id },
         select: { barangayId: true },
@@ -29,76 +28,60 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Admin not found" }, { status: 404 });
       }
 
-      donations = await prisma.donation.findMany({
+      posts = await prisma.barangayRequestPost.findMany({
         where: { barangayId: admin.barangayId },
         include: {
-          statusLogs: true,
-          donationItems: true,
-          barangay: true,
-          donor: true,
+          donations: {
+            include: {
+              statusLogs: true,
+              donationItems: true,
+              donor: true,
+            },
+          },
+          Barangay: {
+            select: {
+              name: true,
+            },
+          },
         },
-        orderBy: { createdAt: "desc" },
-      });
-    } else if (postId) {
-      // Donor view: fetch donations for a specific post's barangay
-      const post = await prisma.barangayRequestPost.findUnique({
-        where: { id: postId },
-        select: { barangayId: true },
+        orderBy: { dateTime: "desc" },
       });
 
-      if (!post) {
-        return NextResponse.json({ error: "Post not found" }, { status: 404 });
-      }
-
-      const barangay = await prisma.barangay.findUnique({
-        where: { id: post.barangayId },
-        select: { name: true },
-      });
-
-      if (!barangay) {
-        return NextResponse.json(
-          { error: "Barangay not found" },
-          { status: 404 }
-        );
-      }
-
-      donations = await prisma.donation.findMany({
-        where: {
-          barangayRequestPostId: postId,
-          donorId: session.user.id,
-        },
-        include: {
-          statusLogs: true,
-          donationItems: true,
-          barangay: true,
-          donor: true,
-        },
-        orderBy: { createdAt: "desc" },
-      });
-
-      donations = donations.map((donation) => ({
-        ...donation,
-        barangayName: barangay.name,
+      // Transform the data to include the required fields
+      posts = posts.map((post) => ({
+        ...post,
+        barangayName: post.Barangay?.name || "Unknown",
+        contactPerson: post.person, // 'person' field is used as contact person
+        area: post.area,
+        typeOfCalamity: post.typeOfCalamity,
       }));
     } else {
       // Donor view: fetch all donations for the donor
-      donations = await prisma.donation.findMany({
+      posts = await prisma.donation.findMany({
         where: { donorId: session.user.id },
         include: {
           statusLogs: true,
           donationItems: true,
           barangay: true,
           donor: true,
+          BarangayRequestPost: {
+            include: {
+              Barangay: true,
+            },
+          },
         },
         orderBy: { createdAt: "desc" },
       });
     }
 
-    return NextResponse.json(donations);
+    return NextResponse.json(posts);
   } catch (error) {
-    console.error("Error fetching donations:", error);
+    console.error("Error fetching barangay request posts:", error);
     return NextResponse.json(
-      { error: "Failed to fetch donations", details: error.message },
+      {
+        error: "Failed to fetch barangay request posts",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
