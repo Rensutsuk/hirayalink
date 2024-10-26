@@ -17,9 +17,6 @@ const Navbar = () => {
     if (session?.user?.userType === "donor") {
       setIsDonor(true);
     }
-    if (session?.user?.userType === "admin") {
-      router.push("/admin/manage-donation-request-posts");
-    }
   }, [session, status]);
 
   const handleSignOut = async () => {
