@@ -8,7 +8,6 @@ interface DonationItem {
   quantity: number;
 }
 
-// Update the Donation interface to include the donor
 interface Donation {
   id: number;
   controlNumber: string;
@@ -18,7 +17,7 @@ interface Donation {
   donor?: {
     id: string;
     name: string;
-  };
+  };  
 }
 
 interface GroupedDonations {
@@ -333,22 +332,40 @@ function EditPostModal({
   onClose: () => void;
   onSave: (updatedPost: BarangayRequestPost) => void;
 }) {
-  const [title, setTitle] = useState(post.title);
-  const [description, setDescription] = useState(post.description);
-  const [barangayName, setBarangayName] = useState(post.barangayName || "");
-  const [contactPerson, setContactPerson] = useState(post.contactPerson || "");
-  const [contactNumber, setContactNumber] = useState(post.contactNumber || "");
+  const [area, setArea] = useState(post.area);
+  const [typeOfCalamity, setTypeOfCalamity] = useState(post.typeOfCalamity);
+  const [inKindNecessities, setInKindNecessities] = useState(post.inKind);
+  const [specifications, setSpecifications] = useState(post.specifications);
+  const [barangay, setBarangay] = useState(post.barangay?.name || "");
+  const [contactPerson, setContactPerson] = useState(post.person || "");
+  const [newInKindNecessities, setNewInKindNecessities] = useState("");
+  const [newSpecifications, setNewSpecifications] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
       ...post,
-      title,
-      description,
-      barangayName,
-      contactPerson,
-      contactNumber,
+      area,
+      typeOfCalamity,
+      inKind: inKindNecessities + (newInKindNecessities ? `, ${newInKindNecessities}` : ""),
+      specifications: specifications + (newSpecifications ? `, ${newSpecifications}` : ""),
+      barangay: { name: barangay },
+      person: contactPerson,
     });
+  };
+
+  const handleAdd = () => {
+    // Logic to add new in-kind necessities and specifications
+    const selectedRequest = availableRequests.find(
+      (request) => request.area === area && request.typeOfCalamity === typeOfCalamity
+    );
+
+    if (selectedRequest) {
+      setNewInKindNecessities(selectedRequest.inKindNecessities);
+      setNewSpecifications(selectedRequest.specifications);
+    } else {
+      alert("No matching request found for the selected area and calamity type.");
+    }
   };
 
   return (
@@ -357,50 +374,60 @@ function EditPostModal({
         <h2 className="text-xl font-bold mb-4">Edit Post Details</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block mb-2">Title:</label>
+            <label className="block text-sm font-medium">Barangay</label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
+              value={barangay}
+              onChange={(e) => setBarangay(e.target.value)}
+              className="input input-bordered w-full"
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-2">Description:</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-2 border rounded"
-              rows={4}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2">Barangay Name:</label>
-            <input
-              type="text"
-              value={barangayName}
-              onChange={(e) => setBarangayName(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2">Contact Person:</label>
+            <label className="block text-sm font-medium">Contact Person</label>
             <input
               type="text"
               value={contactPerson}
               onChange={(e) => setContactPerson(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="input input-bordered w-full"
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-2">Contact Number:</label>
+            <label className="block text-sm font-medium">Area</label>
             <input
               type="text"
-              value={contactNumber}
-              onChange={(e) => setContactNumber(e.target.value)}
-              className="w-full p-2 border rounded"
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              className="input input-bordered w-full"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium">Type of Calamity</label>
+            <input
+              type="text"
+              value={typeOfCalamity}
+              onChange={(e) => setTypeOfCalamity(e.target.value)}
+              className="input input-bordered w-full"
+            />
+          </div>
+          <div className="flex justify-end mb-4">
+            <button onClick={handleAdd} className="btn btn-primary">
+              Add
+            </button>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium">In-Kind Necessities</label>
+            <textarea
+              value={inKindNecessities + (newInKindNecessities ? `, ${newInKindNecessities}` : "")}
+              onChange={(e) => setInKindNecessities(e.target.value)}
+              className="textarea textarea-bordered w-full"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium">Specifications</label>
+            <textarea
+              value={specifications + (newSpecifications ? `, ${newSpecifications}` : "")}
+              onChange={(e) => setSpecifications(e.target.value)}
+              className="textarea textarea-bordered w-full"
             />
           </div>
           <div className="flex justify-end">
