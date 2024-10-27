@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id, person, contactNumber, inKind, specifications } = body;
+    const { id, person, contactNumber, inKind, specifications, area, typeOfCalamity } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Post ID is required' }, { status: 400 });
@@ -17,11 +17,14 @@ export async function PUT(req: NextRequest) {
       data: {
         person,
         contactNumber,
-        inKind: typeof inKind === 'string' ? JSON.parse(inKind) : inKind,
-        specifications: typeof specifications === 'string' ? JSON.parse(specifications) : specifications,
+        inKind,
+        specifications,
+        area,
+        typeOfCalamity,
       },
     });
 
+    console.log(updatedPost);
     return NextResponse.json({ message: 'Post updated successfully', post: updatedPost });
   } catch (error) {
     console.error('Error updating post:', error);

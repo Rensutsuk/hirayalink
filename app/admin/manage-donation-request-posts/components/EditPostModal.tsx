@@ -33,7 +33,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<BarangayRequestPost>(() => {
     const parseJsonSafely = (value: any) => {
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         try {
           return JSON.parse(value);
         } catch {
@@ -49,7 +49,9 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
       specifications: parseJsonSafely(post.specifications),
     };
   });
-  const [recipientRequests, setRecipientRequests] = useState<RecipientRequestPost[]>([]);
+  const [recipientRequests, setRecipientRequests] = useState<
+    RecipientRequestPost[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRequests, setSelectedRequests] = useState<number[]>([]);
@@ -123,86 +125,59 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
   };
 
   const mergeSelectedRequests = () => {
-    const selectedData = recipientRequests.filter((request) =>
-      selectedRequests.includes(request.id)
-    );
+    const updatedPost = { ...formData };
+    let inKind: Record<string, null[]> = {};
+    let specifications: Record<string, string[]> = {};
 
-    let mergedInKind = { ...formData.inKind };
-    let mergedSpecifications = { ...formData.specifications };
+    // Parse existing inKind and specifications
+    inKind = typeof updatedPost.inKind === 'string' ? JSON.parse(updatedPost.inKind) : updatedPost.inKind || {};
+    specifications = typeof updatedPost.specifications === 'string' ? JSON.parse(updatedPost.specifications) : updatedPost.specifications || {};
 
-    selectedData.forEach((request) => {
-      let recipientInKind, recipientSpecifications;
+    selectedRequests.forEach((requestId) => {
+      const request = recipientRequests.find((r) => r.id === requestId);
+      if (request) {
+        // Parse inKindNecessities
+        const requestInKind = request.inKindNecessities.split(',').map((item) => item.trim());
 
-      // Parse inKindNecessities
-      try {
-        recipientInKind = JSON.parse(request.inKindNecessities);
-      } catch {
-        recipientInKind = request.inKindNecessities
-          .split(",")
-          .map((item) => item.trim());
-      }
-
-      // Parse specifications
-      try {
-        recipientSpecifications = JSON.parse(request.specifications);
-      } catch {
-        recipientSpecifications = request.specifications
-          .split(",")
-          .reduce((acc, item) => {
-            const [key, value] = item.split(":").map((s) => s.trim());
-            acc[key] = value;
-            return acc;
-          }, {});
-      }
-
-      // Merge inKind
-      if (Array.isArray(recipientInKind)) {
-        recipientInKind.forEach((item) => {
-          if (!mergedInKind[item]) {
-            mergedInKind[item] = [];
+        // Merge inKind
+        requestInKind.forEach((item) => {
+          if (!inKind[item]) {
+            inKind[item] = [null];
           }
         });
-      } else if (typeof recipientInKind === 'object') {
-        Object.keys(recipientInKind).forEach((key) => {
-          if (!mergedInKind[key]) {
-            mergedInKind[key] = [];
+
+        // Parse specifications
+        let requestSpecifications: Record<string, string[]> = {};
+        try {
+          requestSpecifications = JSON.parse(request.specifications);
+        } catch (error) {
+          console.error("Error parsing request specifications:", error);
+        }
+
+        // Merge specifications
+        Object.entries(requestSpecifications).forEach(([key, values]) => {
+          if (!specifications[key]) {
+            specifications[key] = [];
           }
-          if (Array.isArray(recipientInKind[key])) {
-            mergedInKind[key] = [...new Set([...mergedInKind[key], ...recipientInKind[key]])];
-          } else if (recipientInKind[key]) {
-            mergedInKind[key] = [...new Set([...mergedInKind[key], recipientInKind[key]])];
-          }
+          const newValues = Array.isArray(values) ? values : [values];
+          specifications[key] = [...new Set([...specifications[key], ...newValues])];
         });
       }
-
-      // Merge specifications
-      Object.entries(recipientSpecifications).forEach(([category, items]) => {
-        if (!mergedSpecifications[category]) {
-          mergedSpecifications[category] = [];
-        }
-        if (Array.isArray(items)) {
-          mergedSpecifications[category] = [
-            ...new Set([...mergedSpecifications[category], ...items]),
-          ];
-        } else if (items) {
-          mergedSpecifications[category] = [
-            ...new Set([...mergedSpecifications[category], items]),
-          ];
-        }
-      });
     });
 
+    // Remove unnecessary fields
+    const { donations, ...postWithoutDonations } = updatedPost;
+
     return {
-      ...formData,
-      inKind: mergedInKind,
-      specifications: mergedSpecifications,
+      ...postWithoutDonations,
+      inKind,
+      specifications,
     };
   };
 
   const handleSuccessModalClose = () => {
-    setShowSuccessModal(false);
     onClose();
-    // Refresh the page
+    setShowSuccessModal(true);
     window.location.reload();
   };
 
@@ -229,7 +204,9 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
               </svg>
             </button>
           </div>
-          <div className="p-4 overflow-y-auto max-h-[70vh]"> {/* Added overflow and max height */}
+          <div className="p-4 overflow-y-auto max-h-[70vh]">
+            {" "}
+            {/* Added overflow and max height */}
             <label className="form-control w-full mb-4">
               <span className="label">
                 <span className="label-text">Contact Person:</span>
@@ -252,7 +229,6 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                 className="input input-bordered w-full"
               />
             </label>
-
             {/* Recipient Requests Table */}
             <div className="overflow-x-auto mt-4">
               <h3 className="text-lg font-semibold mb-2">Recipient Requests</h3>
@@ -270,7 +246,9 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                           className="px-3 py-1 rounded w-32 text-white"
                           style={{
                             backgroundColor:
-                              selectedRequests.length > 0 ? "#EF4444" : "#10B981",
+                              selectedRequests.length > 0
+                                ? "#EF4444"
+                                : "#10B981",
                             transition: "background-color 0.3s",
                           }}
                         >
@@ -361,7 +339,6 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                 </tbody>
               </table>
             </div>
-
             <div className="modal-action">
               <button onClick={handleSubmit} className="btn btn-primary">
                 Save
@@ -380,7 +357,10 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
             <h3 className="font-bold text-lg">Success!</h3>
             <p className="py-4">The post has been updated successfully.</p>
             <div className="modal-action">
-              <button onClick={handleSuccessModalClose} className="btn btn-primary">
+              <button
+                onClick={handleSuccessModalClose}
+                className="btn btn-primary"
+              >
                 Close
               </button>
             </div>
