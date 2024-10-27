@@ -210,7 +210,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
     <>
       <div className="modal modal-open">
         <div className="modal-box max-w-4xl">
-          <div className="sticky top-0 flex justify-between items-center bg-primary text-white p-4">
+          <div className="sticky top-0 z-10 flex justify-between items-center bg-primary text-white p-4">
             <h2 className="text-xl font-bold">Edit Barangay Request Post</h2>
             <button onClick={onClose} className="btn btn-ghost btn-sm">
               <svg
@@ -229,7 +229,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
               </svg>
             </button>
           </div>
-          <div className="p-4">
+          <div className="p-4 overflow-y-auto max-h-[70vh]"> {/* Added overflow and max height */}
             <label className="form-control w-full mb-4">
               <span className="label">
                 <span className="label-text">Contact Person:</span>
