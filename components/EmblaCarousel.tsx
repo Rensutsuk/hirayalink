@@ -1,25 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 
 interface Slide {
-  id?: string;
-  src?: string;
-  image?: Buffer | null;
-  description?: string;
-  title?: string;
+  id: string;
   area?: string;
   nameOfCalamity?: string;
-  storyText?: string;
-  controlNumber?: string;
-  transactionIds?: string;
-  batchNumber?: string;
-  numberOfRecipients?: number;
+  storyText?: string | null;
+  image: Buffer | null;
   Barangay?: {
     name: string;
   } | null;
-  createdAt: string; // Add this field
+  createdAt: string;
+  batchNumber?: string;
+  controlNumber?: string;
+  transactionIds?: string;
+  numberOfRecipients?: number;
 }
 
 interface EmblaCarouselProps {
@@ -28,19 +25,28 @@ interface EmblaCarouselProps {
 }
 
 export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
-  const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay()]);
+  // Create autoplay plugin with options
+  const autoplayOptions = {
+    delay: 15000,
+    stopOnInteraction: false, // Prevent stopping on user interaction
+    rootNode: (emblaRoot: any) => emblaRoot.parentElement,
+  };
+  
+  const [emblaRef] = useEmblaCarousel(
+    { loop: true }, 
+    [Autoplay(autoplayOptions)]
+  );
+  const [selectedSlide, setSelectedSlide] = useState<Slide | null>(null);
 
   const getImageSrc = (slide: Slide) => {
     if (slide.image) {
-      // Convert Buffer to base64
       const base64Image = Buffer.from(slide.image).toString('base64');
       return `data:image/jpeg;base64,${base64Image}`;
     }
-    return slide.src || '/placeholder-image.jpg';
+    return '/placeholder-image.jpg';
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -48,119 +54,141 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
     });
   };
 
-  const formatTime = (dateString: string) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const formatCalamityHeader = (slide: Slide) => {
-    if (type !== 'calamity') return '';
-    
-    const location = slide.Barangay?.name 
-      ? `${slide.area}, ${slide.Barangay.name}`
-      : slide.area;
-
-    return `Impact of ${slide.nameOfCalamity} in ${location}`;
-  };
-
-  const formatSuccessHeader = (slide: Slide) => {
-    if (type !== 'success') return '';
-    
-    const location = slide.Barangay?.name 
-      ? `${slide.area}, ${slide.Barangay.name}`
-      : slide.area;
-
-    return `Success Story from ${location}`;
+  const getModalTitle = (slide: Slide) => {
+    if (type === 'calamity') {
+      return `Impact from ${slide.nameOfCalamity}`;
+    }
+    return `${slide.nameOfCalamity ? `${slide.nameOfCalamity} | ` : ''}Story from ${slide.Barangay?.name}${slide.batchNumber ? `: Batch ${slide.batchNumber}` : ''}`;
   };
 
   return (
-    <div className="embla h-full" ref={emblaRef}>
-      <div className="embla__container">
-        {slides.map((slide, index) => (
-          <div className="embla__slide" key={slide.id || index}>
-            {/* Fixed card dimensions for both types */}
-            <div className="card card-compact bg-base-100 shadow-xl w-[320px] h-[380px] mx-auto">
-              {/* Image Section - Fixed height */}
-              <figure className="relative h-32 shrink-0">
+    <>
+      <div className="embla overflow-hidden" ref={emblaRef}>
+        <div className="embla__container">
+          {slides.map((slide, index) => (
+            <div className="embla__slide relative" key={slide.id || index}>
+              {/* Image Container */}
+              <div className="relative h-[350px] w-full">
                 <Image
                   src={getImageSrc(slide)}
                   alt={slide.nameOfCalamity || `Slide ${index + 1}`}
                   fill
                   className="object-cover"
+                  priority
                 />
-              </figure>
-
-              {/* Content wrapper with fixed height */}
-              <div className="card-body p-3 h-[calc(380px-8rem)] flex flex-col">
-                {/* Title and Date Section */}
-                <div className="flex justify-between items-start gap-2 h-14">
-                  <h2 className="card-title text-primary text-sm line-clamp-2 flex-1">
-                    {type === 'calamity' 
-                      ? formatCalamityHeader(slide)
-                      : formatSuccessHeader(slide)}
-                  </h2>
-                  <div className="text-[10px] text-right shrink-0">
-                    <div>{formatDate(slide.createdAt)}</div>
-                    <div>{formatTime(slide.createdAt)}</div>
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                
+                {/* Content Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-bold">
+                      {getModalTitle(slide)}
+                    </h3>
+                    <span className="text-sm">{formatDate(slide.createdAt)}</span>
                   </div>
-                </div>
-
-                {/* Story Text - Fixed height */}
-                <div className="h-12">
-                  <p className="text-xs line-clamp-2">
-                    {slide.storyText || slide.description}
+                  
+                  <p className="text-sm mb-3">
+                    {slide.area}
                   </p>
-                </div>
-
-                {/* Details Grid - Fixed height */}
-                <div className="grid grid-cols-2 gap-1.5 text-[10px] mt-auto">
-                  {type === 'success' && slide.nameOfCalamity && (
-                    <div className="bg-base-200 p-1.5 rounded h-12">
-                      <span className="font-semibold">Calamity:</span>
-                      <div className="truncate">{slide.nameOfCalamity}</div>
-                    </div>
-                  )}
-
-                  {slide.controlNumber && (
-                    <div className="bg-base-200 p-1.5 rounded h-12">
-                      <span className="font-semibold">Control #:</span>
-                      <div className="truncate">{slide.controlNumber}</div>
-                    </div>
-                  )}
-
-                  {slide.batchNumber && (
-                    <div className="bg-base-200 p-1.5 rounded h-12">
-                      <span className="font-semibold">Batch #:</span>
-                      <div className="truncate">{slide.batchNumber}</div>
-                    </div>
-                  )}
-
-                  {slide.transactionIds && (
-                    <div className="bg-base-200 p-1.5 rounded h-12">
-                      <span className="font-semibold">Trans ID:</span>
-                      <div className="badge badge-xs badge-neutral truncate">
-                        {slide.transactionIds}
-                      </div>
-                    </div>
-                  )}
-
-                  {slide.numberOfRecipients && (
-                    <div className="bg-base-200 p-1.5 rounded h-12">
-                      <span className="font-semibold">Recipients:</span>
-                      <div className="badge badge-xs badge-primary">
-                        {slide.numberOfRecipients}
-                      </div>
-                    </div>
-                  )}
+                  
+                  <button 
+                    onClick={() => setSelectedSlide(slide)}
+                    className="btn btn-sm btn-primary"
+                  >
+                    View Story
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* Modal - Updated Structure */}
+      <dialog id="slide_modal" className={`modal ${selectedSlide ? 'modal-open' : ''}`}>
+        <div className="modal-box max-w-3xl">
+          {selectedSlide && (
+            <>
+              <h3 className="font-bold text-lg p-4 bg-primary text-white">
+                {getModalTitle(selectedSlide)}
+              </h3>
+              
+              <div className="space-y-4 p-4 rounded-lg">
+                {/* Image */}
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={getImageSrc(selectedSlide)}
+                    alt={selectedSlide.nameOfCalamity || 'Story Image'}
+                    fill
+                    className="object-cover rounded-lg shadow-lg"
+                  />
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="bg-base-200 p-2 rounded">
+                    <span className="font-semibold">Location:</span>
+                    <div>{selectedSlide.area}</div>
+                  </div>
+
+                  <div className="bg-base-200 p-2 rounded">
+                    <span className="font-semibold">Date:</span>
+                    <div>{formatDate(selectedSlide.createdAt)}</div>
+                  </div>
+
+                  {type === 'success' && (
+                    <>
+                      {selectedSlide.controlNumber && (
+                        <div className="bg-base-200 p-2 rounded">
+                          <span className="font-semibold">Control #:</span>
+                          <div className="truncate">{selectedSlide.controlNumber}</div>
+                        </div>
+                      )}
+
+                      {selectedSlide.numberOfRecipients && (
+                        <div className="bg-base-200 p-2 rounded">
+                          <span className="font-semibold">Recipients:</span>
+                          <div>{selectedSlide.numberOfRecipients}</div>
+                        </div>
+                      )}
+
+                      {selectedSlide.transactionIds && (
+                        <div className="bg-base-200 p-2 rounded">
+                          <span className="font-semibold">Transaction ID:</span>
+                          <div className="truncate">{selectedSlide.transactionIds}</div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Story Text */}
+                {selectedSlide.storyText && (
+                  <div className="prose max-w-none">
+                    <h4 className="font-semibold mb-2">Story:</h4>
+                    <p className="text-sm whitespace-pre-wrap">
+                      {selectedSlide.storyText}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-action mb-4 mr-4">
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => setSelectedSlide(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+        <div className="modal-backdrop bg-black/50" onClick={() => setSelectedSlide(null)}>
+          <button className="cursor-default">close</button>
+        </div>
+      </dialog>
+    </>
   );
 }

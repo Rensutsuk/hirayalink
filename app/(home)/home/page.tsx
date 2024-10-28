@@ -19,6 +19,7 @@ interface SlideData {
 		storyText: string | null;
 		image: Buffer | null;
 		Barangay: { name: string } | null;
+		batchNumber: string;
 	}>;
 }
 
@@ -101,40 +102,36 @@ export default function Home() {
 			</div>
 
 			{/* Slideshow Section */}
-			<div className="grid grid-cols-2 gap-20 p-20 justify-center items-start">
+			<div className="grid grid-cols-2 gap-10 px-10 py-16">
 				{/* Calamity Impact Slideshow */}
-				<div className="w-full h-[450px] shadow-2xl shadow-red-300 rounded-lg overflow-hidden">
-					<h2 className="text-4xl font-bold py-3 text-center">
-						CALAMITY IMPACT
+				<div className="w-full rounded-xl overflow-hidden shadow-lg">
+					<h2 className="text-2xl font-bold p-4 bg-base-200">
+						Calamity Impact
 					</h2>
 					{slideData ? (
-						<div className="h-[calc(100%-4rem)] pb-10">
-							<EmblaCarousel 
-								slides={slideData.calamityImpacts} 
-								type="calamity"
-							/>
-						</div>
+						<EmblaCarousel 
+							slides={slideData.calamityImpacts} 
+							type="calamity"
+						/>
 					) : (
-						<div className="h-full flex items-center justify-center">
-								<span className="loading loading-spinner loading-lg text-primary"></span>
+						<div className="h-[350px] flex items-center justify-center">
+							<span className="loading loading-spinner loading-lg text-primary"></span>
 						</div>
 					)}
 				</div>
 
 				{/* Stories of Change Slideshow */}
-				<div className="w-full h-[450px] shadow-2xl shadow-blue-300 rounded-lg overflow-hidden">
-					<h2 className="text-4xl font-bold py-3 text-center">
-						STORIES OF CHANGE
+				<div className="w-full rounded-xl overflow-hidden shadow-lg">
+					<h2 className="text-2xl font-bold p-4 bg-base-200">
+						Stories of Change
 					</h2>
 					{slideData ? (
-						<div className="h-[calc(100%-4rem)] pb-10">
-							<EmblaCarousel 
-								slides={slideData.successStories} 
-								type="success"
-							/>
-						</div>
+						<EmblaCarousel 
+							slides={slideData.successStories} 
+							type="success"
+						/>
 					) : (
-						<div className="h-full flex items-center justify-center">
+						<div className="h-[350px] flex items-center justify-center">
 							<span className="loading loading-spinner loading-lg text-primary"></span>
 						</div>
 					)}
