@@ -27,8 +27,8 @@ interface EmblaCarouselProps {
 export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
   // Create autoplay plugin with options
   const autoplayOptions = {
-    delay: 15000,
-    stopOnInteraction: false, // Prevent stopping on user interaction
+    delay: 5000,
+    stopOnInteraction: false, 
     rootNode: (emblaRoot: any) => emblaRoot.parentElement,
   };
   
@@ -56,9 +56,9 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
 
   const getModalTitle = (slide: Slide) => {
     if (type === 'calamity') {
-      return `Impact from ${slide.nameOfCalamity}`;
+      return `Impact from ${slide.nameOfCalamity} | ${slide.Barangay?.name || 'Unknown Location'}`;
     }
-    return `${slide.nameOfCalamity ? `${slide.nameOfCalamity} | ` : ''}Story from ${slide.Barangay?.name}${slide.batchNumber ? `: Batch ${slide.batchNumber}` : ''}`;
+    return `${slide.nameOfCalamity ? `${slide.nameOfCalamity} - ` : ''}Story from ${slide.Barangay?.name}${slide.batchNumber ? `: Batch ${slide.batchNumber}` : ''}`;
   };
 
   return (

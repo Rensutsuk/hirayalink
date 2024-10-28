@@ -34,10 +34,6 @@ const ConfirmChangesModal = ({
         setProfile(updatedProfile);
         setSuccess(true);
         setPassword("");
-        setTimeout(() => {
-          onClose();
-          setSuccess(false);
-        }, 2000);
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Failed to update profile");
@@ -48,6 +44,12 @@ const ConfirmChangesModal = ({
     }
   };
 
+  const handleClose = () => {
+    onClose();
+    setSuccess(false);
+    window.location.reload();
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       {success ? (
@@ -55,7 +57,13 @@ const ConfirmChangesModal = ({
           <h2 className="text-xl font-semibold mb-4 text-primary">
             Changes Saved Successfully!
           </h2>
-          <p>Your profile has been updated.</p>
+          <p className="mb-4">Your profile has been updated.</p>
+          <button
+            className="btn btn-primary px-4 py-2 text-white"
+            onClick={handleClose}
+          >
+            Close
+          </button>
         </div>
       ) : (
         <>

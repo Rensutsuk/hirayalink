@@ -29,8 +29,8 @@ const Navbar = () => {
       });
 
       if (response.ok) {
-        await signOut({ redirect: false });
         router.push("/");
+        await signOut({ redirect: false });
       } else {
         console.error("Sign out failed");
       }
