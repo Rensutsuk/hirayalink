@@ -154,9 +154,14 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
                       )}
 
                       {selectedSlide.transactionIds && (
-                        <div className="bg-base-200 p-2 rounded">
+                        <div className="bg-base-200 p-2 rounded col-span-2">
                           <span className="font-semibold">Transaction ID:</span>
-                          <div className="truncate">{selectedSlide.transactionIds}</div>
+                          <div 
+                            className="truncate hover:cursor-help"
+                            title={selectedSlide.transactionIds}
+                          >
+                            {selectedSlide.transactionIds}
+                          </div>
                         </div>
                       )}
                     </>
