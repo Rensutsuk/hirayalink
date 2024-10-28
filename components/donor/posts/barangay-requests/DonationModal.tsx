@@ -64,7 +64,7 @@ const DonationModal = ({
       }
 
       const data = await response.json();
-      alert("Donation has been Pleged. Please await the next schsteps.");
+      alert("Donation has been Pleged. Please await the next steps.");
 
       handleCloseModal();
     } catch (error) {
