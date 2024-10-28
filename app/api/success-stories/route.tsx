@@ -35,6 +35,7 @@ export async function GET(req: Request) {
         area: true,
         barangayId: true,
         typeOfCalamity: true,
+        batchNumber: true, // Include batchNumber here
         donations: {
           select: {
             donorId: true,
@@ -113,7 +114,7 @@ export async function POST(req: Request) {
         nameOfCalamity,
         controlNumber,
         transactionIds: allDonorIds, // Use all donorIds without filtering
-        batchNumber,
+        batchNumber, // Ensure this is being set correctly
         numberOfRecipients: parseInt(numberOfRecipients),
         storyText,
         image: image ? Buffer.from(image, 'base64') : null,
