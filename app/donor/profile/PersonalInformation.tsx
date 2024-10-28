@@ -19,6 +19,7 @@ const PersonalInformation = ({
   };
 
   const handleSave = async () => {
+    setProfile(editedProfile); // Update local state first
     setShowPasswordModal(true);
   };
 
