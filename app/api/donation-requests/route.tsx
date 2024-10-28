@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   try {
     const barangay = await prisma.barangay.findUnique({
       where: {
-        name: session?.user?.brgyName,
+        name: session.user.brgyName,
       },
       select: {
         id: true,
@@ -72,7 +72,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error fetching requests:", error); // Enhanced error logging
     return NextResponse.json(
-      { error: "Failed to fetch requests", details: error instanceof Error ? error.message : "An unknown error occurred" }, // Include error details
+      { error: "Failed to fetch requests", details: error.message }, // Include error details
       { status: 500 }
     );
   }

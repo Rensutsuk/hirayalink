@@ -49,12 +49,9 @@ export async function GET(request: Request) {
 
       // Transform the data to include the required fields
       posts = posts.map((post) => ({
-        id: post.id,
-        dateTime: post.dateTime,
-        donations: post.donations,
-        name: post.Barangay?.name || "Unknown", // Use 'name' for barangay name
-        person: post.person,
-        contactNumber: post.contactNumber,
+        ...post,
+        barangayName: post.Barangay?.name || "Unknown",
+        contactPerson: post.person, // 'person' field is used as contact person
         area: post.area,
         typeOfCalamity: post.typeOfCalamity,
       }));
