@@ -47,6 +47,7 @@ model BarangayRequestPost {
   dropOffLandmark String
   image           Bytes?     @db.LongBlob
   dateTime        DateTime   @default(now())
+  batchNumber     Int        // Added field for batch number
   likes           Like[]     @relation("BarangayRequestPostLikes")
   comments        Comment[]  @relation("BarangayRequestPostComments")
   Barangay        Barangay?  @relation(fields: [barangayId], references: [id])

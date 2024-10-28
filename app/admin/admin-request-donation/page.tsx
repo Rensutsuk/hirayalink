@@ -20,6 +20,7 @@ export default function AdminRequestDonation() {
     specifications: {},
     proofFile: null,
     area: "",
+    batchNumber: "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -98,6 +99,7 @@ export default function AdminRequestDonation() {
         necessities,
         specifications,
         proofFile,
+        batchNumber,
       } = formData;
 
       // Append form data
@@ -110,6 +112,7 @@ export default function AdminRequestDonation() {
       formDataToSend.append("donationLandmark", donationLandmark);
       formDataToSend.append("necessities", JSON.stringify(necessities));
       formDataToSend.append("specifications", JSON.stringify(specifications));
+      formDataToSend.append("batchNumber", batchNumber);
 
       // Handle file compression if a file is present
       if (proofFile) {
@@ -144,19 +147,21 @@ export default function AdminRequestDonation() {
 
     return (
       <div className="gap-4">
-        {Object.entries(formData.necessities).map(([category, items], index) => (
-          <div key={index} className="m-2">
-            <strong>{category}:</strong>{" "}
-            {Array.isArray(items) ? items.join(", ") : items}
-            <span className="ml-2">
-              {formData.specifications[category] 
-                ? (Array.isArray(formData.specifications[category]) 
-                   ? formData.specifications[category].join(", ") 
-                   : formData.specifications[category])
-                : "No Specifications"}
-            </span>
-          </div>
-        ))}
+        {Object.entries(formData.necessities).map(
+          ([category, items], index) => (
+            <div key={index} className="m-2">
+              <strong>{category}:</strong>{" "}
+              {Array.isArray(items) ? items.join(", ") : items}
+              <span className="ml-2">
+                {formData.specifications[category]
+                  ? Array.isArray(formData.specifications[category])
+                    ? formData.specifications[category].join(", ")
+                    : formData.specifications[category]
+                  : "No Specifications"}
+              </span>
+            </div>
+          )
+        )}
       </div>
     );
   };
@@ -182,24 +187,23 @@ export default function AdminRequestDonation() {
           </div>
           <div className="card-body">
             <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="label">
-                  <span className="label-text">Barangay</span>
-                </label>
-                <input
-                  className="input input-bordered input-secondary w-full"
-                  id="barangayArea"
-                  type="text"
-                  name="barangayArea"
-                  value={formData.barangayArea}
-                  onChange={handleChange}
-                  placeholder="e.g., Barangay, Tondo, Manila City"
-                  required
-                  readOnly
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="label">
+                    <span className="label-text">Barangay</span>
+                  </label>
+                  <input
+                    className="input input-bordered input-secondary w-full"
+                    id="barangayArea"
+                    type="text"
+                    name="barangayArea"
+                    value={formData.barangayArea}
+                    onChange={handleChange}
+                    placeholder="e.g., Barangay, Tondo, Manila City"
+                    required
+                    readOnly
+                  />
+                </div>
                 <div>
                   <label className="label">
                     <span className="label-text">Area</span>
@@ -216,6 +220,9 @@ export default function AdminRequestDonation() {
                     readOnly
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="label">
                     <span className="label-text">Calamity Type</span>
@@ -264,6 +271,23 @@ export default function AdminRequestDonation() {
                     required
                   />
                 </div>
+                <div>
+                  <label className="label">
+                    <span className="label-text">
+                      Donation Drop-Off Area Landmark
+                    </span>
+                  </label>
+                  <input
+                    className="input input-bordered input-secondary w-full"
+                    id="donationLandmark"
+                    type="text"
+                    name="donationLandmark"
+                    value={formData.donationLandmark}
+                    onChange={handleChange}
+                    placeholder="Nearby Landmark"
+                    required
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4 mb-4">
@@ -299,18 +323,16 @@ export default function AdminRequestDonation() {
                 </div>
                 <div>
                   <label className="label">
-                    <span className="label-text">
-                      Donation Drop-Off Area Landmark
-                    </span>
+                    <span className="label-text">Batch Number</span>
                   </label>
                   <input
                     className="input input-bordered input-secondary w-full"
-                    id="donationLandmark"
-                    type="text"
-                    name="donationLandmark"
-                    value={formData.donationLandmark}
+                    id="batchNumber"
+                    type="number"
+                    name="batchNumber"
+                    value={formData.batchNumber}
                     onChange={handleChange}
-                    placeholder="Nearby Landmark"
+                    placeholder="Batch Number"
                     required
                   />
                 </div>
