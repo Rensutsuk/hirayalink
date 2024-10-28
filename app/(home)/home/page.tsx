@@ -1,8 +1,44 @@
 "use client";
 import "@/styles/embla.css";
 import { EmblaCarousel } from "@/components/EmblaCarousel";
+import { useEffect, useState } from "react";
+
+interface SlideData {
+	calamityImpacts: Array<{
+		id: string;
+		area: string;
+		nameOfCalamity: string;
+		storyText: string | null;
+		image: Buffer | null;
+		Barangay: { name: string } | null;
+	}>;
+	successStories: Array<{
+		id: string;
+		area: string | null;
+		nameOfCalamity: string | null;
+		storyText: string | null;
+		image: Buffer | null;
+		Barangay: { name: string } | null;
+	}>;
+}
 
 export default function Home() {
+	const [slideData, setSlideData] = useState<SlideData | null>(null);
+
+	useEffect(() => {
+		const fetchSlides = async () => {
+			try {
+				const response = await fetch('/api/slides');
+				const data = await response.json();
+				setSlideData(data);
+			} catch (error) {
+				console.error('Failed to fetch slides:', error);
+			}
+		};
+
+		fetchSlides();
+	}, []);
+
 	return (
 		<main>
 			{/* Hero Section */}
@@ -64,48 +100,44 @@ export default function Home() {
 				</div>
 			</div>
 
-			{/* Slideshow Section for Calamity Impact and Stories of Change */}
-			<div className="grid grid-cols-2 gap-20 px-10 py-20 justify-center items-start">
+			{/* Slideshow Section */}
+			<div className="grid grid-cols-2 gap-20 p-20 justify-center items-start">
 				{/* Calamity Impact Slideshow */}
-				<div className="w-full h-[600px] shadow-2xl shadow-red-300 rounded-lg overflow-hidden"> {/* Increased height */}
-					<h2 className="text-4xl font-bold mb-5 text-center">
+				<div className="w-full h-[450px] shadow-2xl shadow-red-300 rounded-lg overflow-hidden">
+					<h2 className="text-4xl font-bold py-3 text-center">
 						CALAMITY IMPACT
 					</h2>
-					<EmblaCarousel slides={[
-						{
-							src: "https://as1.ftcdn.net/v2/jpg/03/84/47/48/1000_F_384474808_cogKpmVX9RrqthcevsWMlATgUwl2vZ4N.jpg",
-							description: "Rescue efforts in the aftermath of a devastating typhoon, showcasing volunteers working tirelessly to provide relief to affected families."
-						},
-						{
-							src: "https://w.ndtvimg.com/sites/3/2023/06/16124036/thumbnail_660-58.jpg",
-							description: "A community gathers to distribute essential supplies, highlighting the spirit of solidarity and support during challenging times."
-						},
-						{
-							src: "https://www.childfund.org/contentassets/7ccaf1fc17ec4b0da9843389c6fd3f45/rs18432.jpg",
-							description: "Children receiving educational materials post-disaster, emphasizing the importance of continued education despite calamities."
-						}
-					]} />
+					{slideData ? (
+						<div className="h-[calc(100%-4rem)] pb-10">
+							<EmblaCarousel 
+								slides={slideData.calamityImpacts} 
+								type="calamity"
+							/>
+						</div>
+					) : (
+						<div className="h-full flex items-center justify-center">
+								<span className="loading loading-spinner loading-lg text-primary"></span>
+						</div>
+					)}
 				</div>
 
 				{/* Stories of Change Slideshow */}
-				<div className="w-full h-[600px] shadow-2xl shadow-blue-300 rounded-lg overflow-hidden"> {/* Increased height */}
-					<h2 className="text-4xl font-bold mb-5 text-center">
+				<div className="w-full h-[450px] shadow-2xl shadow-blue-300 rounded-lg overflow-hidden">
+					<h2 className="text-4xl font-bold py-3 text-center">
 						STORIES OF CHANGE
 					</h2>
-					<EmblaCarousel slides={[
-						{
-							src: "https://www.neefusa.org/sites/default/files/field/image/WEB19-HealthWellness-GivingBack-Volunteering-Donating-4800x2699.jpg",
-							description: "Community members unite to rebuild homes, demonstrating resilience and the power of collective action after a disaster."
-						},
-						{
-							src: "https://image.savethechildren.org/three-friends-tanya-shathi-and-jhumur-ch11043036.jpg/pxvvof42byj6mv8betnp40w6ou100q50.jpg",
-							description: "A group of volunteers engaging with families, sharing resources, and creating lasting connections through in-kind donations."
-						},
-						{
-							src: "https://www.globalgiving.org/pfil/7790/pict_original.jpg",
-							description: "Success stories of families thriving after receiving support, highlighting the transformative impact of community-driven relief efforts."
-						}
-					]} />
+					{slideData ? (
+						<div className="h-[calc(100%-4rem)] pb-10">
+							<EmblaCarousel 
+								slides={slideData.successStories} 
+								type="success"
+							/>
+						</div>
+					) : (
+						<div className="h-full flex items-center justify-center">
+							<span className="loading loading-spinner loading-lg text-primary"></span>
+						</div>
+					)}
 				</div>
 			</div>
 		</main>
