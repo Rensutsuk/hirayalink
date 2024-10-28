@@ -6,11 +6,13 @@ const ConfirmChangesModal = ({
   onClose,
   userId,
   setProfile,
+  editedProfile,
 }: {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
   setProfile: (profile: any) => void;
+  editedProfile: any;
 }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,7 +26,7 @@ const ConfirmChangesModal = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ ...editedProfile, password }),
       });
 
       if (response.ok) {
@@ -50,7 +52,7 @@ const ConfirmChangesModal = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       {success ? (
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-4 text-green-600">
+          <h2 className="text-xl font-semibold mb-4 text-primary">
             Changes Saved Successfully!
           </h2>
           <p>Your profile has been updated.</p>

@@ -38,26 +38,26 @@ const PersonalInformation = ({
           <input
             className="input input-bordered input-primary w-full p-2 mb-2"
             name="name"
-            value={editedProfile.name}
+            value={editedProfile?.name || ""}
             onChange={handleChange}
           />
           <input
             className="input input-bordered input-primary w-full p-2 mb-2"
             name="orgName"
-            value={editedProfile.orgName || ""}
+            value={editedProfile?.orgName || ""}
             onChange={handleChange}
             placeholder="Organization Name"
           />
           <input
             className="input input-bordered input-primary w-full p-2 mb-2"
             name="contactNumber"
-            value={editedProfile.contactNumber}
+            value={editedProfile?.contactNumber || ""}
             onChange={handleChange}
           />
           <input
             className="input input-bordered input-primary w-full p-2 mb-2"
             name="address"
-            value={editedProfile.address || ""}
+            value={editedProfile?.address || ""}
             onChange={handleChange}
             placeholder="Address"
           />
