@@ -64,6 +64,10 @@ const PostItem = ({
             <div className="p-1 px-2 bg-gray-100 rounded-full">
               <strong>Landmark:</strong> {post.dropOffLandmark}
             </div>
+            <div className="p-1 px-2 bg-gray-100 rounded-full">
+              <strong>Batch Number:</strong> {post.batchNumber}{" "}
+              {/* Display the batch number */}
+            </div>
             {post.inKind && post.specifications && (
               <div className="flex flex-wrap gap-2 text-sm">
                 {Object.entries(post.inKind).map(

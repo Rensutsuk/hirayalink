@@ -17,6 +17,18 @@ export async function POST(request: Request) {
     const necessities = formData.get("necessities") as string;
     const specifications = formData.get("specifications") as string;
     const proofFile = formData.get("proofFile") as File;
+    
+    // Safely parse batchNumber to integer
+    const batchNumberRaw = formData.get("batchNumber");
+    const batchNumber = batchNumberRaw ? parseInt(batchNumberRaw.toString(), 10) : 0;
+
+    // Validate batchNumber
+    if (isNaN(batchNumber)) {
+      return NextResponse.json(
+        { error: "Invalid batch number" },
+        { status: 400 }
+      );
+    }
 
     let proofFileBuffer: Buffer | null = null;
     if (proofFile) {
@@ -43,8 +55,13 @@ export async function POST(request: Request) {
         dropOffLandmark: donationLandmark,
         inKind: JSON.parse(necessities),
         specifications: JSON.parse(specifications),
+        batchNumber, // Now properly typed as Int
         image: proofFileBuffer,
-        barangayId: barangay?.id,
+        Barangay: {
+          connect: {
+            id: barangay?.id
+          }
+        }
       },
     });
 

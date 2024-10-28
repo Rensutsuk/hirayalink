@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { PrismaClient } from "@prisma/client";
 import { authOptions } from "../auth/[...nextauth]/route";
-import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -10,9 +9,7 @@ export default prisma;
 
 export async function GET(req: Request) {
   try {
-    console.log("GET request received");
     const session = await getServerSession(authOptions);
-    console.log("Session:", session);
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
