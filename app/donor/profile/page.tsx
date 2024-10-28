@@ -63,9 +63,13 @@ const Profile = () => {
       </div>
       <ConfirmChangesModal
         isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        userId={session.user.id}
+        onClose={() => {
+          setShowPasswordModal(false);
+          window.location.reload();
+        }}
+        userId={session?.user?.id}
         setProfile={setProfile}
+        editedProfile={profile}
       />
       <ChangePasswordModal
         isOpen={showPasswordChangeModal}
