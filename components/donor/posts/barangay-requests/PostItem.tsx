@@ -20,7 +20,7 @@ const PostItem = ({
       <div className="flex-grow">
         <div className="bg-primary text-white text-lg font-semi bold px-4 py-2 flex justify-between items-center rounded-t-lg">
           <span className="font-bold">
-            {post.person}: {post.area}
+            {post.person}: {post.area}: {post.typeOfCalamity}: Batch {post.batchNumber}
           </span>{" "}
           {/* Updated to match Post.tsx */}
           <span className="text-sm">
