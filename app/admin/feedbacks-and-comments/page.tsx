@@ -9,6 +9,7 @@ interface BarangayRequestPost {
   nameOfCalamity: string;
   dateTime: string;
   typeOfCalamity: string;
+  batchNumber: string;
 }
 
 export default function CalamityImpactForm() {
@@ -163,7 +164,7 @@ export default function CalamityImpactForm() {
                                     <option value="">Select a post</option>
                                     {barangayRequestPosts.map((post) => (
                                         <option key={post.id} value={post.id}>
-                                            {`${post.dateTime} - ${post.area} - ${post.typeOfCalamity}`}
+                                            {`${post.dateTime} - ${post.area} - ${post.typeOfCalamity} - Batch: ${post.batchNumber}`}
                                         </option>
                                     ))}
                                 </select>

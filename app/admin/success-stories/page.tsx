@@ -8,6 +8,7 @@ interface BarangayRequestPost {
   area: string; // Include area in the interface
   barangayId: string;
   typeOfCalamity: string;
+  batchNumber: number;
   donorIds: string[];
 }
 
@@ -19,6 +20,7 @@ export default function SuccessStoryForm() {
   >([]);
   const [selectedPostId, setSelectedPostId] = useState("");
   const [selectedPostArea, setSelectedPostArea] = useState(""); // State to hold selected post area
+  const [selectedPostBatchNumber, setSelectedPostBatchNumber] = useState(""); // State to hold selected post batch number
   const [donorIds, setDonorIds] = useState("");
 
   // State to hold form data
@@ -60,78 +62,87 @@ export default function SuccessStoryForm() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "photo") {
-      setFormData({ ...formData, photo: e.target.files[0] });
-    } else if (name === "barangayRequestPost") {
-      setSelectedPostId(value);
-      const selectedPost = barangayRequestPosts.find(
-        (post) => post.id === value
-      );
-      if (selectedPost) {
-        setSelectedPostArea(selectedPost.area); // Set the area of the selected post
-        setFormData({
-          ...formData,
-          calamityName: selectedPost.typeOfCalamity,
-          controlNumber: selectedPost.id,
-          transactionIds: selectedPost.donorIds.join(", "), // Join the array with commas
-        });
-      }
+    const { name, value, files } = e.target; // Get files from the event
+    if (name === "barangayRequestPost") {
+        setSelectedPostId(value);
+        const selectedPost = barangayRequestPosts.find(
+            (post) => post.id === value
+        );
+        if (selectedPost) {
+            setSelectedPostArea(selectedPost.area); // Set the area of the selected post
+            if (selectedPost.batchNumber !== undefined) { // Check if batchNumber is defined
+                setSelectedPostBatchNumber(selectedPost.batchNumber.toString()); // Set the batch number of the selected post
+            } else {
+                console.error("Batch number is undefined for the selected post.");
+                setSelectedPostBatchNumber(""); // Reset if undefined
+            }
+            setFormData({
+                ...formData,
+                calamityName: selectedPost.typeOfCalamity,
+                controlNumber: selectedPost.id,
+                transactionIds: selectedPost.donorIds.join(", "), // Join the array with commas
+            });
+        } else {
+            console.error("Selected post not found in barangayRequestPosts.");
+            setSelectedPostArea(""); // Reset area if post is not found
+            setSelectedPostBatchNumber(""); // Reset batch number if post is not found
+        }
+    } else if (name === "photo" && files.length > 0) {
+        // Handle file input
+        setFormData({ ...formData, photo: files[0] }); // Set the first file
     } else {
-      setFormData({ ...formData, [name]: value });
+        setFormData({ ...formData, [name]: value });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const imageBase64 = formData.photo
-        ? await convertToBase64(formData.photo)
-        : null;
+        const imageBase64 = formData.photo
+            ? await convertToBase64(formData.photo)
+            : null;
 
-      const response = await fetch("/api/success-stories", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          postId: selectedPostId, // Use selectedPostId here
-          nameOfCalamity: formData.calamityName,
-          controlNumber: formData.controlNumber,
-          batchNumber: formData.batchNumber,
-          numberOfRecipients: formData.numberOfRecipients,
-          storyText: formData.storyText,
-          image: imageBase64,
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Success story submitted successfully", result);
-        setShowSuccessMessage(true);
-        setFormData({
-          barangayNo: formData.barangayNo,
-          calamityName: "",
-          controlNumber: "",
-          transactionIds: "",
-          batchNumber: "",
-          numberOfRecipients: "",
-          storyText: "",
-          photo: null,
+        const response = await fetch("/api/success-stories", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                postId: selectedPostId, // Use selectedPostId here
+                nameOfCalamity: formData.calamityName,
+                controlNumber: formData.controlNumber,
+                batchNumber: selectedPostBatchNumber, // Ensure this is the selected batch number
+                numberOfRecipients: formData.numberOfRecipients,
+                storyText: formData.storyText,
+                image: imageBase64,
+            }),
         });
-        setSelectedPostId("");
-        setSelectedPostArea(""); // Reset selected post area
-        setTimeout(() => setShowSuccessMessage(false), 3000);
-      } else {
-        const errorData = await response.json();
-        console.error(
-          "Failed to submit success story:",
-          errorData.error,
-          errorData.details
-        );
-      }
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log("Success story submitted successfully", result);
+            setShowSuccessMessage(true);
+
+            // Reset form data
+            setFormData({
+                barangayNo: "",
+                calamityName: "",
+                controlNumber: "",
+                transactionIds: "",
+                batchNumber: "",
+                numberOfRecipients: "",
+                storyText: "",
+                photo: null,
+            });
+            setSelectedPostId(""); // Reset selected post ID
+            setSelectedPostArea(""); // Reset selected post area
+            setSelectedPostBatchNumber(""); // Reset selected post batch number
+        } else {
+            const errorData = await response.json();
+            console.error("Failed to submit success story:", errorData.error, errorData.details);
+        }
     } catch (error) {
-      console.error("Error submitting success story:", error);
+        console.error("Error submitting success story:", error);
     }
   };
 
@@ -209,7 +220,7 @@ export default function SuccessStoryForm() {
                   <option value="">Select a post</option>
                   {barangayRequestPosts.map((post) => (
                     <option key={post.id} value={post.id}>
-                      {`${post.dateTime} - ${post.area} - ${post.typeOfCalamity}`}
+                      {`${post.dateTime} - ${post.area} - ${post.typeOfCalamity} - Batch: ${post.batchNumber}`}
                     </option>
                   ))}
                 </select>
@@ -296,9 +307,8 @@ export default function SuccessStoryForm() {
                   id="batchNumber"
                   type="text"
                   name="batchNumber"
-                  value={formData.batchNumber}
-                  onChange={handleChange}
-                  required
+                  value={selectedPostBatchNumber}
+                  readOnly
                 />
               </div>
 
@@ -353,7 +363,7 @@ export default function SuccessStoryForm() {
                   type="file"
                   name="photo"
                   accept="image/*"
-                  onChange={handleChange}
+                  onChange={handleChange} // Ensure this calls handleChange
                   required
                 />
               </div>
