@@ -13,6 +13,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const postId = searchParams.get("postId");
+  const isFeed = searchParams.get("isFeed");
   const isAdmin = session.user.userType === "admin";
 
   try {
@@ -55,6 +56,16 @@ export async function GET(request: Request) {
         area: post.area,
         typeOfCalamity: post.typeOfCalamity,
       }));
+    } else if (isFeed && postId) {
+      posts = await prisma.donation.findMany({
+        where: { barangayRequestPostId: postId },
+        include: {
+          statusLogs: true,
+          donationItems: true,
+          barangay: true,
+          donor: true,
+        },
+      });
     } else {
       // Donor view: fetch all donations for the donor
       posts = await prisma.donation.findMany({
@@ -73,7 +84,6 @@ export async function GET(request: Request) {
         orderBy: { createdAt: "desc" },
       });
     }
-
     return NextResponse.json(posts);
   } catch (error) {
     console.error("Error fetching barangay request posts:", error);

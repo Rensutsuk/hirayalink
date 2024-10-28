@@ -52,7 +52,6 @@ interface Post {
   person: string;
   typeOfCalamity: string;
   inKind: string;
-  // Add other post fields as needed
 }
 
 export default function DonationTracking() {
@@ -65,7 +64,7 @@ export default function DonationTracking() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/donations?postId=${postId}`);
+        const response = await fetch(`/api/donations?postId=${postId}&isFeed=true`);
         if (!response.ok) {
           throw new Error(`Failed to fetch donations: ${response.statusText}`);
         }
