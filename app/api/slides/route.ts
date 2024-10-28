@@ -53,12 +53,12 @@ export async function GET() {
     // Format the dates before sending
     const formattedCalamityImpacts = calamityImpacts.map(impact => ({
       ...impact,
-      createdAt: impact.createdAt.toISOString() // Convert Date to ISO string
+      createdAt: impact.createdAt.toISOString()
     }));
 
     const formattedSuccessStories = successStories.map(story => ({
       ...story,
-      createdAt: story.createdAt.toISOString() // Convert Date to ISO string
+      createdAt: story.createdAt.toISOString()
     }));
 
     return NextResponse.json({ 
