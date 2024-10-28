@@ -3,6 +3,7 @@
 import { FaHandHoldingHeart } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
 import { FaHandHolding } from "react-icons/fa";
+import Link from "next/link";
 
 export default function SignUp() {
   return (
@@ -33,12 +34,12 @@ export default function SignUp() {
             </div>
             <p className="text-center text-sm text-gray-500 mt-5">
               Already have an account?{" "}
-              <a
-                href="#"
+              <Link
+                href="/login"
                 className="font-semibold text-primary hover:text-accent"
               >
                 Login here.
-              </a>
+              </Link>
             </p>
           </div>
           <div className="divider divider-primary divider-horizontal">or</div>

@@ -125,16 +125,12 @@ const DonationRequestsTable = () => {
     );
     
     const combinedData = selectedData.reduce((acc, request) => {
-      // Combine areas
       acc.areas = [...new Set([...(acc.areas || []), request.area])];
       
-      // Combine calamity types
       acc.calamityTypes = [...new Set([...(acc.calamityTypes || []), request.typeOfCalamity])];
       
-      // Parse and combine necessities and specifications
       let necessities, specifications;
       try {
-        // Try parsing as JSON, if it fails, treat as comma-separated string
         try {
           necessities = JSON.parse(request.inKindNecessities.replace(/'/g, '"'));
         } catch {
@@ -300,7 +296,7 @@ const DonationRequestsTable = () => {
             </tr>
           ) : requests.length > 0 ? (
             requests.map((request) => (
-              <tr key={request.id} className="hover:bg-gray-50">
+              <tr key={request.id} className={`hover:bg-gray-50 ${selectedRequests.includes(request.id) ? 'bg-green-100' : ''}`}>
                 <td className="p-3 border-b">{request.completeName}</td>
                 <td className="p-3 border-b">{request.area}</td>
                 <td className="p-3 border-b">{request.typeOfCalamity}</td>
