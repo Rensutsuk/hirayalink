@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, DonationStatus } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { DonationStatus } from "@prisma/client";
+import { prisma } from '@/lib/prisma';
 
 function generateControlNumber(): string {
   const date = new Date();

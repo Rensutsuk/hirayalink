@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 export default function About() {
   return (
     <div>
@@ -9,10 +11,13 @@ export default function About() {
 
       <div className="py-8">
         <div className="relative px-4 sm:px-8 lg:px-12">
-          <img
-            src="helping-hand.jpg"
-            alt="helping hand"
-            className="w-full h-auto max-w-full rounded-md"
+          <Image 
+            src="/helping-hand.jpg" 
+            alt="About Us"
+            width={2000}
+            height={250}
+            className="w-full h-auto" 
+            priority 
           />
 
           <div className="absolute bottom-0 left-0 right-0 bg-primary p-4 rounded-md max-w-lg mx-auto transform translate-y-1/2">

@@ -1,11 +1,39 @@
-import React from 'react';
-import PostItem from './PostItem';
+import React from "react";
+import PostItem from "./PostItem";
 
-const PostList = ({ posts, session, handleOpenModal, handleLikeClick, toggleComments, likedPosts, newComment, setNewComment, handleAddComment, showComments, isLoading, error }) => {
+const PostList = ({
+  posts,
+  session,
+  handleOpenModal,
+  handleLikeClick,
+  toggleComments,
+  likedPosts,
+  newComment,
+  setNewComment,
+  handleAddComment,
+  showComments,
+  isLoading,
+  error,
+}: {
+  posts: any;
+  session: any;
+  handleOpenModal: any;
+  handleLikeClick: any;
+  toggleComments: any;
+  likedPosts: any;
+  newComment: any;
+  setNewComment: any;
+  handleAddComment: any;
+  showComments: any;
+  isLoading: any;
+  error: any;
+}) => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <span className="loading loading-spinner loading-lg">Loading Posts</span>
+        <span className="loading loading-spinner loading-lg">
+          Loading Posts
+        </span>
       </div>
     );
   }
@@ -20,19 +48,19 @@ const PostList = ({ posts, session, handleOpenModal, handleLikeClick, toggleComm
 
   return (
     <div className="space-y-4 p-4">
-      {posts.map((post) => (
-        <PostItem 
-          key={post.id} 
-          post={post} 
-          session={session} 
-          handleOpenModal={handleOpenModal} 
-          handleLikeClick={handleLikeClick} 
-          toggleComments={toggleComments} 
-          likedPosts={likedPosts} 
-          newComment={newComment} 
-          setNewComment={setNewComment} 
-          handleAddComment={handleAddComment} 
-          showComments={showComments} 
+      {posts.map((post: any) => (
+        <PostItem
+          key={post.id}
+          post={post}
+          session={session}
+          handleOpenModal={handleOpenModal}
+          handleLikeClick={handleLikeClick}
+          toggleComments={toggleComments}
+          likedPosts={likedPosts}
+          newComment={newComment}
+          setNewComment={setNewComment}
+          handleAddComment={handleAddComment}
+          showComments={showComments}
         />
       ))}
     </div>

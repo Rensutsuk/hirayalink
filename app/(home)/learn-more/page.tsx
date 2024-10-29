@@ -34,7 +34,7 @@ export default function LearnMore() {
             generosity has a meaningful impact. 
           </p><br />
           <p className="text-xl text-green-700">
-          For Filipino families, especially in disaster-prone areas, in-kind donations are lifelines. From food and clothing to medical and educational materials and construction items, all represent fundamental resources affecting people's lives. Food feeds children; clothing brings warmth and dignity; school materials open up hope for a brighter future; hygiene and health goods ward off infections; and reconstruction of homes and life is done through construction material supplies. In-kind contributions are meant to address urgent needs but often remind the recipient that one is not alone, thus creating a sense of community and solidarity. Contributions of this nature and others can inspire hope and produce lasting positive change.
+          For Filipino families, especially in disaster-prone areas, in-kind donations are lifelines. From food and clothing to medical and educational materials and construction items, all represent fundamental resources affecting people&apos;s lives. Food feeds children; clothing brings warmth and dignity; school materials open up hope for a brighter future; hygiene and health goods ward off infections; and reconstruction of homes and life is done through construction material supplies. In-kind contributions are meant to address urgent needs but often remind the recipient that one is not alone, thus creating a sense of community and solidarity. Contributions of this nature and others can inspire hope and produce lasting positive change.
           </p>
         </div>
       </section>

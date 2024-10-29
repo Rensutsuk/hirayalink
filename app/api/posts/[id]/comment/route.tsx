@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
-const prisma = new PrismaClient();
+import { authOptions } from '@/app/api/auth/[...nextauth]/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const postId = params.id; 

@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route";
-import { PrismaClient } from "@prisma/client";
-import { v4 as uuidv4 } from 'uuid'; // Make sure to install this package: npm install uuid
-
-const prisma = new PrismaClient();
+import { authOptions } from "../auth/[...nextauth]/auth";
+import { prisma } from '@/lib/prisma';
+import { v4 as uuidv4 } from 'uuid';
 
 function validateDonationData(postId: string, items: any[]): string | null {
   if (typeof postId !== 'string' || postId.trim() === '') {
@@ -42,7 +40,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid post or barangay" }, { status: 404 });
     }
 
-    const controlNumber = uuidv4();
+    const controlNumber = uuidv4(); 
 
     const donation = await prisma.donation.create({
       data: {
@@ -52,7 +50,7 @@ export async function POST(request: Request) {
         barangayRequestPostId: postId, // Add this line to associate the donation with the BarangayRequestPost
         donationStatus: "PLEDGED",
         donationItems: {
-          create: items.map((item) => ({
+          create: items.map((item: any) => ({
             itemName: item.name,
             quantity: item.quantity,
           })),
@@ -76,7 +74,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating donation:", error);
     return NextResponse.json(
-      { error: "Failed to create donation", details: error.message },
+      { error: "Failed to create donation", details: error },
       { status: 500 }
     );
   }
