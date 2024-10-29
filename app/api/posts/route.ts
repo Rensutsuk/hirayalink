@@ -106,9 +106,9 @@ export async function GET(request: Request) {
     }
 
     // Add likedByUser property
-    const postsWithLikes = posts.map((post) => ({
+    const postsWithLikes = posts.map((post: any) => ({
       ...post,
-      likedByUser: post.likes.some((like) => like.userId === user?.id),
+      likedByUser: post.likes.some((like: any) => like.userId === user?.id),
     }));
 
     const hasMore = offset + posts.length < totalPosts;

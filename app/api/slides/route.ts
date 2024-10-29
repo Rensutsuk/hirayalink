@@ -49,12 +49,12 @@ export async function GET() {
     ]);
 
     // Format the dates before sending
-    const formattedCalamityImpacts = calamityImpacts.map(impact => ({
+    const formattedCalamityImpacts = calamityImpacts.map((impact: any) => ({
       ...impact,
       createdAt: impact.createdAt.toISOString()
     }));
 
-    const formattedSuccessStories = successStories.map(story => ({
+    const formattedSuccessStories = successStories.map((story: any) => ({
       ...story,
       createdAt: story.createdAt.toISOString()
     }));
