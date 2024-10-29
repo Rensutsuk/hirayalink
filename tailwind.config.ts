@@ -6,7 +6,7 @@ const config: Config = {
 		"./components/**/*.{js,ts,jsx,tsx,mdx}",
 		"./app/**/*.{js,ts,jsx,tsx,mdx}",
 	],
-	plugins: [require("daisyui", "@tailwindcss/forms")],
+	plugins: [require("daisyui")],
 
 	daisyui: {
 		themes: [

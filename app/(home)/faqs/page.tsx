@@ -4,19 +4,19 @@ import { useState } from 'react';
 
 export default function FAQs() {
   
-  const [openFAQ1, setOpenFAQ1] = useState(null);
-  const [openFAQ2, setOpenFAQ2] = useState(null);
-  const [openFAQ3, setOpenFAQ3] = useState(null);
+  const [openFAQ1, setOpenFAQ1] = useState<string | null>(null);
+  const [openFAQ2, setOpenFAQ2] = useState<string | null>(null);
+  const [openFAQ3, setOpenFAQ3] = useState<string | null>(null);
   
-  const toggleFAQ1 = (id) => {
+  const toggleFAQ1 = (id: string) => {
     setOpenFAQ1(openFAQ1 === id ? null : id);
   };
 
-  const toggleFAQ2 = (id) => {
+  const toggleFAQ2 = (id: string) => {
     setOpenFAQ2(openFAQ2 === id ? null : id);
   };
 
-  const toggleFAQ3 = (id) => {
+  const toggleFAQ3 = (id: string) => {
     setOpenFAQ3(openFAQ3 === id ? null : id);
   };
 

@@ -28,6 +28,13 @@ const calamityTypes = [
   "Fire",
 ];
 
+interface CombinedData {
+  areas: string[];
+  calamityTypes: string[];
+  necessities?: Record<string, string[]>;
+  specifications?: Record<string, string[]>;
+}
+
 const DonationRequestsTable = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +79,7 @@ const DonationRequestsTable = () => {
 
         // Sort the requests by date in descending order (newest first)
         const sortedRequests = (responseData.requests || []).sort(
-          (a, b) =>
+          (a: Request, b: Request) =>
             new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
         );
 
@@ -124,17 +131,17 @@ const DonationRequestsTable = () => {
       selectedRequests.includes(request.id)
     );
     
-    const combinedData = selectedData.reduce((acc, request) => {
-      acc.areas = [...new Set([...(acc.areas || []), request.area])];
+    const combinedData = selectedData.reduce((acc: CombinedData, request) => {
+      acc.areas = Array.from(new Set([...acc.areas, request.area]));
       
-      acc.calamityTypes = [...new Set([...(acc.calamityTypes || []), request.typeOfCalamity])];
+      acc.calamityTypes = Array.from(new Set([...acc.calamityTypes, request.typeOfCalamity]));
       
       let necessities, specifications;
       try {
         try {
           necessities = JSON.parse(request.inKindNecessities.replace(/'/g, '"'));
         } catch {
-          necessities = request.inKindNecessities.split(',').reduce((acc, item) => {
+          necessities = request.inKindNecessities.split(',').reduce((acc: Record<string, string>, item) => {
             const [key, value] = item.split(':').map(s => s.trim());
             acc[key] = value;
             return acc;
@@ -144,7 +151,7 @@ const DonationRequestsTable = () => {
         try {
           specifications = JSON.parse(request.specifications.replace(/'/g, '"'));
         } catch {
-          specifications = request.specifications.split(',').reduce((acc, item) => {
+          specifications = request.specifications.split(',').reduce((acc: Record<string, string>, item) => {
             const [key, value] = item.split(':').map(s => s.trim());
             acc[key] = value;
             return acc;
@@ -159,33 +166,33 @@ const DonationRequestsTable = () => {
       // Combine necessities
       Object.entries(necessities).forEach(([category, items]) => {
         if (!acc.necessities) acc.necessities = {};
-        if (!acc.necessities[category]) acc.necessities[category] = new Set();
+        if (!acc.necessities[category]) acc.necessities[category] = [];
         if (Array.isArray(items)) {
-          items.forEach(item => acc.necessities[category].add(item));
+          items.forEach(item => acc.necessities![category].push(item));
         } else {
-          acc.necessities[category].add(items);
+          acc.necessities![category].push(items as string);
         }
       });
       
       // Combine specifications
       Object.entries(specifications).forEach(([category, spec]) => {
         if (!acc.specifications) acc.specifications = {};
-        if (!acc.specifications[category]) acc.specifications[category] = new Set();
-        acc.specifications[category].add(spec);
+        if (!acc.specifications[category]) acc.specifications[category] = [];
+        acc.specifications[category].push(spec as string);
       });
       
       return acc;
-    }, {});
+    }, { areas: [], calamityTypes: [] });
     
     // Convert Sets to Arrays
     if (combinedData.necessities) {
       Object.keys(combinedData.necessities).forEach(category => {
-        combinedData.necessities[category] = Array.from(combinedData.necessities[category]);
+        combinedData.necessities![category] = Array.from(combinedData.necessities![category]);
       });
     }
     if (combinedData.specifications) {
       Object.keys(combinedData.specifications).forEach(category => {
-        combinedData.specifications[category] = Array.from(combinedData.specifications[category]);
+        combinedData.specifications![category] = Array.from(combinedData.specifications![category]);
       });
     }
     
@@ -412,7 +419,7 @@ const DonationRequestsTable = () => {
                     try {
                       necessities = JSON.parse(selectedRequest.inKindNecessities.replace(/'/g, '"'));
                     } catch {
-                      necessities = selectedRequest.inKindNecessities.split(',').reduce((acc, item) => {
+                      necessities = selectedRequest.inKindNecessities.split(',').reduce((acc: Record<string, string>, item) => {
                         const [key, value] = item.split(':').map(s => s.trim());
                         acc[key] = value;
                         return acc;
@@ -422,7 +429,7 @@ const DonationRequestsTable = () => {
                     try {
                       specifications = JSON.parse(selectedRequest.specifications.replace(/'/g, '"'));
                     } catch {
-                      specifications = selectedRequest.specifications.split(',').reduce((acc, item) => {
+                      specifications = selectedRequest.specifications.split(',').reduce((acc: Record<string, string>, item) => {
                         const [key, value] = item.split(':').map(s => s.trim());
                         acc[key] = value;
                         return acc;
@@ -434,7 +441,7 @@ const DonationRequestsTable = () => {
                         <strong>{category}:</strong>{" "}
                         {Array.isArray(items) 
                           ? items.join(", ")
-                          : items}
+                          : String(items)}
                         <span className="ml-2">
                           {specifications[category] 
                             ? specifications[category]

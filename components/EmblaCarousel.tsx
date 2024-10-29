@@ -5,18 +5,18 @@ import Image from "next/image";
 
 interface Slide {
   id: string;
-  area?: string;
-  nameOfCalamity?: string;
+  area?: string | null;
+  nameOfCalamity?: string | null;
   storyText?: string | null;
   image: Buffer | null;
   Barangay?: {
     name: string;
   } | null;
   createdAt: string;
-  batchNumber?: string;
-  controlNumber?: string;
-  transactionIds?: string;
-  numberOfRecipients?: number;
+  batchNumber?: string | null;
+  controlNumber?: string | null;
+  transactionIds?: string | null;
+  numberOfRecipients?: number | null;
 }
 
 interface EmblaCarouselProps {

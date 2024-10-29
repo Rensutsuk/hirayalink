@@ -20,15 +20,15 @@ interface PostProps {
     noOfFamilyMembers: number;
     uploadedPhoto?: any;
     likes: string[];
-    comments: string[];
+    comments: { id: string; content: string; userId: string }[];
   };
   handleLikeClick: (postId: string) => void;
   toggleComments: (postId: string) => void;
   showComments: { [key: string]: boolean };
-  newComment: string;
-  setNewComment: (comment: string) => void;
+  newComment: Record<string, string>;
+  setNewComment: (value: Record<string, string>) => void;
   handleAddComment: (postId: string) => void;
-  likedPosts: string[];
+  likedPosts: Set<string>;
 }
 
 const Post = ({ post, handleLikeClick, toggleComments, showComments, newComment, setNewComment, handleAddComment, likedPosts }: PostProps) => {

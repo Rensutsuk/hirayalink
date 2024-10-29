@@ -1,9 +1,21 @@
-const CommentsSection = ({ post, newComment, setNewComment, handleAddComment }) => {
+const CommentsSection = ({ post, newComment, setNewComment, handleAddComment }: { 
+  post: {
+    id: string;
+    comments: Array<{
+      id: string;
+      content: string; 
+      userId: string;
+    }>;
+  };
+  newComment: Record<string, string>;
+  setNewComment: (value: Record<string, string>) => void;
+  handleAddComment: (postId: string) => void;
+}) => {
   return (
     <div className="w-full ml-4 border-l pl-4 max-h-96 overflow-y-auto">
       <h4 className="font-bold mb-2">Comments</h4>
       <div className="space-y-2">
-        {post.comments.map((comment) => (
+        {post.comments.map((comment: { id: string; content: string; userId: string }) => (
           <p key={comment.id} className="text-sm bg-gray-200 p-2 rounded">
             {comment.content}
           </p>
@@ -13,12 +25,7 @@ const CommentsSection = ({ post, newComment, setNewComment, handleAddComment }) 
         <input
           type="text"
           value={newComment[post.id] || ""}
-          onChange={(e) =>
-            setNewComment({
-              ...newComment,
-              [post.id]: e.target.value,
-            })
-          }
+          onChange={(e) => setNewComment({ ...newComment, [post.id]: e.target.value })}
           placeholder="Add a comment..."
           className="input input-bordered w-full"
         />

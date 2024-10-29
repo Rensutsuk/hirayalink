@@ -16,7 +16,7 @@ export async function POST(
 
   try {
     const user = await prisma.donor.findUnique({
-      where: { contactNumber: session.user.contactNumber },
+      where: { contactNumber: session?.user?.contactNumber },
     });
 
     if (!user) {

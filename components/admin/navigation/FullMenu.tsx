@@ -99,7 +99,7 @@ export default function FullMenu() {
       doc.setFontSize(16);
       doc.text("Recipient Request Posts", topMargin, verticalPosition);
       verticalPosition += 20; // Increase position for the next line
-      reportData.recipientRequests.forEach((post, index) => {
+      reportData.recipientRequests.forEach((post: any, index: number) => {
         doc.setFontSize(12);
         doc.text(`${index + 1}. Name: ${post.completeName}`, topMargin, verticalPosition);
         doc.text(`   Age: ${post.age}`, topMargin, verticalPosition + 15);
@@ -117,7 +117,7 @@ export default function FullMenu() {
       doc.setFontSize(16);
       doc.text("Barangay Request Posts", topMargin, verticalPosition);
       verticalPosition += 20; // Increase position for the next line
-      reportData.barangayRequests.forEach((post, index) => {
+      reportData.barangayRequests.forEach((post: any, index: number) => {
         doc.setFontSize(12);
         doc.text(`${index + 1}. Area: ${post.area}`, topMargin, verticalPosition);
         doc.text(`   Person: ${post.person}`, topMargin, verticalPosition + 15);
@@ -135,7 +135,7 @@ export default function FullMenu() {
       doc.setFontSize(16);
       doc.text("Donations", topMargin, verticalPosition);
       verticalPosition += 20; // Increase position for the next line
-      reportData.donations.forEach((donation, index) => {
+      reportData.donations.forEach((donation: any, index: number) => {
         doc.setFontSize(12);
         doc.text(`${index + 1}. Control Number: ${donation.controlNumber}`, topMargin, verticalPosition);
         doc.text(`   Donor ID: ${donation.donorId}`, topMargin, verticalPosition + 15);
@@ -149,7 +149,7 @@ export default function FullMenu() {
         doc.setFontSize(14);
         doc.text("Donation Items:", topMargin, verticalPosition);
         verticalPosition += 20; // Increase position for the next line
-        donation.donationItems.forEach((item, itemIndex) => {
+        donation.donationItems.forEach((item: any, itemIndex: number) => {
           doc.setFontSize(12);
           doc.text(`   ${itemIndex + 1}. Item Name: ${item.itemName}`, topMargin, verticalPosition);
           doc.text(`      Quantity: ${item.quantity}`, topMargin, verticalPosition + 15);
@@ -168,7 +168,7 @@ export default function FullMenu() {
       doc.setFontSize(16);
       doc.text("Calamity Impacts", topMargin, verticalPosition);
       verticalPosition += 20; // Increase position for the next line
-      reportData.calamityImpacts.forEach((impact, index) => {
+      reportData.calamityImpacts.forEach((impact: any, index: number) => {
         doc.setFontSize(12);
         doc.text(`${index + 1}. Name of Calamity: ${impact.nameOfCalamity}`, topMargin, verticalPosition);
         doc.text(`   Area: ${impact.area}`, topMargin, verticalPosition + 15);
@@ -184,7 +184,7 @@ export default function FullMenu() {
       doc.setFontSize(16);
       doc.text("Success Stories", topMargin, verticalPosition);
       verticalPosition += 20; // Increase position for the next line
-      reportData.successStories.forEach((story, index) => {
+      reportData.successStories.forEach((story: any, index: number) => {
         doc.setFontSize(12);
         doc.text(`${index + 1}. Name of Calamity: ${story.nameOfCalamity}`, topMargin, verticalPosition);
         doc.text(`   Story Text: ${story.storyText}`, topMargin, verticalPosition + 15);
