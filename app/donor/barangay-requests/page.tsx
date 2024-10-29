@@ -106,7 +106,7 @@ export default function BarangayRequests() {
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          setPage((prevPage) => prevPage + 1);
+          setPage((prevPage: number) => prevPage + 1);
         }
       });
       if (node) observer.current.observe(node);
@@ -147,7 +147,7 @@ export default function BarangayRequests() {
     try {
       const donationData = {
         postId: postId,
-        items: items.map((item) => ({
+        items: items.map((item: any) => ({
           name: item.specificName || item.name,
           quantity: item.quantity,
         })),
@@ -183,8 +183,8 @@ export default function BarangayRequests() {
       });
       if (response.ok && session?.user?.id) {
         const data = await response.json();
-        setPosts((prevPosts) =>
-          prevPosts.map((post) =>
+        setPosts((prevPosts: any) =>
+          prevPosts.map((post: any) =>
             post.id === postId
               ? {
                   ...post,
@@ -204,7 +204,7 @@ export default function BarangayRequests() {
           )
         );
         setLikedPosts((prevLikedPosts) => {
-          const newLikedPosts = new Set(prevLikedPosts);
+          const newLikedPosts = new Set<string>(prevLikedPosts);
           if (data.liked) {
             newLikedPosts.add(postId);
           } else {
@@ -219,7 +219,7 @@ export default function BarangayRequests() {
   };
 
   const toggleComments = (postId: number) => {
-    setShowComments((prev) => ({
+    setShowComments((prev: any) => ({
       ...prev,
       [postId]: !prev[postId],
     }));
@@ -238,14 +238,14 @@ export default function BarangayRequests() {
         );
         if (response.ok) {
           const newCommentData = await response.json();
-          setPosts((prevPosts) =>
+          setPosts((prevPosts: any) =>
             prevPosts.map((post: any) =>
               post.id === postId
                 ? { ...post, comments: [...post.comments, newCommentData] }
                 : post
             )
           );
-          setNewComment((prev) => ({ ...prev, [postId]: "" }));
+          setNewComment((prev: any) => ({ ...prev, [postId]: "" }));
         }
       } catch (error) {
         console.error("Error adding comment:", error);

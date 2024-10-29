@@ -19,7 +19,7 @@ const DonationsTable = ({ donations }: { donations: any[] }) => {
               </tr>
             </thead>
             <tbody>
-              {donations.map((donation) => (
+              {donations.map((donation: any) => (
                 <tr key={donation.id} className="hover border-b">
                   <td className="px-4 py-2">{donation.controlNumber}</td>
                   <td className="px-4 py-2">{donation.donationStatus}</td>

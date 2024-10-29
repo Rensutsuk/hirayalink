@@ -101,7 +101,7 @@ export default function DonationTracking() {
       {donations.length === 0 ? (
         <p>No donations found for this post.</p>
       ) : (
-        donations.map((donation) => (
+        donations.map((donation: any) => (
           <DonationTrackingCard key={donation.id} donation={donation} />
         ))
       )}
@@ -126,7 +126,7 @@ function DonationTrackingCard({ donation }: { donation: Donation }) {
       </div>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
-          {statusOrder.map((status, index) => (
+          {statusOrder.map((status: string, index: number) => (
             <div key={status} className="flex flex-col items-center">
               <div
                 className={`w-12 h-12 rounded-full flex items-center justify-center ${
@@ -150,7 +150,7 @@ function DonationTrackingCard({ donation }: { donation: Donation }) {
           ))}
         </div>
         <div className="space-y-3">
-          {donation.statusLogs.map((log) => (
+          {donation.statusLogs.map((log: any) => (
             <div key={log.id} className="flex items-start">
               <div className="w-3 h-3 rounded-full bg-primary mt-1.5 mr-3"></div>
               <div>
@@ -166,7 +166,7 @@ function DonationTrackingCard({ donation }: { donation: Donation }) {
           <h5 className="font-semibold text-gray-700 mb-2">Donated Items:</h5>
           {donation.donationItems.length > 0 ? (
             <ul className="list-disc list-inside text-gray-600">
-              {donation.donationItems.map((item) => (
+              {donation.donationItems.map((item: any) => (
                 <li key={item.id}>
                   {item.itemName}: {item.quantity}
                 </li>

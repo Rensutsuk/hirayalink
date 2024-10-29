@@ -210,7 +210,7 @@ export default function FullMenu() {
         </h1>
       </Link>
       <ul className="flex-grow relative z-10">
-        {menuItems.map((item) => (
+        {menuItems.map((item: any) => (
           <li key={item.label} className="relative group">
             {item.isButton ? (
               <button

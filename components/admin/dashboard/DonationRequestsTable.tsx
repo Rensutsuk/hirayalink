@@ -107,7 +107,7 @@ const DonationRequestsTable = () => {
     if (selectedRequests.length > 0) {
       setSelectedRequests([]);
     } else {
-      setSelectedRequests(requests.map((request) => request.id));
+      setSelectedRequests(requests.map((request: Request) => request.id));
     }
   };
 
@@ -127,11 +127,11 @@ const DonationRequestsTable = () => {
   };
 
   const handlePostClick = () => {
-    const selectedData = requests.filter((request) =>
+    const selectedData = requests.filter((request: Request) =>
       selectedRequests.includes(request.id)
     );
     
-    const combinedData = selectedData.reduce((acc: CombinedData, request) => {
+    const combinedData = selectedData.reduce((acc: CombinedData, request: Request) => {
       acc.areas = Array.from(new Set([...acc.areas, request.area]));
       
       acc.calamityTypes = Array.from(new Set([...acc.calamityTypes, request.typeOfCalamity]));
@@ -141,7 +141,7 @@ const DonationRequestsTable = () => {
         try {
           necessities = JSON.parse(request.inKindNecessities.replace(/'/g, '"'));
         } catch {
-          necessities = request.inKindNecessities.split(',').reduce((acc: Record<string, string>, item) => {
+          necessities = request.inKindNecessities.split(',').reduce((acc: Record<string, string>, item: string) => {
             const [key, value] = item.split(':').map(s => s.trim());
             acc[key] = value;
             return acc;
@@ -151,7 +151,7 @@ const DonationRequestsTable = () => {
         try {
           specifications = JSON.parse(request.specifications.replace(/'/g, '"'));
         } catch {
-          specifications = request.specifications.split(',').reduce((acc: Record<string, string>, item) => {
+          specifications = request.specifications.split(',').reduce((acc: Record<string, string>, item: string) => {
             const [key, value] = item.split(':').map(s => s.trim());
             acc[key] = value;
             return acc;
@@ -186,12 +186,12 @@ const DonationRequestsTable = () => {
     
     // Convert Sets to Arrays
     if (combinedData.necessities) {
-      Object.keys(combinedData.necessities).forEach(category => {
+      Object.keys(combinedData.necessities).forEach((category: string) => {
         combinedData.necessities![category] = Array.from(combinedData.necessities![category]);
       });
     }
     if (combinedData.specifications) {
-      Object.keys(combinedData.specifications).forEach(category => {
+      Object.keys(combinedData.specifications).forEach((category: string) => {
         combinedData.specifications![category] = Array.from(combinedData.specifications![category]);
       });
     }
@@ -302,7 +302,7 @@ const DonationRequestsTable = () => {
               </td>
             </tr>
           ) : requests.length > 0 ? (
-            requests.map((request) => (
+            requests.map((request: Request) => (
               <tr key={request.id} className={`hover:bg-gray-50 ${selectedRequests.includes(request.id) ? 'bg-green-100' : ''}`}>
                 <td className="p-3 border-b">{request.completeName}</td>
                 <td className="p-3 border-b">{request.area}</td>
@@ -374,7 +374,7 @@ const DonationRequestsTable = () => {
           <tr>
             <td colSpan={7} className="p-4">
               <div className="flex justify-center items-center join">
-                {Array.from({ length: totalPages }, (_, index) => (
+                {Array.from({ length: totalPages }, (_, index: number) => (
                   <button
                     key={index + 1}
                     onClick={() => handlePageChange(index + 1)}

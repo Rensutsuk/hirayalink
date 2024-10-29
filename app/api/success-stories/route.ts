@@ -99,7 +99,7 @@ export async function POST(req: Request) {
     });
 
     // Extract all donorIds without uniqueness check
-    const allDonorIds = donorIds.map(donation => donation.donorId).join('; ');
+    const allDonorIds = donorIds.map((donation: any) => donation.donorId).join('; ');
 
     // Create success story
     const successStory = await prisma.successStory.create({

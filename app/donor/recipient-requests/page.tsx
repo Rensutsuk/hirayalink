@@ -170,7 +170,7 @@ export default function RecipientRequests() {
         ) : error ? (
           <p>{error}</p>
         ) : posts.length > 0 ? (
-          posts.map((post, index) => (
+          posts.map((post: RecipientRequests, index: number) => (
             <Post 
               key={post.id} 
               post={post} 

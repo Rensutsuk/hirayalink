@@ -65,7 +65,7 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
     <>
       <div className="embla overflow-hidden" ref={emblaRef}>
         <div className="embla__container">
-          {slides.map((slide, index) => (
+          {slides.map((slide: Slide, index: number) => (
             <div className="embla__slide relative" key={slide.id || index}>
               {/* Image Container */}
               <div className="relative h-[350px] w-full">
