@@ -86,7 +86,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error fetching report data:", error);
     return NextResponse.json(
-      { error: "Failed to fetch report data", details: error.message },
+      { error: "Failed to fetch report data", details: error },
       { status: 500 }
     );
   }

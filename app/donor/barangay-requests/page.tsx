@@ -181,7 +181,7 @@ export default function BarangayRequests() {
       const response = await fetch(`/api/posts/${postId}/like?type=barangay`, {
         method: "POST",
       });
-      if (response.ok) {
+      if (response.ok && session?.user?.id) {
         const data = await response.json();
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -193,7 +193,7 @@ export default function BarangayRequests() {
                         ...post.likes,
                         {
                           id: Date.now().toString(),
-                          userId: session?.user?.id,
+                          userId: session.user.id,
                         },
                       ]
                     : post.likes.filter(
@@ -299,13 +299,11 @@ export default function BarangayRequests() {
         showComments={showComments}
         isLoading={isLoading}
         error={error}
-        lastPostElementRef={lastPostElementRef} // Pass the ref to the PostList
       />
 
       {isModalOpen && (
         <DonationModal
           post={posts.find((p) => p.id === selectedPostId)}
-          handleDonateClick={handleDonateClick}
           handleCloseModal={handleCloseModal}
         />
       )}

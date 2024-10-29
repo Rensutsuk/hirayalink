@@ -12,6 +12,7 @@ interface SlideData {
 		storyText: string | null;
 		image: Buffer | null;
 		Barangay: { name: string } | null;
+		createdAt: Date;
 	}>;
 	successStories: Array<{
 		id: string;
@@ -21,6 +22,7 @@ interface SlideData {
 		image: Buffer | null;
 		Barangay: { name: string } | null;
 		batchNumber: string;
+		createdAt: Date;
 	}>;
 }
 
@@ -124,7 +126,10 @@ export default function Home() {
 					</h2>
 					{slideData ? (
 						<EmblaCarousel 
-							slides={slideData.calamityImpacts} 
+							slides={slideData.calamityImpacts.map(impact => ({
+								...impact,
+								createdAt: impact.createdAt.toString()
+							}))} 
 							type="calamity"
 						/>
 					) : (
@@ -141,7 +146,15 @@ export default function Home() {
 					</h2>
 					{slideData ? (
 						<EmblaCarousel 
-							slides={slideData.successStories} 
+							slides={slideData.successStories.map(story => ({
+								...story,
+								area: story.area || null,
+								nameOfCalamity: story.nameOfCalamity || null,
+								storyText: story.storyText || null,
+								image: story.image || null,
+								Barangay: story.Barangay || null,
+								createdAt: story.createdAt.toString()
+							}))} 
 							type="success"
 						/>
 					) : (

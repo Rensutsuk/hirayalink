@@ -23,11 +23,11 @@ export async function POST(req: Request) {
 			data:{
 				name,
 				contactNumber,
-				address,
-				password: hashedPassword,
-				barangayId: barangay.id,
-			}
-		})
+        address,
+        password: hashedPassword,
+        barangayId: barangay.id,
+      },
+    });
 
     return NextResponse.json({ message: 'Admin created successfully', admin }, { status: 201 });
   } catch (error) {

@@ -11,7 +11,7 @@ const PersonalInformation = ({
   setShowPasswordModal: (show: boolean) => void;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState(null);
+  const [editedProfile, setEditedProfile] = useState<any>({});
 
   const handleEdit = () => {
     setIsEditing(true);

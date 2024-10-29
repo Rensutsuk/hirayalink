@@ -14,7 +14,7 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
         userType: { label: "User Type", type: "text" },
       },
-      async authorize(credentials: any) {
+      async authorize(credentials) {
         if (
           !credentials?.contactNumber ||
           !credentials?.password ||
@@ -61,12 +61,22 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
+        if (credentials.userType === 'admin') {
+          return {
+            id: user.id.toString(),
+            contactNumber: user.contactNumber,
+            name: user.name,
+            userType: credentials.userType,
+            brgyName: (user as { barangay: { name: string } }).barangay?.name || undefined,
+          };
+        }
+
         return {
           id: user.id.toString(),
           contactNumber: user.contactNumber,
           name: user.name,
           userType: credentials.userType,
-          brgyName: user.barangay?.name || null,
+          brgyName: undefined,
         };
       },
     }),

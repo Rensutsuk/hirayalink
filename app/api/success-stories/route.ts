@@ -99,10 +99,7 @@ export async function POST(req: Request) {
     });
 
     // Extract all donorIds without uniqueness check
-    const allDonorIds = donorIds.map(donation => donation.donorId).join('; '); // Change separator to semicolon
-
-    // Log the donor IDs for debugging
-    console.log("All Donor IDs:", allDonorIds);
+    const allDonorIds = donorIds.map(donation => donation.donorId).join('; ');
 
     // Create success story
     const successStory = await prisma.successStory.create({
@@ -122,7 +119,7 @@ export async function POST(req: Request) {
     return NextResponse.json(successStory);
   } catch (error) {
     console.error('Error in POST /api/success-stories:', error);
-    return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error', details: error }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }

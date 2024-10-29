@@ -21,7 +21,7 @@ export default function CalamityImpactForm() {
     // State to hold form data
     const [formData, setFormData] = useState({
         storyText: '',
-        image: null,
+        image: null as File | null,
     });
 
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -49,20 +49,20 @@ export default function CalamityImpactForm() {
         }
     };
 
-    const handleChange = (e) => {
-        const { name, value, files } = e.target;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value, files } = e.target as HTMLInputElement;
         if (name === 'barangayRequestPost') {
             setSelectedPostId(value);
             const selectedPost = barangayRequestPosts.find(post => post.id === value);
             setSelectedPost(selectedPost || null); // Update selectedPost based on the selected ID
-        } else if (name === 'photo') {
-            setFormData({ ...formData, image: files[0] }); // Ensure you're setting the image file
+        } else if (name === 'photo' && files) {
+            setFormData({ ...formData, image: files[0] });
         } else {
             setFormData({ ...formData, [name]: value });
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             const imageBase64 = formData.image ? await convertToBase64(formData.image) : null;
@@ -105,11 +105,17 @@ export default function CalamityImpactForm() {
         setShowSuccessMessage(false); // Optionally hide the success message after resetting
     };
 
-    const convertToBase64 = (file) => {
+    const convertToBase64 = (file: File) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result.split(',')[1]); // Get the Base64 part
+            reader.onload = () => {
+                if (reader.result && typeof reader.result === 'string') {
+                    resolve(reader.result.split(',')[1]);
+                } else {
+                    reject(new Error('Failed to read file'));
+                }
+            };
             reader.onerror = (error) => reject(error);
         });
     };

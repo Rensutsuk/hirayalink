@@ -16,9 +16,9 @@ export default function AdminRequestDonation() {
     contactNumber: "",
     donationDropOff: "",
     donationLandmark: "",
-    necessities: {},
-    specifications: {},
-    proofFile: null,
+    necessities: {} as Record<string, string[]>,
+    specifications: {} as Record<string, string[]>,
+    proofFile: null as File | null,
     area: "",
     batchNumber: "",
   };
@@ -75,10 +75,11 @@ export default function AdminRequestDonation() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    const files = e.target.files;
+    if (files && files.length > 0) {
       setFormData((prevData) => ({
         ...prevData,
-        proofFile: e.target.files[0],
+        proofFile: files[0],
       }));
     }
   };
@@ -151,12 +152,12 @@ export default function AdminRequestDonation() {
           ([category, items], index) => (
             <div key={index} className="m-2">
               <strong>{category}:</strong>{" "}
-              {Array.isArray(items) ? items.join(", ") : items}
+              {Array.isArray(items) ? items.join(", ") : String(items)}
               <span className="ml-2">
                 {formData.specifications[category]
                   ? Array.isArray(formData.specifications[category])
                     ? formData.specifications[category].join(", ")
-                    : formData.specifications[category]
+                    : String(formData.specifications[category])
                   : "No Specifications"}
               </span>
             </div>

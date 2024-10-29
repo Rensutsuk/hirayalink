@@ -11,7 +11,7 @@ import ChangePasswordModal from "./ChangePasswordModal";
 
 const Profile = () => {
   const { data: session, status } = useSession();
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
@@ -67,14 +67,14 @@ const Profile = () => {
           setShowPasswordModal(false);
           window.location.reload();
         }}
-        userId={session?.user?.id}
+        userId={session?.user?.id || ""}
         setProfile={setProfile}
         editedProfile={profile}
       />
       <ChangePasswordModal
         isOpen={showPasswordChangeModal}
         onClose={() => setShowPasswordChangeModal(false)}
-        userId={session.user.id}
+        userId={session?.user?.id || ""}
       />
     </div>
   );

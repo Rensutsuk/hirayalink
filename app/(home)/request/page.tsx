@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression"; // You'll need to install this package
 import PhilippinesClock from "./PhilippinesClock";
 
+interface Barangay {
+  id: string;
+  name: string;
+}
+
 export default function DonationRequestPosting() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -16,11 +21,11 @@ export default function DonationRequestPosting() {
     barangayId: "",
     area: "",
     calamityType: "",
-    necessities: [],
+    necessities: [] as string[],
     specifyNecessities: {},
-    proofFile: null,
+    proofFile: null as File | null,
   });
-  const [barangays, setBarangays] = useState([]); // Add state for barangays
+  const [barangays, setBarangays] = useState<Barangay[]>([]); // Update the state definition
 
   useEffect(() => {
     const fetchBarangays = async () => {
@@ -370,7 +375,7 @@ export default function DonationRequestPosting() {
                           id={`specify-${necessity}`}
                           type="text"
                           name={necessity}
-                          value={formData.specifyNecessities[necessity] || ""}
+                          value={formData.specifyNecessities[necessity as keyof typeof formData.specifyNecessities] || ""}
                           onChange={handleSpecifyChange}
                           placeholder="Please specify"
                         />
