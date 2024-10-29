@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       });
 
       // Transform the data to include the required fields
-      posts = posts.map((post) => ({
+      posts = posts.map((post: any) => ({
         ...post,
         barangayName: post.Barangay?.name || "Unknown",
         contactPerson: post.person, // 'person' field is used as contact person
