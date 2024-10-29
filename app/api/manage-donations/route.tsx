@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
-const prisma = new PrismaClient();
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
@@ -22,7 +20,7 @@ export async function GET(request: Request) {
     });
 
     // Group donations by barangayRequestPostId
-    const groupedDonations = donations.reduce((acc, donation) => {
+    const groupedDonations = donations.reduce((acc: any, donation: any) => {
       const postId = donation.barangayRequestPostId;
       if (!acc[postId]) {
         acc[postId] = {
@@ -38,7 +36,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error fetching donations:", error);
     return NextResponse.json(
-      { error: "Failed to fetch donations", details: error.message },
+      { error: "Failed to fetch donations", details: error },
       { status: 500 }
     );
   }

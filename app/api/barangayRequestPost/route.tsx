@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const barangayRequests = await prisma.barangayrequestpost.findMany({
+    const barangayRequests = await prisma.barangayRequestPost.findMany({
       orderBy: {
         dateTime: 'desc',
       },
     });
 
-    const formattedRequests = barangayRequests.map(request => ({
+    const formattedRequests = barangayRequests.map((request: any) => ({
       ...request,
       uploadedPhoto: request.image ? Buffer.from(request.image).toString('base64') : null,
       dateTime: request.dateTime.toISOString(),

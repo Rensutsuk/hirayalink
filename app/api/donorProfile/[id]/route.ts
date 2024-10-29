@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { PrismaClient } from "@prisma/client";
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import * as argon2 from "argon2";
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +16,7 @@ export async function GET(
   }
 
   // Check if the authenticated user is requesting their own profile
-  if (session.user.id !== params.id) {
+  if (session?.user?.id !== params.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

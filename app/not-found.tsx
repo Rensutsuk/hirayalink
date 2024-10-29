@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Custom404() {
   return (
     <main className="grid min-h-screen place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
@@ -10,13 +12,13 @@ export default function Custom404() {
           Sorry, we couldn’t find the page you’re looking for.
         </p>
         <div className="mt-10 flex items-center justify-center gap-x-6">
-          <a
+          <Link
             href="/"
             role="button"
             className="btn btn-primary px-3.5 text-white"
           >
             Go back home
-          </a>
+          </Link>
         </div>
       </div>
     </main>

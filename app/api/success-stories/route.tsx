@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { PrismaClient } from "@prisma/client";
-import { authOptions } from "../auth/[...nextauth]/route";
-
-const prisma = new PrismaClient();
-
-export default prisma;
+import { authOptions } from "../auth/[...nextauth]/auth";
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: Request) {
   try {
@@ -47,8 +43,8 @@ export async function GET(req: Request) {
 
     // Map posts to include unique donorIds
     const postsWithDonorIds = await Promise.all(
-      barangayRequestPosts.map(async (post) => {
-        const donorIds = [...new Set(post.donations.map(donation => donation.donorId))]; // Get unique donorIds
+      barangayRequestPosts.map(async (post: any) => {
+        const donorIds = Array.from(new Set(post.donations.map((donation: any) => donation.donorId))); // Get unique donorIds
         return { ...post, donorIds };
       })
     );
@@ -56,7 +52,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ barangayId: admin.barangayId, barangayRequestPosts: postsWithDonorIds });
   } catch (error) {
     console.error('Error in GET /api/success-stories:', error);
-    return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error', details: error }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
@@ -125,5 +123,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Error in POST /api/success-stories:', error);
     return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }

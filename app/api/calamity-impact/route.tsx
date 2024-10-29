@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { PrismaClient } from "@prisma/client";
-import { authOptions } from "../auth/[...nextauth]/route";
-
-const prisma = new PrismaClient();
+import { authOptions } from "../auth/[...nextauth]/auth";
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
   try {
@@ -31,6 +29,6 @@ export async function POST(req: Request) {
     return NextResponse.json(calamityImpact);
   } catch (error) {
     console.error('Error in POST /api/calamity-impact:', error);
-    return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error', details: error }, { status: 500 });
   }
 }

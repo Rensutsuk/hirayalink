@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { hash } from "argon2"; // Updated import
-import { PrismaClient } from "@prisma/client";
+import { hash } from "argon2";
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
-
-// POST method
 export async function POST(req: NextRequest) {
   try {
     const { name, orgName, contactNumber, address, password } =
@@ -22,7 +19,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const hashedPassword = await hash(password); 
+    const hashedPassword = await hash(password);
 
     // Create the new donor
     const newDonor = await prisma.donor.create({

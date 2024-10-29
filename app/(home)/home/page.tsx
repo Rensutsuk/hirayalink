@@ -2,6 +2,7 @@
 import "@/styles/embla.css";
 import { EmblaCarousel } from "@/components/EmblaCarousel";
 import { useEffect, useState } from "react";
+import Image from 'next/image'
 
 interface SlideData {
 	calamityImpacts: Array<{
@@ -67,7 +68,14 @@ export default function Home() {
 							</p>
 						</div>
 						<figure>
-							<img src="./mission-vission/mission.jpg" alt="Mission" />
+							<Image 
+								src="/mission-vission/mission.jpg" 
+								alt="Mission"
+								width={500}  // adjust based on your image size
+								height={300} // adjust based on your image size
+								className="w-full h-auto" // maintain responsive behavior
+								priority // if this is above the fold
+							/>
 						</figure>
 					</div>
 					<div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
@@ -79,8 +87,14 @@ export default function Home() {
 							</p>
 						</div>
 						<figure>
-							{/* Ensure the image path is correct */}
-							<img src="./mission-vission/vision.png" alt="Vision" />
+							<Image 
+								src="/mission-vission/vision.png" 
+								alt="Vision"
+								width={500}  // adjust based on your image size
+								height={300} // adjust based on your image size
+								className="w-full h-auto" // maintain responsive behavior
+								priority // if this is above the fold
+							/>
 						</figure>
 					</div>
 				</div>

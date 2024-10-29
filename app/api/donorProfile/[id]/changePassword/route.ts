@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { PrismaClient } from "@prisma/client";
-import * as argon2 from "argon2";
-
-const prisma = new PrismaClient();
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
+import argon2 from "argon2";
+import { prisma } from '@/lib/prisma';
 
 export async function POST(
   request: Request,
@@ -13,7 +11,7 @@ export async function POST(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.id !== params.id) {
+    if (!session || session?.user?.id !== params.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 

@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -28,7 +26,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error updating donation status:", error);
     return NextResponse.json(
-      { error: "Failed to update donation status", details: error.message },
+      { error: "Failed to update donation status", details: error },
       { status: 500 }
     );
   }
