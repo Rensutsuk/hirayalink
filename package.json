@@ -4,8 +4,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
-    "postinstall": "prisma generate"
+    "vercel-build": "prisma generate && next build"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
@@ -34,19 +33,18 @@
     "next": "^14.2.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "argon2": "^0.31.2"
+    "argon2": "^0.31.2",
+    "node-gyp": "^9.4.0",
+    "node-pre-gyp": "^0.17.0"
   },
   "optionalDependencies": {
     "@phc/argon2": "^1.0.9"
   },
   "devDependencies": {
-    "@fortawesome/free-solid-svg-icons": "^6.6.0",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "@next-auth/prisma-adapter": "^1.0.7",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "22.5.5",
     "@types/react": "18.3.7",
-    "argon2": "^0.41.1",
+    "@types/react-dom": "18.3.0",
     "browser-image-compression": "^2.0.2",
     "daisyui": "^4.12.10",
     "embla-carousel": "^8.3.0",

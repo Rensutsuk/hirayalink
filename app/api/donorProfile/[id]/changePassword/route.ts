@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
-import argon2 from "argon2";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { prisma } from '@/lib/prisma';
 
 export async function POST(
@@ -27,9 +27,9 @@ export async function POST(
     }
 
     // Verify the current password
-    const isPasswordValid = await argon2.verify(
-      donor.password,
-      currentPassword
+    const isPasswordValid = await verifyPassword(
+      currentPassword,
+      donor.password
     );
 
     if (!isPasswordValid) {
@@ -40,7 +40,7 @@ export async function POST(
     }
 
     // Hash the new password
-    const hashedPassword = await argon2.hash(newPassword);
+    const hashedPassword = await hashPassword(newPassword);
 
     // Update the donor's password
     await prisma.donor.update({

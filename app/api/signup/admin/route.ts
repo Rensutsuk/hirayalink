@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { hash } from 'argon2';
+import { hashPassword } from '@/lib/auth/password';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       },
     });
 
-		const hashedPassword = await hash(password);
+		const hashedPassword = await hashPassword(password);
 
 		const admin = await prisma.admin.create({
 			data:{
