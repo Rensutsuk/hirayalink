@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 
 export async function POST(
   request: Request,
@@ -26,11 +26,7 @@ export async function POST(
       return NextResponse.json({ message: "Donor not found" }, { status: 404 });
     }
 
-    // Verify the current password
-    const isPasswordValid = await verifyPassword(
-      currentPassword,
-      donor.password
-    );
+    const isPasswordValid = verifyPassword(currentPassword, donor.password);
 
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -39,10 +35,8 @@ export async function POST(
       );
     }
 
-    // Hash the new password
-    const hashedPassword = await hashPassword(newPassword);
+    const hashedPassword = hashPassword(newPassword);
 
-    // Update the donor's password
     await prisma.donor.update({
       where: { id: params.id },
       data: { password: hashedPassword },

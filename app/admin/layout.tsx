@@ -12,7 +12,6 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [barangayName] = useState("");
   const { data: session } = useSession();
 
   return (

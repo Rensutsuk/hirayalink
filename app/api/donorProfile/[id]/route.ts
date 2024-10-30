@@ -98,7 +98,7 @@ export async function PUT(
             donationStatus: true,
             createdAt: true,
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
         },
       },
     });
