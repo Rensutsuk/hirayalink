@@ -8,21 +8,32 @@ const LogoutPage: FC = () => {
   const [countdown, setCountdown] = useState<number>(3);
 
   useEffect(() => {
-    // Start countdown before redirect
-    const timer: NodeJS.Timeout = setInterval(() => {
-      setCountdown((prev: number) => prev - 1);
-    }, 1000);
+    const performSignOut = async () => {
+      try {
+        // Wait for signout to complete
+        await signOut({ redirect: false });
+        
+        // Start countdown before redirect
+        const timer: NodeJS.Timeout = setInterval(() => {
+          setCountdown((prev: number) => prev - 1);
+        }, 1000);
 
-    // Initiate signout after a short delay
-    const signoutTimer: NodeJS.Timeout = setTimeout(() => {
-      void signOut({ callbackUrl: "/" });
-    }, 3000);
+        // Redirect after countdown
+        const redirectTimer: NodeJS.Timeout = setTimeout(() => {
+          window.location.href = '/';
+        }, 3000);
 
-    // Cleanup function
-    return () => {
-      clearInterval(timer);
-      clearTimeout(signoutTimer);
+        return () => {
+          clearInterval(timer);
+          clearTimeout(redirectTimer);
+        };
+      } catch (error) {
+        console.error('Signout error:', error);
+        window.location.href = '/';
+      }
     };
+
+    void performSignOut();
   }, []);
 
   const handleManualSignOut = (): void => {
