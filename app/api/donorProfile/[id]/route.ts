@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
-import * as argon2 from "argon2";
+import { verifyPassword } from "@/lib/auth/password";
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
@@ -71,7 +71,7 @@ export async function PUT(
       return NextResponse.json({ message: 'Donor not found' }, { status: 404 });
     }
 
-    const isPasswordValid = await argon2.verify(donor.password, password);
+    const isPasswordValid = await verifyPassword(password, donor.password);
 
     if (!isPasswordValid) {
       return NextResponse.json({ message: 'Invalid password' }, { status: 401 });
