@@ -17,7 +17,6 @@ export default function FullMenu() {
     { href: "/admin/admin-request-donation", label: "Request Donation" },
     { href: "/admin/manage-donation-request-posts", label: "Manage Donation Request Posts" },
     { href: "/admin/feedbacks-and-comments", label: "Calamity Impact" },
-    // Add the Report Generation button here
     { href: "#", label: "Generate Report", isButton: true },
   ];
 

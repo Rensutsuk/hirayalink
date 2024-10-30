@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { FaChevronDown } from "react-icons/fa";
 import Navbar from "@/components/admin/navigation/Navbar";
@@ -14,26 +14,6 @@ export default function AdminLayout({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [barangayName] = useState("");
   const { data: session } = useSession();
-
-  const handleSignOut = async () => {
-    try {
-      const response = await fetch("/api/auth/signout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        await signOut({ redirect: false });
-        window.location.href = "/";
-      } else {
-        console.error("Sign out failed");
-      }
-    } catch (error) {
-      console.error("Error during sign out:", error);
-    }
-  };
 
   return (
     <div className="flex h-screen">
@@ -61,12 +41,12 @@ export default function AdminLayout({
                   isDropdownOpen ? "" : "hidden"
                 }`}
               >
-                <button
-                  onClick={handleSignOut}
+                <Link
+                  href="/logout"
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Sign out
-                </button>
+                </Link>
               </div>
             </div>
           ) : (

@@ -103,7 +103,7 @@ export const authOptions: AuthOptions = {
   },
   pages: {
     signIn: "/login",
-    signOut: "/api/auth/signout",
+    signOut: "/logout",
   },
   session: {
     strategy: "jwt",

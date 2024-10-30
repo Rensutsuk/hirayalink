@@ -21,19 +21,7 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     try {
-      const response = await fetch("/api/auth/signout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        router.push("/");
-        await signOut({ redirect: false });
-      } else {
-        console.error("Sign out failed");
-      }
+      router.push("/logout");
     } catch (error) {
       console.error("Error during sign out:", error);
     }
