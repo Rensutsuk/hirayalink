@@ -46,7 +46,7 @@ const LogoutPage: FC = () => {
               onClick={handleManualSignOut}
               type="button"
             >
-              Click here if you're not redirected
+              Click here if you&apos;re not redirected
             </button>
           </div>
         </div>
