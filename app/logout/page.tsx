@@ -10,20 +10,21 @@ const LogoutPage: FC = () => {
   useEffect(() => {
     const performSignOut = async () => {
       try {
-        // Wait for signout to complete
-        await signOut({ redirect: false });
+        await signOut({ 
+          redirect: false,
+          callbackUrl: '/' 
+        });
         
-        // Start countdown before redirect
         const timer: NodeJS.Timeout = setInterval(() => {
           setCountdown((prev: number) => prev - 1);
         }, 1000);
 
-        // Redirect after countdown
         const redirectTimer: NodeJS.Timeout = setTimeout(() => {
           window.location.href = '/';
         }, 3000);
 
         return () => {
+          localStorage.clear();
           clearInterval(timer);
           clearTimeout(redirectTimer);
         };
