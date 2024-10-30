@@ -1,7 +1,7 @@
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { verify } from "argon2";
+import { verifyPassword } from "@/lib/auth/password";
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: AuthOptions = {
@@ -52,7 +52,7 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        const isPasswordValid = await verify(
+        const isPasswordValid = await verifyPassword(
           user.password,
           credentials.password
         );
