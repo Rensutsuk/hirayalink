@@ -14,12 +14,8 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
         userType: { label: "User Type", type: "text" },
       },
-      async authorize(credentials) {
-        if (
-          !credentials?.contactNumber ||
-          !credentials?.password ||
-          !credentials?.userType
-        ) {
+      async authorize(credentials: any) {
+        if (!credentials?.password || !credentials?.userType) {
           return null;
         }
 
@@ -52,22 +48,24 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        const isPasswordValid = await verifyPassword(
-          user.password,
-          credentials.password
+        const isPasswordValid = verifyPassword(
+          credentials.password,
+          user.password
         );
 
         if (!isPasswordValid) {
           return null;
         }
 
-        if (credentials.userType === 'admin') {
+        if (credentials.userType === "admin") {
           return {
             id: user.id.toString(),
             contactNumber: user.contactNumber,
             name: user.name,
             userType: credentials.userType,
-            brgyName: (user as { barangay: { name: string } }).barangay?.name || undefined,
+            brgyName:
+              (user as { barangay: { name: string } }).barangay?.name ||
+              undefined,
           };
         }
 
