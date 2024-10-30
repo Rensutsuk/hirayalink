@@ -39,21 +39,13 @@ const PostItem = ({
           {/* Updated to match Post.tsx */}
         </span>
       </div>
-
-      {session ? (
-        <div
-          role="button"
-          onClick={() => handleOpenModal(post.id)}
-          className="btn btn-sm btn-error absolute top-0 left-0 text-white py-0 px-1 rounded"
-        >
-          <strong>DONATE NOW</strong>
-        </div>
-      ) : (
-        <p className="absolute top-1 left-1 bg-yellow-500 text-white py-0 px-1 rounded">
-          Log in to donate
-        </p>
-      )}
-
+      <div
+        role="button"
+        onClick={() => handleOpenModal(post.id)}
+        className="btn btn-sm btn-error absolute top-0 left-0 text-white py-0 px-1 rounded"
+      >
+        <strong>DONATE NOW</strong>
+      </div>
       <div className="p-4 border-2 border-primary rounded-b-lg">
         <div className="flex flex-wrap gap-2 text-sm">
           <div className="p-1 px-2 bg-gray-100 rounded-full">
