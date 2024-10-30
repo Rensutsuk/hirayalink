@@ -11,6 +11,18 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Check if barangay already exists
+    const existingBarangay = await prisma.barangay.findUnique({
+      where: { name: barangayName },
+    });
+
+    if (existingBarangay) {
+      return NextResponse.json(
+        { message: "A barangay with this name already exists" },
+        { status: 400 }
+      );
+    }
+
     const barangay = await prisma.barangay.create({
       data: {
         name: barangayName,
