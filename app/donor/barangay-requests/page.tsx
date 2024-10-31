@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import PostList from "@/components/donor/posts/barangay-requests/PostList";
 import DonationModal from "@/components/donor/posts/barangay-requests/DonationModal";
+import PostDetailsModal from "@/components/donor/posts/barangay-requests/PostDetailsModal";
+import CommentModal from "@/components/donor/posts/barangay-requests/CommentModal";
 import debounce from "lodash.debounce";
 
 interface BarangayRequestPost {
@@ -25,10 +27,8 @@ interface BarangayRequestPost {
 export default function BarangayRequests() {
   const { data: session } = useSession();
   const [posts, setPosts] = useState<BarangayRequestPost[]>([]);
-  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>(
-    {}
-  );
-  const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
+  const [showComments, setShowComments] = useState<Record<string, boolean>>({});
+  const [newComment, setNewComment] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
@@ -42,6 +42,7 @@ export default function BarangayRequests() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver | null>(null);
+  const [modalType, setModalType] = useState<'donate' | 'details' | 'comments' | null>(null);
 
   useEffect(() => {
     const fetchBarangays = async () => {
@@ -120,13 +121,13 @@ export default function BarangayRequests() {
     }
   }, [page, selectedBarangay, debouncedFetchPosts]);
 
-  const handleOpenModal = (postId: string) => {
+  const handleOpenModal = (type: 'donate' | 'details' | 'comments', postId: string) => {
+    setModalType(type);
     setSelectedPostId(postId);
-    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    setModalType(null);
     setSelectedPostId(null);
   };
 
@@ -218,22 +219,22 @@ export default function BarangayRequests() {
     }
   };
 
-  const toggleComments = (postId: number) => {
-    setShowComments((prev: any) => ({
+  const toggleComments = (postId: string) => {
+    setShowComments((prev) => ({
       ...prev,
       [postId]: !prev[postId],
     }));
   };
 
-  const handleAddComment = async (postId: number) => {
-    if (newComment[postId]?.trim()) {
+  const handleAddComment = async (postId: string, content?: string) => {
+    if (content || newComment[postId]?.trim()) {
       try {
         const response = await fetch(
           `/api/posts/${postId}/comment?type=barangay`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: newComment[postId] }),
+            body: JSON.stringify({ content: content || newComment[postId] }),
           }
         );
         if (response.ok) {
@@ -287,7 +288,7 @@ export default function BarangayRequests() {
         </div>
       </div>
       <PostList
-        posts={posts as BarangayRequestPost[]}
+        posts={posts}
         session={session}
         handleOpenModal={handleOpenModal}
         handleLikeClick={handleLikeClick}
@@ -301,10 +302,27 @@ export default function BarangayRequests() {
         error={error}
       />
 
-      {isModalOpen && (
+      {selectedPostId && modalType === 'donate' && (
         <DonationModal
           post={posts.find((p) => p.id === selectedPostId)}
           handleCloseModal={handleCloseModal}
+        />
+      )}
+
+      {selectedPostId && modalType === 'details' && (
+        <PostDetailsModal
+          post={posts.find((p) => p.id === selectedPostId)}
+          onClose={handleCloseModal}
+        />
+      )}
+
+      {selectedPostId && modalType === 'comments' && (
+        <CommentModal
+          post={posts.find((p) => p.id === selectedPostId)}
+          onClose={handleCloseModal}
+          onAddComment={async (content) => {
+            await handleAddComment(selectedPostId , content);
+          }}
         />
       )}
 
