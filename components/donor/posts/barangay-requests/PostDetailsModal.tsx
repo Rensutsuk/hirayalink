@@ -52,7 +52,10 @@ const PostDetailsModal = ({ post, onClose }: PostDetailsModalProps) => {
                 ([key, value]) =>
                   value && (
                     <div key={key} className="bg-gray-100 p-2 rounded-md">
-                      {key}
+                      <p className="font-medium">{key}</p>
+                      <p className="text-sm text-gray-600">
+                        {post.specifications?.[key] || "Nothing specified"}
+                      </p>
                     </div>
                   )
               )}

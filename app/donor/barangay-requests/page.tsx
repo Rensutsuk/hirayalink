@@ -287,7 +287,7 @@ export default function BarangayRequests() {
   };
 
   return (
-    <div className="flex justify-center w-full">
+    <div className="flex flex-col justify-center w-full">
       <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-40 w-full">
         <div className="flex justify-between pt-10 pb-5 backdrop-blur-sm bg-black/25 w-full">
           <div className="container mx-auto px-4 flex justify-between items-center">
