@@ -65,4 +65,4 @@ const CommentModal = ({ post, onClose, onAddComment }: CommentModalProps) => {
   );
 };
 
-export default CommentModal; 
+export default CommentModal;

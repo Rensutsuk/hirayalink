@@ -7,6 +7,7 @@ import DonationModal from "@/components/donor/posts/barangay-requests/DonationMo
 import PostDetailsModal from "@/components/donor/posts/barangay-requests/PostDetailsModal";
 import CommentModal from "@/components/donor/posts/barangay-requests/CommentModal";
 import debounce from "lodash.debounce";
+import { useRouter } from "next/navigation";
 
 interface BarangayRequestPost {
   id: string;
@@ -42,7 +43,10 @@ export default function BarangayRequests() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver | null>(null);
-  const [modalType, setModalType] = useState<'donate' | 'details' | 'comments' | null>(null);
+  const [modalType, setModalType] = useState<
+    "donate" | "details" | "comments" | null
+  >(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchBarangays = async () => {
@@ -61,34 +65,34 @@ export default function BarangayRequests() {
     fetchBarangays();
   }, []);
 
-  const fetchPosts = useCallback(
-    async (barangay: string, page: number) => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(
-          `/api/posts?type=barangay&area=${barangay}&page=${page}&limit=10`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch posts");
-        }
-        const data = await response.json();
-        setPosts((prevPosts) => [...prevPosts, ...data.posts]);
-        setHasMore(data.hasMore);
-        const initialLikedPosts = new Set(
-          data.posts.filter((post: any) => post.likedByUser).map((post: any) => post.id)
-        );
-        setLikedPosts(
-          (prevLikedPosts: any) => new Set([...prevLikedPosts, ...initialLikedPosts as any])
-        );
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-        setError("Failed to load posts. Please try again later.");
-      } finally {
-        setIsLoading(false);
+  const fetchPosts = useCallback(async (barangay: string, page: number) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `/api/posts?type=barangay&area=${barangay}&page=${page}&limit=10`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch posts");
       }
-    },
-    []
-  );
+      const data = await response.json();
+      setPosts((prevPosts) => [...prevPosts, ...data.posts]);
+      setHasMore(data.hasMore);
+      const initialLikedPosts = new Set(
+        data.posts
+          .filter((post: any) => post.likedByUser)
+          .map((post: any) => post.id)
+      );
+      setLikedPosts(
+        (prevLikedPosts: any) =>
+          new Set([...prevLikedPosts, ...(initialLikedPosts as any)])
+      );
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("Failed to load posts. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const debouncedFetchPosts = useMemo(
     () => debounce(fetchPosts, 300),
@@ -121,7 +125,15 @@ export default function BarangayRequests() {
     }
   }, [page, selectedBarangay, debouncedFetchPosts]);
 
-  const handleOpenModal = (type: 'donate' | 'details' | 'comments', postId: string) => {
+  const handleOpenModal = (
+    type: "donate" | "details" | "comments",
+    postId: string
+  ) => {
+    if (type === "donate" && !session?.user) {
+      router.push("/api/auth/signin");
+      return;
+    }
+
     setModalType(type);
     setSelectedPostId(postId);
   };
@@ -219,6 +231,10 @@ export default function BarangayRequests() {
     }
   };
 
+  const handleViewDonations = (postId: string) => {
+    router.push(`/donor/donation-tracking?postId=${postId}`);
+  };
+
   const toggleComments = (postId: string) => {
     setShowComments((prev) => ({
       ...prev,
@@ -227,24 +243,42 @@ export default function BarangayRequests() {
   };
 
   const handleAddComment = async (postId: string, content?: string) => {
-    if (!content?.trim()) return;
-    
+    if (!content?.trim() || !session?.user) return;
+
     try {
-      const response = await fetch(`/api/posts/${postId}/comment?type=barangay`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
-      });
-      
+      const response = await fetch(
+        `/api/posts/${postId}/comment?type=barangay`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content }),
+        }
+      );
+
       if (response.ok) {
-        const newCommentData = await response.json();
+        const newComment = await response.json();
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
             post.id === postId
-              ? { ...post, comments: [...post.comments, newCommentData] }
+              ? {
+                  ...post,
+                  comments: [
+                    ...post.comments,
+                    {
+                      id: newComment.id,
+                      content: newComment.content,
+                      userId: newComment.userId,
+                      user: {
+                        id: session.user.id,
+                        name: session.user.name,
+                      },
+                    },
+                  ],
+                }
               : post
           )
         );
+        handleCloseModal();
       }
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -252,10 +286,10 @@ export default function BarangayRequests() {
   };
 
   return (
-    <div>
-      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-40">
+    <div className="flex flex-col items-center w-full">
+      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-40 w-full">
         <div className="flex justify-between pt-10 pb-5 backdrop-blur-sm bg-black/25 w-full">
-          <div className="flex justify-between items-center w-full">
+          <div className="container mx-auto px-4 flex justify-between items-center">
             <div className="invisible shrink-0 w-1/4"></div>
             <div className="flex flex-col items-center flex-grow">
               <h1 className="mb-0 py-0 text-3xl font-bold text-center text-white">
@@ -267,7 +301,7 @@ export default function BarangayRequests() {
                   : "Official requests from all Barangays"}
               </p>
             </div>
-            <div className="w-1/4 flex justify-end mr-5">
+            <div className="w-1/4 flex justify-end">
               <select
                 value={selectedBarangay}
                 onChange={(e) => setSelectedBarangay(e.target.value)}
@@ -284,44 +318,48 @@ export default function BarangayRequests() {
           </div>
         </div>
       </div>
-      <PostList
-        posts={posts as BarangayRequestPost[]}
-        handleOpenModal={handleOpenModal}
-        handleLikeClick={handleLikeClick}
-        likedPosts={likedPosts}
-        isLoading={isLoading}
-        error={error}
-      />
 
-      {selectedPostId && modalType === 'donate' && (
-        <DonationModal
-          post={posts.find((p) => p.id === selectedPostId)}
-          handleCloseModal={handleCloseModal}
+      <div className="container mx-auto px-4 max-w-4xl">
+        <PostList
+          posts={posts}
+          handleOpenModal={handleOpenModal}
+          handleLikeClick={handleLikeClick}
+          likedPosts={likedPosts}
+          isLoading={isLoading}
+          error={error}
+          handleViewDonations={handleViewDonations}
         />
-      )}
 
-      {selectedPostId && modalType === 'details' && (
-        <PostDetailsModal
-          post={posts.find((p) => p.id === selectedPostId)}
-          onClose={handleCloseModal}
-        />
-      )}
+        {selectedPostId && modalType === "donate" && (
+          <DonationModal
+            post={posts.find((p) => p.id === selectedPostId)}
+            handleCloseModal={handleCloseModal}
+          />
+        )}
 
-      {selectedPostId && modalType === 'comments' && (
-        <CommentModal
-          post={posts.find((p) => p.id === selectedPostId)}
-          onClose={handleCloseModal}
-          onAddComment={async (content) => {
-            await handleAddComment(selectedPostId , content);
-          }}
-        />
-      )}
+        {selectedPostId && modalType === "details" && (
+          <PostDetailsModal
+            post={posts.find((p) => p.id === selectedPostId)}
+            onClose={handleCloseModal}
+          />
+        )}
 
-      {message && (
-        <div className="fixed bottom-4 right-4 bg-primary text-white p-4 rounded-lg shadow-lg">
-          {message}
-        </div>
-      )}
+        {selectedPostId && modalType === "comments" && (
+          <CommentModal
+            post={posts.find((p) => p.id === selectedPostId)}
+            onClose={handleCloseModal}
+            onAddComment={async (content) => {
+              await handleAddComment(selectedPostId, content);
+            }}
+          />
+        )}
+
+        {message && (
+          <div className="fixed bottom-4 right-4 bg-primary text-white p-4 rounded-lg shadow-lg">
+            {message}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

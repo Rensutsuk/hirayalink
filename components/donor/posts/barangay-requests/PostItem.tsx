@@ -5,12 +5,22 @@ import { MdVolunteerActivism } from "react-icons/md";
 
 interface PostItemProps {
   post: any;
-  handleOpenModal: (type: 'donate' | 'details' | 'comments', postId: string) => void;
+  handleOpenModal: (
+    type: "donate" | "details" | "comments",
+    postId: string
+  ) => void;
   handleLikeClick: (postId: string) => void;
   likedPosts: Set<string>;
+  handleViewDonations: (postId: string) => void;
 }
 
-const PostItem = ({ post, handleOpenModal, handleLikeClick, likedPosts }: PostItemProps) => {
+const PostItem = ({
+  post,
+  handleOpenModal,
+  handleLikeClick,
+  likedPosts,
+  handleViewDonations,
+}: PostItemProps) => {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="p-4">
@@ -22,7 +32,7 @@ const PostItem = ({ post, handleOpenModal, handleLikeClick, likedPosts }: PostIt
             {new Date(post.dateTime).toLocaleDateString()}
           </span>
         </div>
-        
+
         <div className="flex gap-2 flex-wrap mb-4">
           <span className="px-2 py-1 bg-primary/10 rounded-full text-sm">
             {post.typeOfCalamity}
@@ -34,7 +44,9 @@ const PostItem = ({ post, handleOpenModal, handleLikeClick, likedPosts }: PostIt
 
         {post.image && (
           <Image
-            src={`data:image/jpeg;base64,${Buffer.from(post.image).toString("base64")}`}
+            src={`data:image/jpeg;base64,${Buffer.from(post.image).toString(
+              "base64"
+            )}`}
             alt="Calamity"
             width={400}
             height={300}
@@ -46,25 +58,33 @@ const PostItem = ({ post, handleOpenModal, handleLikeClick, likedPosts }: PostIt
           <div className="flex gap-2">
             <button
               onClick={() => handleLikeClick(post.id)}
-              className={`btn btn-sm ${likedPosts.has(post.id) ? 'btn-primary' : 'btn-ghost'}`}
+              className={`btn btn-sm ${
+                likedPosts.has(post.id) ? "btn-primary" : "btn-ghost"
+              }`}
             >
               <FaThumbsUp /> {post.likes.length}
             </button>
             <button
-              onClick={() => handleOpenModal('comments', post.id)}
+              onClick={() => handleOpenModal("comments", post.id)}
               className="btn btn-sm btn-ghost"
             >
               <FaComment /> {post.comments.length}
             </button>
             <button
-              onClick={() => handleOpenModal('donate', post.id)}
+              onClick={() => handleOpenModal("donate", post.id)}
               className="btn btn-sm btn-primary"
             >
               <MdVolunteerActivism /> Donate
             </button>
+            <button
+              onClick={() => handleViewDonations(post.id)}
+              className="btn btn-secondary btn-sm"
+            >
+              View Donations
+            </button>
           </div>
           <button
-            onClick={() => handleOpenModal('details', post.id)}
+            onClick={() => handleOpenModal("details", post.id)}
             className="btn btn-sm btn-ghost"
           >
             <FaInfoCircle /> Details

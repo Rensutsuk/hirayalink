@@ -27,9 +27,13 @@ interface BarangayRequestPost {
 
 interface PostItemProps {
   post: BarangayRequestPost;
-  handleOpenModal: (type: 'donate' | 'details' | 'comments', postId: string) => void;
+  handleOpenModal: (
+    type: "donate" | "details" | "comments",
+    postId: string
+  ) => void;
   handleLikeClick: (postId: string) => void;
   likedPosts: Set<string>;
+  handleViewDonations: (postId: string) => void;
 }
 
 const PostList = ({
@@ -39,6 +43,7 @@ const PostList = ({
   likedPosts,
   isLoading,
   error,
+  handleViewDonations,
 }: {
   posts: any;
   handleOpenModal: any;
@@ -46,6 +51,7 @@ const PostList = ({
   likedPosts: any;
   isLoading: any;
   error: any;
+  handleViewDonations: any;
 }) => {
   if (isLoading) {
     return (
@@ -74,6 +80,7 @@ const PostList = ({
           handleOpenModal={handleOpenModal}
           handleLikeClick={handleLikeClick}
           likedPosts={likedPosts}
+          handleViewDonations={handleViewDonations}
         />
       ))}
     </div>
