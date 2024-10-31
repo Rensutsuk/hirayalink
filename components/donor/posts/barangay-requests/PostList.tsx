@@ -72,7 +72,7 @@ const PostList = ({
   }
 
   return (
-    <div className="flex justify-center space-y-4 p-4 max-w-screen-md">
+    <div className="space-y-4 p-4 max-w-screen-md">
       {posts.map((post: any) => (
         <PostItem
           key={post.id}
