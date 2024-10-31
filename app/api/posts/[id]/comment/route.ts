@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const postId = params.id; 
   const url = new URL(request.url);
-  const type = url.searchParams.get("type"); // Get the type parameter
+  const type = url.searchParams.get("type");
   const { content } = await request.json();
   const session = await getServerSession(authOptions);
   

@@ -227,30 +227,27 @@ export default function BarangayRequests() {
   };
 
   const handleAddComment = async (postId: string, content?: string) => {
-    if (content || newComment[postId]?.trim()) {
-      try {
-        const response = await fetch(
-          `/api/posts/${postId}/comment?type=barangay`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: content || newComment[postId] }),
-          }
+    if (!content?.trim()) return;
+    
+    try {
+      const response = await fetch(`/api/posts/${postId}/comment?type=barangay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      
+      if (response.ok) {
+        const newCommentData = await response.json();
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId
+              ? { ...post, comments: [...post.comments, newCommentData] }
+              : post
+          )
         );
-        if (response.ok) {
-          const newCommentData = await response.json();
-          setPosts((prevPosts: any) =>
-            prevPosts.map((post: any) =>
-              post.id === postId
-                ? { ...post, comments: [...post.comments, newCommentData] }
-                : post
-            )
-          );
-          setNewComment((prev: any) => ({ ...prev, [postId]: "" }));
-        }
-      } catch (error) {
-        console.error("Error adding comment:", error);
       }
+    } catch (error) {
+      console.error("Error adding comment:", error);
     }
   };
 
