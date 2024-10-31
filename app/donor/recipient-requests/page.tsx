@@ -4,29 +4,30 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Post from "@/components/donor/posts/recipient-requests/Post";
 
 interface RecipientRequests {
-  id: number;
+  id: string;
   completeName: string;
   age: number;
   noOfFamilyMembers: number;
   contactNumber: string;
-  emailAddress: string | null;
-  barangay: string;
+  emailAddress: string | undefined;
+  Barangay: { name: string };
+  area: string;
   typeOfCalamity: string;
   inKindNecessities: string;
   specifications: string;
   uploadedPhoto: Buffer | null;
-  dateTime: Date;
-  likes: { id: number }[];
-  comments: { id: number; content: string; userId: number }[];
+  dateTime: string;
+  likes: string[];
+  comments: { id: string; content: string; userId: string }[];
 }
 
 export default function RecipientRequests() {
   const [posts, setPosts] = useState<RecipientRequests[]>([]);
   const [showComments, setShowComments] = useState<{ [key: number]: boolean }>({});
-  const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
+  const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver | null>(null);
@@ -42,14 +43,20 @@ export default function RecipientRequests() {
       console.log("Fetched posts:", data.posts); // Log the response to check for duplicates
 
       setPosts((prevPosts) => {
-        const newPosts = data.posts.filter(post => !prevPosts.some(p => p.id === post.id));
+        const newPosts = data.posts.filter((post: RecipientRequests) => !prevPosts.some(p => p.id === post.id));
         return [...prevPosts, ...newPosts];
       });
 
       setHasMore(data.hasMore);
 
-      const initialLikedPosts = new Set(data.posts.filter(post => post.likedByUser).map(post => post.id));
-      setLikedPosts((prevLikedPosts) => new Set([...prevLikedPosts, ...initialLikedPosts]));
+      const initialLikedPosts = new Set(data.posts
+        .filter((post: RecipientRequests & { likedByUser?: boolean }) => post.likedByUser)
+        .map((post: RecipientRequests) => post.id));
+      setLikedPosts((prevLikedPosts) => {
+        const prevArray = Array.from(prevLikedPosts);
+        const newArray = Array.from(initialLikedPosts) as string[];
+        return new Set<string>([...prevArray, ...newArray]);
+      });
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("Failed to load posts. Please try again later.");
@@ -62,7 +69,7 @@ export default function RecipientRequests() {
     fetchPosts();
   }, [fetchPosts]);
 
-  const lastPostElementRef = useCallback((node) => {
+  const lastPostElementRef = useCallback((node: HTMLElement | null) => {
     if (isLoading) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver((entries) => {
@@ -73,7 +80,7 @@ export default function RecipientRequests() {
     if (node) observer.current.observe(node);
   }, [isLoading, hasMore]);
 
-  const handleLikeClick = async (postId: number) => {
+  const handleLikeClick = async (postId: string) => {
     try {
       const response = await fetch(`/api/posts/${postId}/like?type=recipient`, {
         method: "POST",
@@ -83,12 +90,12 @@ export default function RecipientRequests() {
         console.log("Like response:", data); // Log the response
 
         setPosts((prevPosts) =>
-          prevPosts.map((post) =>
+          prevPosts.map((post: RecipientRequests) =>
             post.id === postId
               ? {
                   ...post,
                   likes: data.liked
-                    ? [...post.likes, { id: Date.now() }] // This should ideally include the actual like ID
+                    ? [...post.likes, String(Date.now())] // Convert number to string
                     : post.likes.slice(0, -1),
                 }
               : post
@@ -110,14 +117,14 @@ export default function RecipientRequests() {
     }
   };
 
-  const toggleComments = (postId: number) => {
-    setShowComments((prev) => ({
+  const toggleComments = (postId: string) => {
+    setShowComments((prev: Record<string, boolean>) => ({
       ...prev,
       [postId]: !prev[postId],
     }));
   };
 
-  const handleAddComment = async (postId: number) => {
+  const handleAddComment = async (postId: string) => {
     if (newComment[postId]?.trim()) {
       try {
         const response = await fetch(`/api/posts/${postId}/comment?type=recipient`, {
@@ -163,18 +170,18 @@ export default function RecipientRequests() {
         ) : error ? (
           <p>{error}</p>
         ) : posts.length > 0 ? (
-          posts.map((post, index) => (
+          posts.map((post: RecipientRequests, index: number) => (
             <Post 
               key={post.id} 
               post={post} 
-              handleLikeClick={handleLikeClick} 
+              handleLikeClick={handleLikeClick}  
               toggleComments={toggleComments} 
               showComments={showComments} 
               newComment={newComment} 
               setNewComment={setNewComment} 
               handleAddComment={handleAddComment} 
               likedPosts={likedPosts} 
-              ref={posts.length === index + 1 ? lastPostElementRef : null}
+              {...(posts.length === index + 1 ? { ref: lastPostElementRef } : {})}
             />
           ))
         ) : (

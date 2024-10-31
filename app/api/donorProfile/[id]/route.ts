@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { PrismaClient } from "@prisma/client";
-import * as argon2 from "argon2";
-
-const prisma = new PrismaClient();
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
+import { verifyPassword } from "@/lib/auth/password";
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +16,7 @@ export async function GET(
   }
 
   // Check if the authenticated user is requesting their own profile
-  if (session.user.id !== params.id) {
+  if (session?.user?.id !== params.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -73,7 +71,7 @@ export async function PUT(
       return NextResponse.json({ message: 'Donor not found' }, { status: 404 });
     }
 
-    const isPasswordValid = await argon2.verify(donor.password, password);
+    const isPasswordValid = await verifyPassword(password, donor.password);
 
     if (!isPasswordValid) {
       return NextResponse.json({ message: 'Invalid password' }, { status: 401 });
@@ -100,7 +98,7 @@ export async function PUT(
             donationStatus: true,
             createdAt: true,
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
         },
       },
     });

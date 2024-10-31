@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const db = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
     const [calamityImpacts, successStories] = await Promise.all([
-      db.calamityImpact.findMany({
+      prisma.calamityImpact.findMany({
         select: {
           id: true,
           area: true,
@@ -25,7 +23,7 @@ export async function GET() {
         },
         take: 5
       }),
-      db.successStory.findMany({
+      prisma.successStory.findMany({
         select: {
           id: true,
           area: true,
@@ -51,12 +49,12 @@ export async function GET() {
     ]);
 
     // Format the dates before sending
-    const formattedCalamityImpacts = calamityImpacts.map(impact => ({
+    const formattedCalamityImpacts = calamityImpacts.map((impact: any) => ({
       ...impact,
       createdAt: impact.createdAt.toISOString()
     }));
 
-    const formattedSuccessStories = successStories.map(story => ({
+    const formattedSuccessStories = successStories.map((story: any) => ({
       ...story,
       createdAt: story.createdAt.toISOString()
     }));

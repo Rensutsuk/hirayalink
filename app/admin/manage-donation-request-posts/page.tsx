@@ -20,10 +20,6 @@ interface Donation {
   };  
 }
 
-interface GroupedDonations {
-  [postId: string]: Donation[];
-}
-
 interface BarangayRequestPost {
   id: string;
   dateTime: string;
@@ -33,6 +29,11 @@ interface BarangayRequestPost {
   contactNumber?: string;
   area?: string;
   typeOfCalamity?: string;
+  inKind?: string;
+  specifications?: string;
+  barangay?: {
+    name: string;
+  };
 }
 
 export default function ManageDonationRequestPosts() {
@@ -152,8 +153,8 @@ export default function ManageDonationRequestPosts() {
           <div className="p-4">
             <div className="flex mb-4">
               <div className="w-1/2">
-                <p><strong>Barangay:</strong> {post.barangayName}</p>
-                <p><strong>Contact Person:</strong> {post.contactPerson}</p>
+                <p><strong>Barangay:</strong> {post.barangay?.name}</p>
+                <p><strong>Contact Person:</strong> {post.person}</p>
                 <p><strong>Contact Number:</strong> {post.contactNumber}</p>
               </div>
               <div className="w-1/2">
@@ -226,6 +227,7 @@ export default function ManageDonationRequestPosts() {
       {editingPost && (
         <EditPostModal
           post={editingPost}
+          posts={posts}
           onClose={() => setEditingPost(null)}
           onSave={handleEditPost}
         />
@@ -325,10 +327,12 @@ function UpdateStatusModal({
 
 function EditPostModal({
   post,
+  posts,
   onClose,
   onSave,
 }: {
   post: BarangayRequestPost;
+  posts: BarangayRequestPost[];
   onClose: () => void;
   onSave: (updatedPost: BarangayRequestPost) => void;
 }) {
@@ -356,13 +360,13 @@ function EditPostModal({
 
   const handleAdd = () => {
     // Logic to add new in-kind necessities and specifications
-    const selectedRequest = availableRequests.find(
-      (request) => request.area === area && request.typeOfCalamity === typeOfCalamity
+    const selectedRequest = posts.find(
+      (request: BarangayRequestPost) => request.area === area && request.typeOfCalamity === typeOfCalamity
     );
 
     if (selectedRequest) {
-      setNewInKindNecessities(selectedRequest.inKindNecessities);
-      setNewSpecifications(selectedRequest.specifications);
+      setNewInKindNecessities(selectedRequest.inKind || "");
+      setNewSpecifications(selectedRequest.specifications || "");
     } else {
       alert("No matching request found for the selected area and calamity type.");
     }

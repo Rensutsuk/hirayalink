@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, DonationStatus } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 function generateControlNumber(): string {
   const date = new Date();
@@ -37,7 +35,7 @@ export async function POST(req: NextRequest) {
         donorId,
         barangayId,
         barangayRequestPostId,
-        donationStatus: DonationStatus.PLEDGED,
+        donationStatus: "PLEDGED",
         donationItems: {
           create: items.map((item: { itemName: string; quantity: number }) => ({
             itemName: item.itemName,
@@ -46,7 +44,7 @@ export async function POST(req: NextRequest) {
         },
         statusLogs: {
           create: {
-            status: DonationStatus.PLEDGED,
+            status: "PLEDGED",
             remarks: "Donation pledged",
           },
         },

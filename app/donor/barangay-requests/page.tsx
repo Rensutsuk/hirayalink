@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import PostList from "@/components/donor/posts/barangay-requests/PostList";
 import DonationModal from "@/components/donor/posts/barangay-requests/DonationModal";
@@ -61,7 +61,7 @@ export default function BarangayRequests() {
   }, []);
 
   const fetchPosts = useCallback(
-    debounce(async (barangay: string, page: number) => {
+    async (barangay: string, page: number) => {
       try {
         setIsLoading(true);
         const response = await fetch(
@@ -74,10 +74,10 @@ export default function BarangayRequests() {
         setPosts((prevPosts) => [...prevPosts, ...data.posts]);
         setHasMore(data.hasMore);
         const initialLikedPosts = new Set(
-          data.posts.filter((post) => post.likedByUser).map((post) => post.id)
+          data.posts.filter((post: any) => post.likedByUser).map((post: any) => post.id)
         );
         setLikedPosts(
-          (prevLikedPosts) => new Set([...prevLikedPosts, ...initialLikedPosts])
+          (prevLikedPosts: any) => new Set([...prevLikedPosts, ...initialLikedPosts as any])
         );
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -85,23 +85,28 @@ export default function BarangayRequests() {
       } finally {
         setIsLoading(false);
       }
-    }, 300), // Debounce for 300ms
+    },
     []
+  );
+
+  const debouncedFetchPosts = useMemo(
+    () => debounce(fetchPosts, 300),
+    [fetchPosts]
   );
 
   useEffect(() => {
     setPosts([]); // Clear posts when barangay changes
     setPage(1); // Reset page number
-    fetchPosts(selectedBarangay, 1);
-  }, [selectedBarangay, fetchPosts]);
+    debouncedFetchPosts(selectedBarangay, 1);
+  }, [selectedBarangay, debouncedFetchPosts]);
 
   const lastPostElementRef = useCallback(
-    (node) => {
+    (node: any) => {
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          setPage((prevPage) => prevPage + 1);
+          setPage((prevPage: number) => prevPage + 1);
         }
       });
       if (node) observer.current.observe(node);
@@ -111,9 +116,9 @@ export default function BarangayRequests() {
 
   useEffect(() => {
     if (page > 1) {
-      fetchPosts(selectedBarangay, page);
+      debouncedFetchPosts(selectedBarangay, page);
     }
-  }, [page, selectedBarangay, fetchPosts]);
+  }, [page, selectedBarangay, debouncedFetchPosts]);
 
   const handleOpenModal = (postId: string) => {
     setSelectedPostId(postId);
@@ -142,7 +147,7 @@ export default function BarangayRequests() {
     try {
       const donationData = {
         postId: postId,
-        items: items.map((item) => ({
+        items: items.map((item: any) => ({
           name: item.specificName || item.name,
           quantity: item.quantity,
         })),
@@ -165,7 +170,7 @@ export default function BarangayRequests() {
       setMessage("Donation created successfully!");
       handleCloseModal();
       // You might want to refresh the posts or update the UI here
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating donation:", error);
       setError(error.message || "Failed to create donation. Please try again.");
     }
@@ -176,10 +181,10 @@ export default function BarangayRequests() {
       const response = await fetch(`/api/posts/${postId}/like?type=barangay`, {
         method: "POST",
       });
-      if (response.ok) {
+      if (response.ok && session?.user?.id) {
         const data = await response.json();
-        setPosts((prevPosts) =>
-          prevPosts.map((post) =>
+        setPosts((prevPosts: any) =>
+          prevPosts.map((post: any) =>
             post.id === postId
               ? {
                   ...post,
@@ -188,18 +193,18 @@ export default function BarangayRequests() {
                         ...post.likes,
                         {
                           id: Date.now().toString(),
-                          userId: session?.user?.id,
+                          userId: session.user.id,
                         },
                       ]
                     : post.likes.filter(
-                        (like) => like.userId !== session?.user?.id
+                        (like: any) => like.userId !== session?.user?.id
                       ),
                 }
               : post
           )
         );
         setLikedPosts((prevLikedPosts) => {
-          const newLikedPosts = new Set(prevLikedPosts);
+          const newLikedPosts = new Set<string>(prevLikedPosts);
           if (data.liked) {
             newLikedPosts.add(postId);
           } else {
@@ -214,7 +219,7 @@ export default function BarangayRequests() {
   };
 
   const toggleComments = (postId: number) => {
-    setShowComments((prev) => ({
+    setShowComments((prev: any) => ({
       ...prev,
       [postId]: !prev[postId],
     }));
@@ -233,14 +238,14 @@ export default function BarangayRequests() {
         );
         if (response.ok) {
           const newCommentData = await response.json();
-          setPosts((prevPosts) =>
-            prevPosts.map((post) =>
+          setPosts((prevPosts: any) =>
+            prevPosts.map((post: any) =>
               post.id === postId
                 ? { ...post, comments: [...post.comments, newCommentData] }
                 : post
             )
           );
-          setNewComment((prev) => ({ ...prev, [postId]: "" }));
+          setNewComment((prev: any) => ({ ...prev, [postId]: "" }));
         }
       } catch (error) {
         console.error("Error adding comment:", error);
@@ -282,7 +287,7 @@ export default function BarangayRequests() {
         </div>
       </div>
       <PostList
-        posts={posts}
+        posts={posts as BarangayRequestPost[]}
         session={session}
         handleOpenModal={handleOpenModal}
         handleLikeClick={handleLikeClick}
@@ -294,13 +299,11 @@ export default function BarangayRequests() {
         showComments={showComments}
         isLoading={isLoading}
         error={error}
-        lastPostElementRef={lastPostElementRef} // Pass the ref to the PostList
       />
 
       {isModalOpen && (
         <DonationModal
           post={posts.find((p) => p.id === selectedPostId)}
-          handleDonateClick={handleDonateClick}
           handleCloseModal={handleCloseModal}
         />
       )}

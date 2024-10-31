@@ -9,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 model Admin {
@@ -45,9 +46,9 @@ model BarangayRequestPost {
   contactNumber   String
   dropOffAddress  String
   dropOffLandmark String
-  image           Bytes?     @db.LongBlob
+  image           Bytes?     @db.ByteA
   dateTime        DateTime   @default(now())
-  batchNumber     Int        // Added field for batch number
+  batchNumber     Int // Added field for batch number
   likes           Like[]     @relation("BarangayRequestPostLikes")
   comments        Comment[]  @relation("BarangayRequestPostComments")
   Barangay        Barangay?  @relation(fields: [barangayId], references: [id])
@@ -100,7 +101,7 @@ model RecipientRequestPost {
   typeOfCalamity    String    @db.VarChar(191)
   inKindNecessities String    @db.Text
   specifications    String    @db.Text
-  uploadedPhoto     Bytes?    @db.LongBlob
+  uploadedPhoto     Bytes?    @db.ByteA
   dateTime          DateTime  @default(now())
   likes             Like[]    @relation("RecipientRequestPostLikes")
   comments          Comment[] @relation("RecipientRequestPostComments")
@@ -164,7 +165,7 @@ model SuccessStory {
   numberOfRecipients Int? // Number of people who received aid
   storyText          String?   @db.Text // The actual success story text
   createdAt          DateTime  @default(now()) // Timestamp when the success story was created
-  image              Bytes?    @db.LongBlob // Image of the success story
+  image              Bytes?    @db.ByteA // Image of the success story
 }
 
 model calamityImpact {
@@ -175,7 +176,7 @@ model calamityImpact {
   nameOfCalamity String
   storyText      String?  @db.Text
   createdAt      DateTime @default(now())
-  image          Bytes?   @db.LongBlob
+  image          Bytes?   @db.ByteA
 }
 
 // Enum for donation status

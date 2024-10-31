@@ -1,7 +1,37 @@
 import { FaThumbsUp, FaComment } from "react-icons/fa";
-import CommentsSection from "@/components/donor/posts/recipient-requests/CommentsSection"; 
+import Image from "next/image";
+import CommentsSection from "@/components/donor/posts/recipient-requests/CommentsSection";
 
-const Post = ({ post, handleLikeClick, toggleComments, showComments, newComment, setNewComment, handleAddComment, likedPosts }) => {
+interface PostProps {
+  post: {
+    id: string;
+    completeName: string;
+    area: string;
+    dateTime: string;
+    typeOfCalamity: string;
+    age: number;
+    Barangay: {
+      name: string;
+    };
+    inKindNecessities: string;
+    specifications: string;
+    contactNumber: string;
+    emailAddress?: string;
+    noOfFamilyMembers: number;
+    uploadedPhoto?: any;
+    likes: string[];
+    comments: { id: string; content: string; userId: string }[];
+  };
+  handleLikeClick: (postId: string) => void;
+  toggleComments: (postId: string) => void;
+  showComments: { [key: string]: boolean };
+  newComment: Record<string, string>;
+  setNewComment: (value: Record<string, string>) => void;
+  handleAddComment: (postId: string) => void;
+  likedPosts: Set<string>;
+}
+
+const Post = ({ post, handleLikeClick, toggleComments, showComments, newComment, setNewComment, handleAddComment, likedPosts }: PostProps) => {
   return (
     <div key={post.id} className="relative p-4 bg-white shadow-md rounded-lg max-w-4xl mx-auto flex">
       {/* Main post content */}
@@ -51,12 +81,17 @@ const Post = ({ post, handleLikeClick, toggleComments, showComments, newComment,
           </div>
 
           {post.uploadedPhoto && (
-            <img
+            <Image
               src={`data:image/jpeg;base64,${Buffer.from(
                 post.uploadedPhoto
               ).toString("base64")}`}
               alt="Donation Image"
               className="w-full h-auto rounded-lg mt-4"
+              width={3000}
+              height={500}
+              priority
+              quality={75}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           )}
 

@@ -30,7 +30,7 @@ const DonationModal = ({
     value: string | number
   ) => {
     const updatedItems = [...selectedItems];
-    updatedItems[index][field] = value;
+    updatedItems[index][field] = value as never;
     setSelectedItems(updatedItems);
   };
 

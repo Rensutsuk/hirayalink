@@ -1,15 +1,27 @@
-import React from 'react';
+import React from "react";
 
-const CommentSection = ({ post, newComment, setNewComment, handleAddComment }) => {
+const CommentSection = ({
+  post,
+  newComment,
+  setNewComment,
+  handleAddComment,
+}: {
+  post: any;
+  newComment: any;
+  setNewComment: any;
+  handleAddComment: any;
+}) => {
   return (
-    <div className="w-full ml-4 border-l pl-4 max-h-96 overflow-y-auto">
+    <div className="border-l pl-4 max-h-[calc(100vh-200px)] overflow-y-auto">
       <h4 className="font-bold mb-2">Comments</h4>
       <div className="space-y-2">
-        {post.comments.map((comment) => (
-          <p key={comment.id} className="text-sm bg-gray-200 p-2 rounded">
-            {comment.content}
-          </p>
-        ))}
+        {post.comments.map(
+          (comment: { id: string; content: string; userId: string }) => (
+            <p key={comment.id} className="text-sm bg-gray-200 p-2 rounded">
+              {comment.content}
+            </p>
+          )
+        )}
       </div>
       <div className="mt-2 sticky bottom-0 bg-white py-2">
         <input

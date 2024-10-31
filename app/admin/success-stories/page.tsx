@@ -32,7 +32,7 @@ export default function SuccessStoryForm() {
     batchNumber: "",
     numberOfRecipients: "",
     storyText: "",
-    photo: null,
+    photo: null as File | null,
   });
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -61,8 +61,8 @@ export default function SuccessStoryForm() {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target; // Get files from the event
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, files } = e.target as HTMLInputElement; // Type assertion for files property
     if (name === "barangayRequestPost") {
         setSelectedPostId(value);
         const selectedPost = barangayRequestPosts.find(
@@ -87,7 +87,7 @@ export default function SuccessStoryForm() {
             setSelectedPostArea(""); // Reset area if post is not found
             setSelectedPostBatchNumber(""); // Reset batch number if post is not found
         }
-    } else if (name === "photo" && files.length > 0) {
+    } else if (name === "photo" && files && files.length > 0) {
         // Handle file input
         setFormData({ ...formData, photo: files[0] }); // Set the first file
     } else {
@@ -95,7 +95,7 @@ export default function SuccessStoryForm() {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => { 
     e.preventDefault();
     try {
         const imageBase64 = formData.photo

@@ -21,19 +21,7 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     try {
-      const response = await fetch("/api/auth/signout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        router.push("/");
-        await signOut({ redirect: false });
-      } else {
-        console.error("Sign out failed");
-      }
+      router.push("/logout");
     } catch (error) {
       console.error("Error during sign out:", error);
     }
@@ -71,10 +59,10 @@ const Navbar = () => {
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
           {session?.user && isDonor
-            ? donorLinks.map((link) => (
+            ? donorLinks.map((link: any) => (
                 <NavLink key={link.href} {...link} pathname={pathname} />
               ))
-            : defaultLinks.map((link) => (
+            : defaultLinks.map((link: any) => (
                 <NavLink key={link.href} {...link} pathname={pathname} />
               ))}
         </ul>

@@ -2,7 +2,7 @@
 //install npm install react-swipeable//
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSwipeable } from "react-swipeable";
 import { FaHeart } from "react-icons/fa";
 
@@ -18,13 +18,12 @@ export default function Donor() {
     "/image5.png",
   ];
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
+  }, [images.length]);
 
   const handlers = useSwipeable({
     onSwipedLeft: handleNext,
-    preventDefaultTouchmoveEvent: true,
     trackMouse: true,
   });
 
@@ -34,7 +33,7 @@ export default function Donor() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [handleNext]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-100 py-5">
@@ -75,15 +74,15 @@ export default function Donor() {
             <p className="text-sm sm:text-base">
               At HirayaLink, we connect those in need with generous donors who
               are ready to make a real impact. By exploring the requests from
-              various communities, you can provide assistance where it's needed
-              most. Whether you're looking to donate in-kind items, every
+              various communities, you can provide assistance where it&apos;s needed
+              most. Whether you&apos;re looking to donate in-kind items, every
               contribution has the power to change lives. You can easily view
               barangay donation requests or recipient requests using the buttons
               on the right. Rest assured, your donations are genuinely
               needed—barangay officials oversee verified donation drives and
               confirm that the content of each recipient request post reflects
               actual needs within their communities. Join us in building
-              stronger communities and making a lasting difference in people's
+              stronger communities and making a lasting difference in people&apos;s
               lives. Your kindness and generosity can spark hope and
               transformation for those facing challenges.
             </p>

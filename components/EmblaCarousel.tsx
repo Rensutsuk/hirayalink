@@ -5,18 +5,18 @@ import Image from "next/image";
 
 interface Slide {
   id: string;
-  area?: string;
-  nameOfCalamity?: string;
+  area?: string | null;
+  nameOfCalamity?: string | null;
   storyText?: string | null;
   image: Buffer | null;
   Barangay?: {
     name: string;
   } | null;
   createdAt: string;
-  batchNumber?: string;
-  controlNumber?: string;
-  transactionIds?: string;
-  numberOfRecipients?: number;
+  batchNumber?: string | null;
+  controlNumber?: string | null;
+  transactionIds?: string | null;
+  numberOfRecipients?: number | null;
 }
 
 interface EmblaCarouselProps {
@@ -65,7 +65,7 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
     <>
       <div className="embla overflow-hidden" ref={emblaRef}>
         <div className="embla__container">
-          {slides.map((slide, index) => (
+          {slides.map((slide: Slide, index: number) => (
             <div className="embla__slide relative" key={slide.id || index}>
               {/* Image Container */}
               <div className="relative h-[350px] w-full">

@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { PrismaClient } from "@prisma/client";
-import * as argon2 from "argon2";
-
-const prisma = new PrismaClient();
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(
   request: Request,
@@ -13,7 +11,7 @@ export async function POST(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.id !== params.id) {
+    if (!session || session?.user?.id !== params.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -28,11 +26,7 @@ export async function POST(
       return NextResponse.json({ message: "Donor not found" }, { status: 404 });
     }
 
-    // Verify the current password
-    const isPasswordValid = await argon2.verify(
-      donor.password,
-      currentPassword
-    );
+    const isPasswordValid = verifyPassword(currentPassword, donor.password);
 
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -41,10 +35,8 @@ export async function POST(
       );
     }
 
-    // Hash the new password
-    const hashedPassword = await argon2.hash(newPassword);
+    const hashedPassword = hashPassword(newPassword);
 
-    // Update the donor's password
     await prisma.donor.update({
       where: { id: params.id },
       data: { password: hashedPassword },
