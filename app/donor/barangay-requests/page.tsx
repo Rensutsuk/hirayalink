@@ -334,7 +334,8 @@ export default function BarangayRequests() {
         {selectedPostId && modalType === "donate" && (
           <DonationModal
             post={posts.find((p) => p.id === selectedPostId)}
-            handleCloseModal={handleCloseModal}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
           />
         )}
 
