@@ -136,11 +136,13 @@ export default function BarangayRequests() {
 
     setModalType(type);
     setSelectedPostId(postId);
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setModalType(null);
     setSelectedPostId(null);
+    setIsModalOpen(false);
   };
 
   const handleDonateClick = async (
