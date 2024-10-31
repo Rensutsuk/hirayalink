@@ -35,6 +35,10 @@ interface CombinedData {
   specifications?: Record<string, string[]>;
 }
 
+interface ParsedData {
+  [key: string]: string | string[];
+}
+
 const DonationRequestsTable = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
@@ -413,7 +417,8 @@ const DonationRequestsTable = () => {
                 <span className="font-semibold">In-Kind Necessities:</span>
                 {(() => {
                   try {
-                    let necessities, specifications;
+                    let necessities: ParsedData = {};
+                    let specifications: ParsedData = {};
 
                     // Try parsing as JSON, if it fails, treat as comma-separated string
                     try {
