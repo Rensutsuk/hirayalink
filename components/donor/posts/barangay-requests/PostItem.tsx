@@ -25,18 +25,17 @@ const PostItem = ({
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">
-            {post.area}, Batch {post.batchNumber}
-          </h3>
+          <div>
+            <h3 className="text-lg font-semibold">
+              {post.typeOfCalamity} from {post.area}: Batch {post.batchNumber}
+            </h3>
+          </div>
           <span className="text-sm text-gray-500">
             {new Date(post.dateTime).toLocaleDateString()}
           </span>
         </div>
 
         <div className="flex gap-2 flex-wrap mb-4">
-          <span className="px-2 py-1 bg-primary/10 rounded-full text-sm">
-            {post.typeOfCalamity}
-          </span>
           <span className="px-2 py-1 bg-primary/10 rounded-full text-sm">
             {post.Barangay.name}
           </span>
