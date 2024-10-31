@@ -32,7 +32,7 @@ const CommentModal = ({ post, onClose, onAddComment }: CommentModalProps) => {
           {post.comments.map((comment: any) => (
             <div key={comment.id} className="mb-4 bg-gray-50 p-3 rounded-lg">
               <p className="font-semibold text-sm text-gray-600">
-                {comment.donor.name}
+                {comment.user.name}
               </p>
               <p className="text-gray-800">{comment.content}</p>
             </div>

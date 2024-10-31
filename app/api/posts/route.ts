@@ -44,13 +44,12 @@ export async function GET(request: Request) {
             },
           },
           comments: {
-            select: {
-              id: true,
-              content: true,
+            include: {
               user: {
-                name: true,
+                select: {
+                  name: true,
+                },
               },
-              createdAt: true,
             },
           },
           Barangay: {
