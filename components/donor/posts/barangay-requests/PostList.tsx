@@ -52,7 +52,6 @@ const PostList = ({
         <PostItem
           key={post.id}
           post={post}
-          session={session}
           handleOpenModal={handleOpenModal}
           handleLikeClick={handleLikeClick}
           toggleComments={toggleComments}

@@ -12,7 +12,7 @@ const CommentSection = ({
   handleAddComment: any;
 }) => {
   return (
-    <div className="w-full ml-4 border-l pl-4 max-h-96 overflow-y-auto">
+    <div className="border-l pl-4 max-h-[calc(100vh-200px)] overflow-y-auto">
       <h4 className="font-bold mb-2">Comments</h4>
       <div className="space-y-2">
         {post.comments.map(
