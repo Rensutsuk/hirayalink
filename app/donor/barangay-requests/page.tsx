@@ -288,16 +288,10 @@ export default function BarangayRequests() {
         </div>
       </div>
       <PostList
-        posts={posts}
-        session={session}
+        posts={posts as BarangayRequestPost[]}
         handleOpenModal={handleOpenModal}
         handleLikeClick={handleLikeClick}
-        toggleComments={toggleComments}
         likedPosts={likedPosts}
-        newComment={newComment}
-        setNewComment={setNewComment}
-        handleAddComment={handleAddComment}
-        showComments={showComments}
         isLoading={isLoading}
         error={error}
       />

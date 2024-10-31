@@ -1,30 +1,49 @@
 import React from "react";
 import PostItem from "./PostItem";
 
+interface BarangayRequestPost {
+  id: string;
+  title: string;
+  content: string;
+  author: {
+    id: string;
+    name: string;
+    image?: string;
+  };
+  createdAt: string;
+  likes: number;
+  comments?: {
+    id: string;
+    content: string;
+    author: {
+      id: string;
+      name: string;
+      image?: string;
+    };
+    createdAt: string;
+  }[];
+  // Add any other fields that your post object contains
+}
+
+interface PostItemProps {
+  post: BarangayRequestPost;
+  handleOpenModal: (type: 'donate' | 'details' | 'comments', postId: string) => void;
+  handleLikeClick: (postId: string) => void;
+  likedPosts: Set<string>;
+}
+
 const PostList = ({
   posts,
-  session,
   handleOpenModal,
   handleLikeClick,
-  toggleComments,
   likedPosts,
-  newComment,
-  setNewComment,
-  handleAddComment,
-  showComments,
   isLoading,
   error,
 }: {
   posts: any;
-  session: any;
   handleOpenModal: any;
   handleLikeClick: any;
-  toggleComments: any;
   likedPosts: any;
-  newComment: any;
-  setNewComment: any;
-  handleAddComment: any;
-  showComments: any;
   isLoading: any;
   error: any;
 }) => {
@@ -54,12 +73,7 @@ const PostList = ({
           post={post}
           handleOpenModal={handleOpenModal}
           handleLikeClick={handleLikeClick}
-          toggleComments={toggleComments}
           likedPosts={likedPosts}
-          newComment={newComment}
-          setNewComment={setNewComment}
-          handleAddComment={handleAddComment}
-          showComments={showComments}
         />
       ))}
     </div>
