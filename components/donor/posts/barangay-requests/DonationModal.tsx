@@ -52,17 +52,15 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
     try {
       setIsSubmitting(true);
       
-      const response = await fetch('/api/submit-donation', {
+      const response = await fetch('/api/donation-pledge', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          donorId: session.user.id,
-          barangayId: post.barangayId,
-          barangayRequestPostId: post.id,
+          postId: post.id,
           items: donationItems.map(item => ({
-            itemName: `${item.category} - ${item.itemName}`,
+            name: `${item.category} - ${item.itemName}`,
             quantity: item.quantity,
           })),
         }),
@@ -112,39 +110,47 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
 
               {donationItems
                 .filter(item => item.category === category)
-                .map((item, index) => (
-                  <div key={index} className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      placeholder="Item description"
-                      className="input input-bordered flex-grow"
-                      value={item.itemName}
-                      onChange={(e) => updateDonationItem(index, 'itemName', e.target.value)}
-                    />
-                    <input
-                      type="number"
-                      min="1"
-                      className="input input-bordered w-24"
-                      value={item.quantity}
-                      onChange={(e) => updateDonationItem(index, 'quantity', parseInt(e.target.value))}
-                    />
-                    <button
-                      onClick={() => removeItem(index)}
-                      className="btn btn-ghost btn-square"
-                    >
-                      <FaTrash className="text-red-500" />
-                    </button>
-                  </div>
-                ))}
+                .map((item, idx) => {
+                  const globalIndex = donationItems.findIndex(
+                    di => di === item
+                  );
+                  return (
+                    <div key={`${category}-${idx}`} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Item description"
+                        className="input input-bordered flex-grow"
+                        value={item.itemName}
+                        onChange={(e) => updateDonationItem(globalIndex, 'itemName', e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        min="1"
+                        className="input input-bordered w-24"
+                        value={item.quantity}
+                        onChange={(e) => updateDonationItem(globalIndex, 'quantity', parseInt(e.target.value))}
+                      />
+                      <button
+                        onClick={() => removeItem(globalIndex)}
+                        className="btn btn-ghost btn-square"
+                      >
+                        <FaTrash className="text-red-500" />
+                      </button>
+                    </div>
+                  );
+                })}
             </div>
           ))
         )}
 
         <div className="modal-action">
-          <form method="dialog" className="flex gap-2">
+          <div className="flex gap-2">
             <button 
               className="btn btn-ghost" 
-              onClick={() => setDonationItems([])}
+              onClick={() => {
+                setDonationItems([]);
+                onClose();
+              }}
             >
               Cancel
             </button>
@@ -163,12 +169,10 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
                 'Submit Donation'
               )}
             </button>
-          </form>
+          </div>
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop" onClick={onClose}>
-        <button>close</button>
-      </form>
+      <div className="modal-backdrop bg-black/50" onClick={onClose}></div>
     </dialog>
   );
 }
