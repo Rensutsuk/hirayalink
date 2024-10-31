@@ -47,7 +47,9 @@ export async function GET(request: Request) {
             select: {
               id: true,
               content: true,
-              userId: true,
+              user: {
+                name: true,
+              },
               createdAt: true,
             },
           },
