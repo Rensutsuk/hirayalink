@@ -27,16 +27,29 @@ interface SlideData {
 }
 
 export default function Home() {
-  const [slideData, setSlideData] = useState<SlideData | null>(null);
+  const [slideData, setSlideData] = useState<SlideData>({
+    calamityImpacts: [],
+    successStories: []
+  });
 
   useEffect(() => {
     const fetchSlides = async () => {
       try {
         const response = await fetch("/api/slides");
+        if (!response.ok) {
+          throw new Error('Failed to fetch slides');
+        }
         const data = await response.json();
-        setSlideData(data);
+        setSlideData({
+          calamityImpacts: data.calamityImpacts || [],
+          successStories: data.successStories || []
+        });
       } catch (error) {
         console.error("Failed to fetch slides:", error);
+        setSlideData({
+          calamityImpacts: [],
+          successStories: []
+        });
       }
     };
 
@@ -124,7 +137,7 @@ export default function Home() {
           <h2 className="text-2xl font-bold p-4 bg-base-200">
             Calamity Impact
           </h2>
-          {slideData ? (
+          {slideData.calamityImpacts.length > 0 ? (
             <EmblaCarousel
               slides={slideData.calamityImpacts.map((impact) => ({
                 ...impact,
@@ -144,7 +157,7 @@ export default function Home() {
           <h2 className="text-2xl font-bold p-4 bg-base-200">
             Stories of Change
           </h2>
-          {slideData ? (
+          {slideData.successStories.length > 0 ? (
             <EmblaCarousel
               slides={slideData.successStories.map((story) => ({
                 ...story,
