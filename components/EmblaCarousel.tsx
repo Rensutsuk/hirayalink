@@ -25,23 +25,27 @@ interface EmblaCarouselProps {
 }
 
 export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
-  // Create autoplay plugin with options
   const autoplayOptions = {
     delay: 5000,
     stopOnInteraction: false, 
-    rootNode: (emblaRoot: any) => emblaRoot.parentElement,
+    rootNode: (emblaRoot: HTMLElement) => emblaRoot.parentElement,
   };
   
   const [emblaRef] = useEmblaCarousel(
-    { loop: true }, 
+    { loop: true, skipSnaps: false },
     [Autoplay(autoplayOptions)]
   );
   const [selectedSlide, setSelectedSlide] = useState<Slide | null>(null);
 
   const getImageSrc = (slide: Slide) => {
     if (slide.image) {
-      const base64Image = Buffer.from(slide.image).toString('base64');
-      return `data:image/jpeg;base64,${base64Image}`;
+      try {
+        const base64Image = Buffer.from(slide.image).toString('base64');
+        return `data:image/jpeg;base64,${base64Image}`;
+      } catch (error) {
+        console.error('Error converting image:', error);
+        return '/placeholder-image.jpg';
+      }
     }
     return '/placeholder-image.jpg';
   };
@@ -65,8 +69,8 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
     <>
       <div className="embla overflow-hidden" ref={emblaRef}>
         <div className="embla__container">
-          {slides.map((slide: Slide, index: number) => (
-            <div className="embla__slide relative" key={slide.id || index}>
+          {Array.isArray(slides) && slides.map((slide: Slide, index: number) => (
+            <div className="embla__slide relative" key={`${slide.id}-${index}`}>
               {/* Image Container */}
               <div className="relative h-[350px] w-full">
                 <Image
@@ -74,7 +78,12 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
                   alt={slide.nameOfCalamity || `Slide ${index + 1}`}
                   fill
                   className="object-cover"
-                  priority
+                  priority={index === 0}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder-image.jpg';
+                  }}
                 />
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
@@ -94,7 +103,7 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
                   
                   <button 
                     onClick={() => setSelectedSlide(slide)}
-                    className="btn btn-sm btn-primary"
+                    className="btn btn-sm btn-primary text-white"
                   >
                     View Story
                   </button>
@@ -105,9 +114,15 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
         </div>
       </div>
 
-      {/* Modal - Updated Structure */}
-      <dialog id="slide_modal" className={`modal ${selectedSlide ? 'modal-open' : ''}`}>
-        <div className="modal-box max-w-3xl">
+      {/* Modal */}
+      <dialog 
+        id="slide_modal" 
+        className={`modal ${selectedSlide ? 'modal-open' : ''}`}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setSelectedSlide(null);
+        }}
+      >
+        <div className="modal-box max-w-3xl" onClick={e => e.stopPropagation()}>
           {selectedSlide && (
             <>
               <h3 className="font-bold text-lg p-4 bg-primary text-white">
@@ -181,7 +196,7 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
 
               <div className="modal-action mb-4 mr-4">
                 <button 
-                  className="btn btn-primary"
+                  className="btn btn-primary text-white"
                   onClick={() => setSelectedSlide(null)}
                 >
                   Close
@@ -190,9 +205,9 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
             </>
           )}
         </div>
-        <div className="modal-backdrop bg-black/50" onClick={() => setSelectedSlide(null)}>
-          <button className="cursor-default">close</button>
-        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={() => setSelectedSlide(null)}>close</button>
+        </form>
       </dialog>
     </>
   );

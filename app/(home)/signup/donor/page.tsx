@@ -162,7 +162,7 @@ export default function DonorSignUp() {
           </a>
         </p>
 
-        <button type="submit" className="btn btn-primary w-full">
+        <button type="submit" className="btn btn-primary text-white w-full">
           Sign Up
         </button>
       </form>
@@ -221,7 +221,7 @@ export default function DonorSignUp() {
                 contact us at HirayaLink.2024@gmail.com.
               </p>
             </div>
-            <button className="btn btn-primary w-full" onClick={toggleModal}>
+            <button className="btn btn-primary text-white w-full" onClick={toggleModal}>
               Close
             </button>
           </div>
@@ -281,7 +281,7 @@ export default function DonorSignUp() {
               </p>
             </div>
             <button
-              className="btn btn-primary w-full"
+              className="btn btn-primary text-white w-full"
               onClick={togglePrivacyModal}
             >
               Close

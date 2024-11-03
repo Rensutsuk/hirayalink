@@ -40,7 +40,7 @@ const Navbar = () => {
   ];
 
   return (
-    <div className="navbar bg-base-100 sticky top-0 z-50">
+    <div className="navbar bg-base-100 sticky top-0 z-30">
       <div className="flex-1">
         <Link href="/home" className="btn btn-ghost text-xl">
           <Image

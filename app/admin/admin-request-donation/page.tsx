@@ -167,11 +167,9 @@ export default function AdminRequestDonation() {
     );
   };
 
-  console.log("Component rendered, current formData:", formData);
-
   return (
     <div>
-      <div className="hero-background bg-cover max-h-[30rem]">
+      <div className="hero-background bg-cover max-h-[30rem] sticky top-0 z-10">
         <div className="py-10 text-center backdrop-blur-sm">
           <h1 className="text-5xl font-bold text-white">
             Donation Request Posting

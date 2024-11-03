@@ -15,8 +15,8 @@ export const authOptions: AuthOptions = {
         userType: { label: "User Type", type: "text" },
       },
       async authorize(credentials: any) {
-        if (!credentials?.password || !credentials?.userType) {
-          return null;
+        if (!credentials?.contactNumber || !credentials?.password || !credentials?.userType) {
+          throw new Error("Please fill in all required fields");
         }
 
         let user;
@@ -41,11 +41,11 @@ export const authOptions: AuthOptions = {
             where: { contactNumber: credentials.contactNumber },
           });
         } else {
-          return null;
+          throw new Error("Invalid user type selected");
         }
 
         if (!user) {
-          return null;
+          throw new Error("No user found with this contact number");
         }
 
         const isPasswordValid = verifyPassword(
@@ -54,7 +54,7 @@ export const authOptions: AuthOptions = {
         );
 
         if (!isPasswordValid) {
-          return null;
+          throw new Error("Invalid password");
         }
 
         if (credentials.userType === "admin") {

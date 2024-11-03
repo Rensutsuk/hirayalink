@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
       posts = await prisma.barangayRequestPost.findMany({
         where: whereCondition,
         orderBy: {
-          dateTime: 'desc',
+          dateTime: "desc",
         },
         skip: offset,
         take: limit,
@@ -44,11 +44,13 @@ export async function GET(request: Request) {
             },
           },
           comments: {
-            select: {
-              id: true,
-              content: true,
-              userId: true,
-              createdAt: true,
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
           Barangay: {
@@ -67,7 +69,7 @@ export async function GET(request: Request) {
       posts = await prisma.recipientRequestPost.findMany({
         where: whereCondition,
         orderBy: {
-          dateTime: 'desc',
+          dateTime: "desc",
         },
         skip: offset,
         take: limit,
@@ -79,11 +81,14 @@ export async function GET(request: Request) {
             },
           },
           comments: {
-            select: {
-              id: true,
-              content: true,
-              userId: true,
-              createdAt: true,
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  orgName: true,
+                },
+              },
             },
           },
           Barangay: {
@@ -109,6 +114,7 @@ export async function GET(request: Request) {
     const postsWithLikes = posts.map((post: any) => ({
       ...post,
       likedByUser: post.likes.some((like: any) => like.userId === user?.id),
+      barangayName: post.Barangay.name,
     }));
 
     const hasMore = offset + posts.length < totalPosts;

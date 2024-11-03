@@ -219,7 +219,7 @@ export default function AdminSignUp() {
             </div>
 
             <button
-              className="btn btn-primary w-full"
+              className="btn btn-primary text-white w-full"
               onClick={toggleModal} // Close modal
             >
               Close
@@ -277,7 +277,7 @@ export default function AdminSignUp() {
             </div>
 
             <button
-              className="btn btn-primary w-full"
+              className="btn btn-primary text-white w-full"
               onClick={togglePrivacyModal} // Close modal
             >
               Close

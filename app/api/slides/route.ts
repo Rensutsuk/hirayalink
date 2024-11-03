@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export async function GET() {
   try {
@@ -14,14 +17,14 @@ export async function GET() {
           createdAt: true,
           Barangay: {
             select: {
-              name: true
-            }
-          }
+              name: true,
+            },
+          },
         },
         orderBy: {
-          createdAt: 'desc'
+          createdAt: "desc",
         },
-        take: 5
+        take: 5,
       }),
       prisma.successStory.findMany({
         select: {
@@ -37,34 +40,45 @@ export async function GET() {
           numberOfRecipients: true,
           Barangay: {
             select: {
-              name: true
-            }
-          }
+              name: true,
+            },
+          },
         },
         orderBy: {
-          createdAt: 'desc'
+          createdAt: "desc",
         },
-        take: 5
-      })
+        take: 5,
+      }),
     ]);
 
     // Format the dates before sending
     const formattedCalamityImpacts = calamityImpacts.map((impact: any) => ({
       ...impact,
-      createdAt: impact.createdAt.toISOString()
+      createdAt: impact.createdAt.toISOString(),
     }));
 
     const formattedSuccessStories = successStories.map((story: any) => ({
       ...story,
-      createdAt: story.createdAt.toISOString()
+      createdAt: story.createdAt.toISOString(),
     }));
 
-    return NextResponse.json({ 
-      calamityImpacts: formattedCalamityImpacts, 
-      successStories: formattedSuccessStories 
-    });
+    return NextResponse.json(
+      {
+        calamityImpacts: formattedCalamityImpacts,
+        successStories: formattedSuccessStories,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
+      }
+    );
   } catch (error) {
-    console.error('Error fetching slides:', error);
-    return NextResponse.json({ error: "Failed to fetch slides" }, { status: 500 });
+    console.error("Error fetching slides:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch slides" },
+      { status: 500 }
+    );
   }
 }

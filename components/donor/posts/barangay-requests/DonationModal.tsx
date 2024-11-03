@@ -1,154 +1,181 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { FaTrash } from "react-icons/fa";
+import { toast } from "react-hot-toast";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-const DonationModal = ({
-  post,
-  handleCloseModal,
-}: {
-  post: any;
-  handleCloseModal: any;
-}) => {
+interface DonationItem {
+  itemName: string;
+  quantity: number;
+  category: string;
+}
+
+export default function DonationModal({ post, isOpen, onClose }: { post: any; isOpen: boolean; onClose: () => void }) {
   const { data: session } = useSession();
-  const [selectedItems, setSelectedItems] = useState<
-    { name: string; quantity: number; specificName: string }[]
-  >([]);
+  const router = useRouter();
+  const [donationItems, setDonationItems] = useState<DonationItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleItemSelection = (itemName: string, isChecked: boolean) => {
-    if (isChecked) {
-      setSelectedItems([
-        ...selectedItems,
-        { name: itemName, quantity: 1, specificName: "" },
-      ]);
-    } else {
-      setSelectedItems(selectedItems.filter((item) => item.name !== itemName));
+  const availableCategories = Object.entries(post.inKind as Record<string, boolean>)
+    .filter(([_, value]) => value)
+    .map(([key]) => key);
+
+  const addItemToCategory = (category: string) => {
+    setDonationItems([
+      ...donationItems,
+      { itemName: '', quantity: 1, category }
+    ]);
+  };
+
+  const updateDonationItem = (index: number, field: keyof DonationItem, value: string | number) => {
+    const newItems = [...donationItems];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setDonationItems(newItems);
+  };
+
+  const removeItem = (index: number) => {
+    setDonationItems(donationItems.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    if (!session?.user?.id) {
+      toast.error("Please login to make a donation");
+      router.push('/login');
+      return;
     }
-  };
 
-  const handleItemChange = (
-    index: number,
-    field: "quantity" | "specificName",
-    value: string | number
-  ) => {
-    const updatedItems = [...selectedItems];
-    updatedItems[index][field] = value as never;
-    setSelectedItems(updatedItems);
-  };
+    if (donationItems.some(item => !item.itemName.trim() || item.quantity < 1)) {
+      toast.error("Please fill in all item details correctly");
+      return;
+    }
 
-  if (!post || !post.inKind) {
-    console.log("Post or inKind is undefined");
-    return null; // or return a loading indicator or error message
-  }
-
-  const necessitiesArray = Object.keys(post.inKind);
-
-  const handleDonateClick = async () => {
     try {
-      const response = await fetch("/api/submit-donation", {
-        method: "POST",
+      setIsSubmitting(true);
+      
+      const response = await fetch('/api/donation-pledge', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          donorId: session?.user?.id,
-          barangayId: post.barangayId,
-          barangayRequestPostId: post.id,
-          items: selectedItems.map((item) => ({
-            itemName: item.specificName || item.name,
+          postId: post.id,
+          items: donationItems.map(item => ({
+            name: `${item.category} - ${item.itemName}`,
             quantity: item.quantity,
           })),
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('Failed to submit donation');
       }
 
-      const data = await response.json();
-      alert("Donation has been Pleged. Please await the next steps.");
-
-      handleCloseModal();
+      toast.success("Donation pledged successfully!");
+      router.refresh();
+      onClose();
+      setDonationItems([]);
     } catch (error) {
-      console.error("Error submitting donation:", error);
+      console.error('Error:', error);
+      toast.error("Failed to submit donation");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
-      <div className="modal-box bg-base-100 w-11/12 max-w-md">
-        <div className="bg-primary text-white p-5 rounded-t-lg sticky top-0 w-full z-50">
-          <h2 className="text-xl font-bold">Select Items to Donate</h2>
+    <dialog open={isOpen} className="modal">
+      <div className="modal-box max-w-2xl bg-white">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-bold text-lg">Make a Donation</h3>
+          <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">✕</button>
         </div>
-        <div className="px-5 my-5">
-          {necessitiesArray.map((item, index) => {
-            const isSelected = selectedItems.some((i) => i.name === item);
-            const selectedIndex = selectedItems.findIndex(
-              (i) => i.name === item
-            );
-
-            return (
-              <div key={index} className="form-control mb-4">
-                <label className="label cursor-pointer justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={(e) =>
-                      handleItemSelection(item, e.target.checked)
-                    }
-                    className="checkbox checkbox-primary"
-                  />
-                  <span className="label-text text-lg">{item}</span>
-                </label>
-                {isSelected && (
-                  <div className="ml-6 space-y-2 mt-2">
-                    <input
-                      type="text"
-                      placeholder="Specific item name"
-                      value={selectedItems[selectedIndex].specificName}
-                      onChange={(e) =>
-                        handleItemChange(
-                          selectedIndex,
-                          "specificName",
-                          e.target.value
-                        )
-                      }
-                      required
-                      className="input input-bordered w-full"
-                    />
-                    <input
-                      type="number"
-                      min="1"
-                      value={selectedItems[selectedIndex].quantity}
-                      onChange={(e) =>
-                        handleItemChange(
-                          selectedIndex,
-                          "quantity",
-                          parseInt(e.target.value) || 1
-                        )
-                      }
-                      required
-                      className="input input-bordered w-full"
-                    />
-                  </div>
-                )}
+        
+        {availableCategories.length === 0 ? (
+          <p className="text-center text-gray-500 my-4">No items needed for this request.</p>
+        ) : (
+          availableCategories.map((category) => (
+            <div key={category} className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold capitalize">{category}</h3>
+                <button
+                  onClick={() => addItemToCategory(category)}
+                  className="btn btn-sm btn-ghost"
+                >
+                  + Add Item
+                </button>
               </div>
-            );
-          })}
-        </div>
-        <div className="modal-action pb-5 pr-5">
-          <button
-            onClick={handleDonateClick}
-            disabled={selectedItems.length === 0}
-            className="btn btn-primary text-white"
-          >
-            Confirm
-          </button>
-          <button onClick={handleCloseModal} className="btn btn-error">
-            Cancel
-          </button>
+              
+              {post.specifications?.[category] && (
+                <p className="text-sm text-gray-600 mb-2">
+                  Specification: {post.specifications[category]}
+                </p>
+              )}
+
+              {donationItems
+                .filter(item => item.category === category)
+                .map((item, idx) => {
+                  const globalIndex = donationItems.findIndex(
+                    di => di === item
+                  );
+                  return (
+                    <div key={`${category}-${idx}`} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Item description"
+                        className="input input-bordered flex-grow"
+                        value={item.itemName}
+                        onChange={(e) => updateDonationItem(globalIndex, 'itemName', e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        min="1"
+                        className="input input-bordered w-24"
+                        value={item.quantity}
+                        onChange={(e) => updateDonationItem(globalIndex, 'quantity', parseInt(e.target.value))}
+                      />
+                      <button
+                        onClick={() => removeItem(globalIndex)}
+                        className="btn btn-ghost btn-square"
+                      >
+                        <FaTrash className="text-red-500" />
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
+          ))
+        )}
+
+        <div className="modal-action">
+          <div className="flex gap-2">
+            <button 
+              className="btn btn-ghost" 
+              onClick={() => {
+                setDonationItems([]);
+                onClose();
+              }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSubmit}
+              className="btn btn-primary"
+              disabled={donationItems.length === 0 || isSubmitting}
+              type="button"
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="loading loading-spinner"></span>
+                  Submitting...
+                </>
+              ) : (
+                'Submit Donation'
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+      <div className="modal-backdrop bg-black/50" onClick={onClose}></div>
+    </dialog>
   );
-};
-
-export default DonationModal;
+}

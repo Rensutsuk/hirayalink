@@ -15,7 +15,14 @@ export async function GET(req: Request) {
     // Fetch admin's barangay number
     const admin = await prisma.admin.findUnique({
       where: { id: adminId },
-      select: { barangayId: true },
+      select: { 
+        barangayId: true,
+        barangay: {
+          select: {
+            name: true
+          }
+        }
+      },
     });
 
     if (!admin) {
@@ -49,7 +56,11 @@ export async function GET(req: Request) {
       })
     );
 
-    return NextResponse.json({ barangayId: admin.barangayId, barangayRequestPosts: postsWithDonorIds });
+    return NextResponse.json({ 
+      barangayId: admin.barangayId, 
+      barangayName: admin.barangay.name,
+      barangayRequestPosts: postsWithDonorIds 
+    });
   } catch (error) {
     console.error('Error in GET /api/success-stories:', error);
     return NextResponse.json({ error: 'Internal Server Error', details: error }, { status: 500 });
