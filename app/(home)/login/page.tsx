@@ -16,6 +16,7 @@ export default function Login() {
     userType: "",
   });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,9 +24,12 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     if (!formData.contactNumber || !formData.password || !formData.userType) {
       setError("Please fill all required fields");
+      setIsLoading(false);
       return;
     }
 
@@ -49,6 +53,8 @@ export default function Login() {
       }
     } catch (err) {
       setError("Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,7 +117,7 @@ export default function Login() {
                 </div>
               </div>
               <div className="form-control mb-4">
-                <button type="submit" className="btn btn-primary w-full">
+                <button type="submit" className="btn btn-primary text-white w-full">
                   Login
                 </button>
               </div>
@@ -139,10 +145,34 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Error Toast */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-neutral p-8 rounded-lg shadow-xl flex flex-col items-center">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+            <p className="mt-4 text-lg">Logging in...</p>
+          </div>
+        </div>
+      )}
+
       {error && (
-        <div className="fixed bottom-4 right-4 bg-error text-white px-6 py-3 rounded-lg shadow-lg">
-          <p>{error}</p>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-neutral p-8 rounded-lg shadow-xl">
+            <div className="flex flex-col items-center">
+              <div className="text-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold mb-4">Error</h3>
+              <p className="text-center mb-4">{error}</p>
+              <button 
+                className="btn btn-primary text-white"
+                onClick={() => setError("")}
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </main>

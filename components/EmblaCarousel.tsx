@@ -103,7 +103,7 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
                   
                   <button 
                     onClick={() => setSelectedSlide(slide)}
-                    className="btn btn-sm btn-primary"
+                    className="btn btn-sm btn-primary text-white"
                   >
                     View Story
                   </button>
@@ -196,7 +196,7 @@ export function EmblaCarousel({ slides, type }: EmblaCarouselProps) {
 
               <div className="modal-action mb-4 mr-4">
                 <button 
-                  className="btn btn-primary"
+                  className="btn btn-primary text-white"
                   onClick={() => setSelectedSlide(null)}
                 >
                   Close

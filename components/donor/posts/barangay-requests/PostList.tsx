@@ -1,5 +1,6 @@
 import React from "react";
 import PostItem from "./PostItem";
+import Loading from "@/app/loading";
 
 interface BarangayRequestPost {
   id: string;
@@ -54,13 +55,7 @@ const PostList = ({
   handleViewDonations: any;
 }) => {
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <span className="loading loading-spinner loading-lg">
-          Loading Posts
-        </span>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (error) {

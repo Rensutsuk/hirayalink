@@ -1,12 +1,10 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { FC } from 'react';
 
 const LogoutPage: FC = () => {
-  const [countdown, setCountdown] = useState<number>(3);
-
   useEffect(() => {
     const performSignOut = async () => {
       try {
@@ -15,17 +13,12 @@ const LogoutPage: FC = () => {
           callbackUrl: '/' 
         });
         
-        const timer: NodeJS.Timeout = setInterval(() => {
-          setCountdown((prev: number) => prev - 1);
-        }, 1000);
-
         const redirectTimer: NodeJS.Timeout = setTimeout(() => {
           window.location.href = '/';
-        }, 3000);
+        }, 1000);
 
         return () => {
           localStorage.clear();
-          clearInterval(timer);
           clearTimeout(redirectTimer);
         };
       } catch (error) {
@@ -49,7 +42,7 @@ const LogoutPage: FC = () => {
           <div className="flex flex-col items-center gap-4">
             <span className="loading loading-spinner loading-lg text-primary"></span>
             <p className="text-base-content/80">
-              Redirecting you in {countdown} seconds...
+              Redirecting you shortly...
             </p>
           </div>
           <div className="card-actions mt-6">

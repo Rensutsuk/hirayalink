@@ -1,135 +1,92 @@
-import { FaThumbsUp, FaComment } from "react-icons/fa";
+import React from "react";
 import Image from "next/image";
-import CommentsSection from "@/components/donor/posts/recipient-requests/CommentsSection";
+import { FaThumbsUp, FaComment, FaInfoCircle } from "react-icons/fa";
+import CommentModal from "./CommentModal";
+import { PostProps } from "@/types/recipient";
 
-interface PostProps {
-  post: {
-    id: string;
-    completeName: string;
-    area: string;
-    dateTime: string;
-    typeOfCalamity: string;
-    age: number;
-    Barangay: {
-      name: string;
-    };
-    inKindNecessities: string;
-    specifications: string;
-    contactNumber: string;
-    emailAddress?: string;
-    noOfFamilyMembers: number;
-    uploadedPhoto?: any;
-    likes: string[];
-    comments: { id: string; content: string; userId: string }[];
-  };
-  handleLikeClick: (postId: string) => void;
-  toggleComments: (postId: string) => void;
-  showComments: { [key: string]: boolean };
-  newComment: Record<string, string>;
-  setNewComment: (value: Record<string, string>) => void;
-  handleAddComment: (postId: string) => void;
-  likedPosts: Set<string>;
-}
-
-const Post = ({ post, handleLikeClick, toggleComments, showComments, newComment, setNewComment, handleAddComment, likedPosts }: PostProps) => {
+export default function Post({
+  post,
+  handleLikeClick,
+  toggleComments,
+  showComments,
+  newComment,
+  setNewComment,
+  handleAddComment,
+  likedPosts,
+  onOpenDetails,
+  ref
+}: PostProps) {
   return (
-    <div key={post.id} className="relative p-4 bg-white shadow-md rounded-lg max-w-4xl mx-auto flex">
-      {/* Main post content */}
-      <div className="flex-grow">
-        {/* Header for Each Post */}
-        <div className="bg-primary text-white text-lg font-semi bold px-4 py-2 flex justify-between items-center rounded-t-lg">
-          <span className="font-bold">{post.completeName}: {post.area}</span>
-          <span className="text-sm">
-            {new Date(post.dateTime).toLocaleString()}
+    <div ref={ref} className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h3 className="text-lg font-semibold">
+              {post.completeName} ({post.age} years old)
+            </h3>
+            <p className="text-sm text-gray-600">
+              Family Members: {post.noOfFamilyMembers}
+            </p>
+          </div>
+          <span className="text-sm text-gray-500">
+            {new Date(post.dateTime).toLocaleDateString()}
           </span>
         </div>
 
-        {/* Static Calamity Type Display */}
-        <div className="absolute top-1 left-1 bg-error text-white font-bold py-0 px-1 rounded-md">
-          {post.typeOfCalamity}
+        <div className="flex gap-2 flex-wrap mb-4">
+          <span className="px-2 py-1 bg-primary/10 rounded-full text-sm">
+            {post.barangayName}
+          </span>
+          <span className="px-2 py-1 bg-primary/10 rounded-full text-sm">
+            {post.typeOfCalamity}
+          </span>
         </div>
 
-        <div className="p-4 border-2 border-primary rounded-b-lg">
-          {/* Information in smaller, inline, bubbly text boxes */}
-          <div className="flex flex-wrap gap-2 text-sm">
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Age:</strong> {post.age}
-            </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Barangay:</strong> {post.Barangay.name.replace('Barangay ', '')}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {post.inKindNecessities.split(',').map((necessity: string, index: number) => {
-                const trimmedNecessity = necessity.trim().replace(/['{}"]/g, '');
-                const correspondingSpecification = post.specifications.split(',').find((spec: string) => spec.trim().includes(trimmedNecessity));
-                return (
-                  <div key={index} className="p-1 px-2 bg-gray-100 rounded-full">
-                    <strong>{trimmedNecessity}:</strong> {correspondingSpecification ? correspondingSpecification.trim().replace(/['{}"]/g, '').replace(trimmedNecessity, '').trim() : 'N/A'}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Phone:</strong> {post.contactNumber}
-            </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Email:</strong> {post.emailAddress || "N/A"}
-            </div>
-            <div className="p-1 px-2 bg-gray-100 rounded-full">
-              <strong>Family Members:</strong> {post.noOfFamilyMembers}
-            </div>
-          </div>
+        {post.uploadedPhoto && (
+          <Image
+            src={`data:image/jpeg;base64,${Buffer.from(
+              post.uploadedPhoto
+            ).toString("base64")}`}
+            alt="Request"
+            width={400}
+            height={300}
+            className="w-full h-48 object-cover rounded-lg mb-4"
+          />
+        )}
 
-          {post.uploadedPhoto && (
-            <Image
-              src={`data:image/jpeg;base64,${Buffer.from(
-                post.uploadedPhoto
-              ).toString("base64")}`}
-              alt="Donation Image"
-              className="w-full h-auto rounded-lg mt-4"
-              width={3000}
-              height={500}
-              priority
-              quality={75}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          )}
-
-          <div className="flex justify-between items-center mt-4 text-xs">
-            <div className="flex space-x-2">
-              <div
-                role="button"
-                onClick={() => handleLikeClick(post.id)}
-                className={`btn btn-sm ${
-                  likedPosts.has(post.id)
-                    ? "btn-primary text-white"
-                    : "btn-outline"
-                } flex items-center`}
-              >
-                <FaThumbsUp className="mr-1" /> {post.likes.length}
-              </div>
-              <button
-                className="btn btn-sm btn-outline text-primary flex items-center"
-                onClick={() => toggleComments(post.id)}
-              >
-                <FaComment className="mr-1" /> {post.comments.length}
-              </button>
-            </div>
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleLikeClick(post.id)}
+              className={`btn btn-sm ${
+                likedPosts.has(post.id) ? "btn-primary" : "btn-ghost"
+              }`}
+            >
+              <FaThumbsUp /> {post.likes.length}
+            </button>
+            <button
+              onClick={() => toggleComments(post.id)}
+              className="btn btn-sm btn-ghost"
+            >
+              <FaComment /> {post.comments.length}
+            </button>
           </div>
+          <button 
+            onClick={onOpenDetails}
+            className="btn btn-sm btn-ghost"
+          >
+            <FaInfoCircle /> Details
+          </button>
         </div>
       </div>
 
-      {/* Comments section */}
       {showComments[post.id] && (
-        <CommentsSection 
-          post={post} 
-          newComment={newComment} 
-          setNewComment={setNewComment} 
-          handleAddComment={handleAddComment} 
+        <CommentModal
+          post={post}
+          onClose={() => toggleComments(post.id)}
+          onAddComment={handleAddComment}
         />
       )}
     </div>
   );
-};
-
-export default Post;
+}

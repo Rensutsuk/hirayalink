@@ -83,9 +83,12 @@ export default function DonationModal({ post, isOpen, onClose }: { post: any; is
   };
 
   return (
-    <dialog id="donation_modal" className={`modal ${isOpen ? 'modal-open' : ''}`}>
-      <div className="modal-box max-w-2xl">
-        <h3 className="font-bold text-lg mb-4">Make a Donation</h3>
+    <dialog open={isOpen} className="modal">
+      <div className="modal-box max-w-2xl bg-white">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-bold text-lg">Make a Donation</h3>
+          <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">✕</button>
+        </div>
         
         {availableCategories.length === 0 ? (
           <p className="text-center text-gray-500 my-4">No items needed for this request.</p>

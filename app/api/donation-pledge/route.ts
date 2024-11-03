@@ -2,25 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/auth";
 import { prisma } from '@/lib/prisma';
-import { v4 as uuidv4 } from 'uuid';
-
-function validateDonationData(postId: string, items: any[]): string | null {
-  if (typeof postId !== 'string' || postId.trim() === '') {
-    return 'Invalid postId';
-  }
-  if (!Array.isArray(items) || items.length === 0) {
-    return 'Invalid items array';
-  }
-  for (const item of items) {
-    if (typeof item.name !== 'string' || item.name.trim() === '') {
-      return 'Invalid item name';
-    }
-    if (typeof item.quantity !== 'number' || item.quantity <= 0) {
-      return 'Invalid item quantity';
-    }
-  }
-  return null;
-}
 
 export async function POST(request: Request) {
   try {
@@ -40,7 +21,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid post or barangay" }, { status: 404 });
     }
 
-    const controlNumber = uuidv4(); 
+    // Generate formatted control number
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+    const randomNum = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+    const controlNumber = `DON-${dateStr}-${randomNum}`;
 
     const donation = await prisma.donation.create({
       data: {

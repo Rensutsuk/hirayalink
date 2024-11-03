@@ -1,29 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  forwardRef,
+  RefObject,
+} from "react";
 import Post from "@/components/donor/posts/recipient-requests/Post";
-
-interface RecipientRequests {
-  id: string;
-  completeName: string;
-  age: number;
-  noOfFamilyMembers: number;
-  contactNumber: string;
-  emailAddress: string | undefined;
-  Barangay: { name: string };
-  area: string;
-  typeOfCalamity: string;
-  inKindNecessities: string;
-  specifications: string;
-  uploadedPhoto: Buffer | null;
-  dateTime: string;
-  likes: string[];
-  comments: { id: string; content: string; userId: string }[];
-}
+import PostDetailsModal from "@/components/donor/posts/recipient-requests/PostDetailsModal";
+import type { PostProps, RecipientRequests } from "@/types/recipient";
 
 export default function RecipientRequests() {
   const [posts, setPosts] = useState<RecipientRequests[]>([]);
-  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>({});
+  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>(
+    {}
+  );
   const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +24,9 @@ export default function RecipientRequests() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver | null>(null);
+  const [selectedPost, setSelectedPost] = useState<RecipientRequests | null>(
+    null
+  );
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -43,15 +39,22 @@ export default function RecipientRequests() {
       console.log("Fetched posts:", data.posts); // Log the response to check for duplicates
 
       setPosts((prevPosts) => {
-        const newPosts = data.posts.filter((post: RecipientRequests) => !prevPosts.some(p => p.id === post.id));
+        const newPosts = data.posts.filter(
+          (post: RecipientRequests) => !prevPosts.some((p) => p.id === post.id)
+        );
         return [...prevPosts, ...newPosts];
       });
 
       setHasMore(data.hasMore);
 
-      const initialLikedPosts = new Set(data.posts
-        .filter((post: RecipientRequests & { likedByUser?: boolean }) => post.likedByUser)
-        .map((post: RecipientRequests) => post.id));
+      const initialLikedPosts = new Set(
+        data.posts
+          .filter(
+            (post: RecipientRequests & { likedByUser?: boolean }) =>
+              post.likedByUser
+          )
+          .map((post: RecipientRequests) => post.id)
+      );
       setLikedPosts((prevLikedPosts) => {
         const prevArray = Array.from(prevLikedPosts);
         const newArray = Array.from(initialLikedPosts) as string[];
@@ -69,16 +72,19 @@ export default function RecipientRequests() {
     fetchPosts();
   }, [fetchPosts]);
 
-  const lastPostElementRef = useCallback((node: HTMLElement | null) => {
-    if (isLoading) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage((prevPage) => prevPage + 1);
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [isLoading, hasMore]);
+  const lastPostElementRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, hasMore]
+  );
 
   const handleLikeClick = async (postId: string) => {
     try {
@@ -124,35 +130,47 @@ export default function RecipientRequests() {
     }));
   };
 
-  const handleAddComment = async (postId: string) => {
-    if (newComment[postId]?.trim()) {
-      try {
-        const response = await fetch(`/api/posts/${postId}/comment?type=recipient`, {
+  const handleAddComment = async (postId: string, content: string) => {
+    try {
+      const response = await fetch(
+        `/api/posts/${postId}/comment?type=recipient`,
+        {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: newComment[postId] }),
-        });
-        if (response.ok) {
-          const newCommentData = await response.json();
-          setPosts((prevPosts) =>
-            prevPosts.map((post) =>
-              post.id === postId
-                ? { ...post, comments: [...post.comments, newCommentData] }
-                : post
-            )
-          );
-          setNewComment((prev) => ({ ...prev, [postId]: "" }));
+          body: JSON.stringify({ content }),
         }
-      } catch (error) {
-        console.error("Error adding comment:", error);
+      );
+      if (response.ok) {
+        const newCommentData = await response.json();
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId
+              ? { ...post, comments: [...post.comments, newCommentData] }
+              : post
+          )
+        );
       }
+    } catch (error) {
+      console.error("Error adding comment:", error);
     }
   };
 
+  const handleOpenPostDetails = (post: RecipientRequests) => {
+    setSelectedPost(post);
+  };
+
+  const handleClosePostDetails = () => {
+    setSelectedPost(null);
+  };
+  const PostWithRef = forwardRef<HTMLDivElement, PostProps>((props, ref) => {
+    return <Post {...props} ref={ref as RefObject<HTMLDivElement>} />;
+  });
+  PostWithRef.displayName = "PostWithRef";
+
   return (
     <div>
-      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-10 z-30">
-        <div className="text-center py-14 backdrop-blur-sm bg-black/25">
+      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-20 w-full">
+        <div className="text-center py-10 backdrop-blur-sm bg-black/25">
           <h1 className="mb-0 py-0 text-3xl font-bold text-white">
             Recipient Donation Request Post
           </h1>
@@ -160,7 +178,7 @@ export default function RecipientRequests() {
       </div>
 
       {/* Posts section */}
-      <div className="space-y-4 p-4">
+      <div className="container mx-auto px-4 max-w-4xl">
         {isLoading && posts.length === 0 ? (
           <div className="flex justify-center items-center h-64">
             <span className="loading loading-spinner loading-lg">
@@ -171,17 +189,20 @@ export default function RecipientRequests() {
           <p>{error}</p>
         ) : posts.length > 0 ? (
           posts.map((post: RecipientRequests, index: number) => (
-            <Post 
-              key={post.id} 
-              post={post} 
-              handleLikeClick={handleLikeClick}  
-              toggleComments={toggleComments} 
-              showComments={showComments} 
-              newComment={newComment} 
-              setNewComment={setNewComment} 
-              handleAddComment={handleAddComment} 
-              likedPosts={likedPosts} 
-              {...(posts.length === index + 1 ? { ref: lastPostElementRef } : {})}
+            <PostWithRef
+              key={post.id}
+              post={post}
+              handleLikeClick={handleLikeClick}
+              toggleComments={toggleComments}
+              showComments={showComments}
+              newComment={newComment}
+              setNewComment={setNewComment}
+              handleAddComment={handleAddComment}
+              likedPosts={likedPosts}
+              onOpenDetails={() => handleOpenPostDetails(post)}
+              {...(posts.length === index + 1
+                ? { ref: lastPostElementRef }
+                : {})}
             />
           ))
         ) : (
@@ -195,6 +216,14 @@ export default function RecipientRequests() {
           </div>
         )}
       </div>
+
+      {/* Add Modal Component */}
+      {selectedPost && (
+        <PostDetailsModal
+          post={selectedPost}
+          onClose={handleClosePostDetails}
+        />
+      )}
     </div>
   );
 }

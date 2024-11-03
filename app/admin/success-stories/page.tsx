@@ -1,12 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface BarangayRequestPost {
   id: string;
   dateTime: string;
-  area: string; // Include area in the interface
+  area: string;
   barangayId: string;
+  barangayName?: string;
   typeOfCalamity: string;
   batchNumber: number;
   donorIds: string[];
@@ -14,7 +16,8 @@ interface BarangayRequestPost {
 
 export default function SuccessStoryForm() {
   const { data: session } = useSession();
-  const [barangayNo, setBarangayNo] = useState("");
+  const router = useRouter();
+  const [barangayName, setBarangayName] = useState("");
   const [barangayRequestPosts, setBarangayRequestPosts] = useState<
     BarangayRequestPost[]
   >([]);
@@ -35,7 +38,7 @@ export default function SuccessStoryForm() {
     photo: null as File | null,
   });
 
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -53,9 +56,9 @@ export default function SuccessStoryForm() {
         );
       }
       const data = await response.json();
-      setBarangayNo(data.barangayId);
+      setBarangayName(data.barangayName);
       setBarangayRequestPosts(data.barangayRequestPosts);
-      setFormData((prevData) => ({ ...prevData, barangayNo: data.barangayId }));
+      setFormData((prevData) => ({ ...prevData, barangayNo: data.barangayName }));
     } catch (error) {
       console.error("Error fetching barangay data and posts:", error);
     }
@@ -108,10 +111,10 @@ export default function SuccessStoryForm() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                postId: selectedPostId, // Use selectedPostId here
+                postId: selectedPostId,
                 nameOfCalamity: formData.calamityName,
                 controlNumber: formData.controlNumber,
-                batchNumber: selectedPostBatchNumber, // Ensure this is the selected batch number
+                batchNumber: selectedPostBatchNumber,
                 numberOfRecipients: formData.numberOfRecipients,
                 storyText: formData.storyText,
                 image: imageBase64,
@@ -121,7 +124,7 @@ export default function SuccessStoryForm() {
         if (response.ok) {
             const result = await response.json();
             console.log("Success story submitted successfully", result);
-            setShowSuccessMessage(true);
+            setShowSuccessModal(true);
 
             // Reset form data
             setFormData({
@@ -134,9 +137,9 @@ export default function SuccessStoryForm() {
                 storyText: "",
                 photo: null,
             });
-            setSelectedPostId(""); // Reset selected post ID
-            setSelectedPostArea(""); // Reset selected post area
-            setSelectedPostBatchNumber(""); // Reset selected post batch number
+            setSelectedPostId("");
+            setSelectedPostArea("");
+            setSelectedPostBatchNumber("");
         } else {
             const errorData = await response.json();
             console.error("Failed to submit success story:", errorData.error, errorData.details);
@@ -144,6 +147,10 @@ export default function SuccessStoryForm() {
     } catch (error) {
         console.error("Error submitting success story:", error);
     }
+  };
+
+  const handleRedirectToDashboard = () => {
+    router.push('/admin/dashboard');
   };
 
   const convertToBase64 = (file: File) => {
@@ -157,7 +164,7 @@ export default function SuccessStoryForm() {
 
   return (
     <div>
-      <div className="hero-background bg-cover max-h-[30rem]">
+      <div className="hero-background bg-cover max-h-[30rem] sticky top-0 z-10">
         <div className="py-10 text-center backdrop-blur-sm">
           <h1 className="text-5xl font-bold text-white">
             Submit Success Story
@@ -165,52 +172,36 @@ export default function SuccessStoryForm() {
         </div>
       </div>
       <div className="flex justify-center m-10">
-        <div className="card outline outline-emerald-500 bg-base-100 w-full shadow-xl">
+        <div className="card outline outline-primary bg-base-100 w-full shadow-xl">
           <div className="card-title rounded-t-xl p-5 bg-primary text-center">
             <h2 className="text-white text-2xl">Fill in the details</h2>
           </div>
           <div className="card-body">
-            {showSuccessMessage && (
-              <div
-                className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
-                role="alert"
-              >
-                <strong className="font-bold">Success!</strong>
-                <span className="block sm:inline">
-                  {" "}
-                  Your success story has been submitted.
-                </span>
-              </div>
-            )}
-            <form onSubmit={handleSubmit}>
-              {/* Barangay Number */}
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="barangayNo"
-                >
-                  Barangay Number, Area
+            <form onSubmit={handleSubmit} className="form-control gap-4">
+              <div className="form-control">
+                <label className="label" htmlFor="barangayNo">
+                  Barangay
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary"
                   id="barangayNo"
                   type="text"
                   name="barangayNo"
-                  value={formData.barangayNo}
+                  value={barangayName}
                   readOnly
                 />
               </div>
 
               {/* Barangay Request Post Dropdown */}
-              <div className="mb-4">
+              <div className="form-control">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="label"
                   htmlFor="barangayRequestPost"
                 >
                   Select Barangay Request Post
                 </label>
                 <select
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="select select-bordered select-primary"
                   id="barangayRequestPost"
                   name="barangayRequestPost"
                   value={selectedPostId}
@@ -227,12 +218,12 @@ export default function SuccessStoryForm() {
               </div>
 
               {/* Display Area of Selected Post */}
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
+              <div className="form-control">
+                <label className="label">
                   Area of Selected Post
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary"
                   type="text"
                   value={selectedPostArea}
                   readOnly
@@ -240,15 +231,15 @@ export default function SuccessStoryForm() {
               </div>
 
               {/* Calamity Name */}
-              <div className="mb-4">
+              <div className="form-control">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="label"
                   htmlFor="calamityName"
                 >
                   Name of the Calamity
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary"
                   id="calamityName"
                   type="text"
                   name="calamityName"
@@ -259,15 +250,15 @@ export default function SuccessStoryForm() {
               </div>
 
               {/* Control Number */}
-              <div className="mb-4">
+              <div className="form-control">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="label"
                   htmlFor="controlNumber"
                 >
                   Control Number of Barangay Post
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary"
                   id="controlNumber"
                   type="text"
                   name="controlNumber"
@@ -277,15 +268,15 @@ export default function SuccessStoryForm() {
               </div>
 
               {/* Transaction IDs */}
-              <div className="mb-4">
+              <div className="form-control">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="label"
                   htmlFor="transactionIds"
                 >
                   Transaction IDs (Donor IDs)
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary"
                   id="transactionIds"
                   type="text"
                   name="transactionIds"
@@ -295,15 +286,15 @@ export default function SuccessStoryForm() {
               </div>
 
               {/* Batch Number */}
-              <div className="mb-4">
+              <div className="form-control">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="label"
                   htmlFor="batchNumber"
                 >
                   Batch Number
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary"
                   id="batchNumber"
                   type="text"
                   name="batchNumber"
@@ -313,15 +304,15 @@ export default function SuccessStoryForm() {
               </div>
 
               {/* Number of Recipients */}
-              <div className="mb-4">
+              <div className="form-control">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="label"
                   htmlFor="numberOfRecipients"
                 >
                   Number of Recipients
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="input input-bordered input-primary"
                   id="numberOfRecipients"
                   type="number"
                   name="numberOfRecipients"
@@ -332,15 +323,15 @@ export default function SuccessStoryForm() {
               </div>
 
               {/* Story Text */}
-              <div className="mb-4">
+              <div className="form-control">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="label"
                   htmlFor="storyText"
                 >
                   Success Story
                 </label>
                 <textarea
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="textarea textarea-bordered textarea-primary"
                   id="storyText"
                   name="storyText"
                   value={formData.storyText}
@@ -350,27 +341,27 @@ export default function SuccessStoryForm() {
               </div>
 
               {/* Upload Photo */}
-              <div className="mb-4">
+              <div className="form-control">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="label"
                   htmlFor="photo"
                 >
                   Upload Photo
                 </label>
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="file-input file-input-bordered file-input-primary"
                   id="photo"
                   type="file"
                   name="photo"
                   accept="image/*"
-                  onChange={handleChange} // Ensure this calls handleChange
+                  onChange={handleChange} 
                   required
                 />
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end mt-5">
                 <button
-                  className="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className="btn btn-primary text-white"
                   type="submit"
                 >
                   Submit Success Story
@@ -380,6 +371,33 @@ export default function SuccessStoryForm() {
           </div>
         </div>
       </div>
+
+      {showSuccessModal && (
+        <dialog className="modal modal-open">
+          <div className="modal-box text-center bg-base-100">
+            <div className="p-5">
+              <h3 className="font-bold text-lg mb-4">Success!</h3>
+              <div className="flex justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-success flex-shrink-0 h-16 w-16" fill="none" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="py-4">Your success story has been submitted successfully!</p>
+              <div className="modal-action flex justify-center">
+                <button
+                  onClick={handleRedirectToDashboard}
+                  className="btn btn-primary text-white"
+                >
+                  Go to Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button>close</button>
+          </form>
+        </dialog>
+      )}
     </div>
   );
 }

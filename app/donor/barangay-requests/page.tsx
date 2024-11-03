@@ -145,52 +145,6 @@ export default function BarangayRequests() {
     setIsModalOpen(false);
   };
 
-  const handleDonateClick = async (
-    postId: string,
-    items: { name: string; quantity: number; specificName: string }[]
-  ) => {
-    if (!session?.user) {
-      setError("Please log in to donate.");
-      return;
-    }
-
-    if (items.length === 0) {
-      setError("Please select at least one item to donate.");
-      return;
-    }
-
-    try {
-      const donationData = {
-        postId: postId,
-        items: items.map((item: any) => ({
-          name: item.specificName || item.name,
-          quantity: item.quantity,
-        })),
-      };
-
-      const response = await fetch("/api/donation-pledge", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(donationData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to create donation");
-      }
-
-      setMessage("Donation created successfully!");
-      handleCloseModal();
-      // You might want to refresh the posts or update the UI here
-    } catch (error: any) {
-      console.error("Error creating donation:", error);
-      setError(error.message || "Failed to create donation. Please try again.");
-    }
-  };
-
   const handleLikeClick = async (postId: string) => {
     try {
       const response = await fetch(`/api/posts/${postId}/like?type=barangay`, {
@@ -290,12 +244,12 @@ export default function BarangayRequests() {
 
   return (
     <div className="flex flex-col justify-center w-full">
-      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-40 w-full">
+      <div className="hero-background bg-cover max-h-[20rem] mb-5 sticky top-16 z-20 w-full">
         <div className="flex justify-between pt-10 pb-5 backdrop-blur-sm bg-black/25 w-full">
           <div className="container mx-auto px-4 flex justify-between items-center">
             <div className="invisible shrink-0 w-1/4"></div>
             <div className="flex flex-col items-center flex-grow">
-              <h1 className="mb-0 py-0 text-3xl font-bold text-center text-white">
+              <h1 className="mb-0 py-0 text-3xl font-bold text-white">
                 Barangay Donation Request Post
               </h1>
               <p className="text-center text-white mt-2 text-lg">

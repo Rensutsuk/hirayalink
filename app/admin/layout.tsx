@@ -29,23 +29,28 @@ export default function AdminLayout({
                   <span>{session.user.brgyName || "N/A"}</span>
                 </p>
               </div>
-              <button
-                className="text-gray-600 hover:text-gray-800 ml-2"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                <FaChevronDown />
-              </button>
-              <div
-                className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg ${
-                  isDropdownOpen ? "" : "hidden"
-                }`}
-              >
-                <Link
-                  href="/logout"
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              <div className="dropdown dropdown-end">
+                <button
+                  tabIndex={0}
+                  className="text-gray-600 hover:text-gray-800 ml-2"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
-                  Sign out
-                </Link>
+                  <FaChevronDown className={`transition-transform duration-200 ${
+                    isDropdownOpen ? 'rotate-180' : ''
+                  }`} />
+                </button>
+                <ul 
+                  tabIndex={0}
+                  className={`dropdown-content z-[50] menu p-2 shadow bg-base-100 rounded-box w-52 ${
+                    isDropdownOpen ? "" : "hidden"
+                  }`}
+                >
+                  <li>
+                    <Link href="/logout">
+                      Sign out
+                    </Link>
+                  </li>
+                </ul>
               </div>
             </div>
           ) : (
@@ -56,7 +61,7 @@ export default function AdminLayout({
             </div>
           )}
         </header>
-        <main className="flex-1 overflow-auto ml-0 md:ml-72 p-4">
+        <main className="flex-1 overflow-auto ml-0 md:ml-72">
           {children}
         </main>
       </div>

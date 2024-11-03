@@ -35,7 +35,7 @@ export default function DonationRequestPosting() {
         setBarangays(data);
       } catch (error) {
         console.error("Error fetching barangays:", error);
-      }
+    }
     };
 
     fetchBarangays();
