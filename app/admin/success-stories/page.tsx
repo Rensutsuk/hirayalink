@@ -171,9 +171,9 @@ export default function SuccessStoryForm() {
           </h1>
         </div>
       </div>
-      <div className="flex justify-center m-10">
+      <div className="flex justify-center m-5">
         <div className="card outline outline-primary bg-base-100 w-full shadow-xl">
-          <div className="card-title rounded-t-xl p-5 bg-primary text-center">
+          <div className="card-title rounded-t-lg p-5 bg-primary text-center">
             <h2 className="text-white text-2xl">Fill in the details</h2>
           </div>
           <div className="card-body">

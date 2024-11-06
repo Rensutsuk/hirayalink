@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { IoClose } from "react-icons/io5";
 
 interface Request {
   id: number;
@@ -134,77 +135,94 @@ const DonationRequestsTable = () => {
     const selectedData = requests.filter((request: Request) =>
       selectedRequests.includes(request.id)
     );
-    
-    const combinedData = selectedData.reduce((acc: CombinedData, request: Request) => {
-      acc.areas = Array.from(new Set([...acc.areas, request.area]));
-      
-      acc.calamityTypes = Array.from(new Set([...acc.calamityTypes, request.typeOfCalamity]));
-      
-      let necessities, specifications;
-      try {
+
+    const combinedData = selectedData.reduce(
+      (acc: CombinedData, request: Request) => {
+        acc.areas = Array.from(new Set([...acc.areas, request.area]));
+
+        acc.calamityTypes = Array.from(
+          new Set([...acc.calamityTypes, request.typeOfCalamity])
+        );
+
+        let necessities, specifications;
         try {
-          necessities = JSON.parse(request.inKindNecessities.replace(/'/g, '"'));
-        } catch {
-          necessities = request.inKindNecessities.split(',').reduce((acc: Record<string, string>, item: string) => {
-            const [key, value] = item.split(':').map(s => s.trim());
-            acc[key] = value;
-            return acc;
-          }, {});
+          try {
+            necessities = JSON.parse(
+              request.inKindNecessities.replace(/'/g, '"')
+            );
+          } catch {
+            necessities = request.inKindNecessities
+              .split(",")
+              .reduce((acc: Record<string, string>, item: string) => {
+                const [key, value] = item.split(":").map((s) => s.trim());
+                acc[key] = value;
+                return acc;
+              }, {});
+          }
+
+          try {
+            specifications = JSON.parse(
+              request.specifications.replace(/'/g, '"')
+            );
+          } catch {
+            specifications = request.specifications
+              .split(",")
+              .reduce((acc: Record<string, string>, item: string) => {
+                const [key, value] = item.split(":").map((s) => s.trim());
+                acc[key] = value;
+                return acc;
+              }, {});
+          }
+        } catch (error) {
+          console.error("Error parsing data for request:", request.id, error);
+          necessities = {};
+          specifications = {};
         }
 
-        try {
-          specifications = JSON.parse(request.specifications.replace(/'/g, '"'));
-        } catch {
-          specifications = request.specifications.split(',').reduce((acc: Record<string, string>, item: string) => {
-            const [key, value] = item.split(':').map(s => s.trim());
-            acc[key] = value;
-            return acc;
-          }, {});
-        }
-      } catch (error) {
-        console.error("Error parsing data for request:", request.id, error);
-        necessities = {};
-        specifications = {};
-      }
-      
-      // Combine necessities
-      Object.entries(necessities).forEach(([category, items]) => {
-        if (!acc.necessities) acc.necessities = {};
-        if (!acc.necessities[category]) acc.necessities[category] = [];
-        if (Array.isArray(items)) {
-          items.forEach(item => acc.necessities![category].push(item));
-        } else {
-          acc.necessities![category].push(items as string);
-        }
-      });
-      
-      // Combine specifications
-      Object.entries(specifications).forEach(([category, spec]) => {
-        if (!acc.specifications) acc.specifications = {};
-        if (!acc.specifications[category]) acc.specifications[category] = [];
-        acc.specifications[category].push(spec as string);
-      });
-      
-      return acc;
-    }, { areas: [], calamityTypes: [] });
-    
+        // Combine necessities
+        Object.entries(necessities).forEach(([category, items]) => {
+          if (!acc.necessities) acc.necessities = {};
+          if (!acc.necessities[category]) acc.necessities[category] = [];
+          if (Array.isArray(items)) {
+            items.forEach((item) => acc.necessities![category].push(item));
+          } else {
+            acc.necessities![category].push(items as string);
+          }
+        });
+
+        // Combine specifications
+        Object.entries(specifications).forEach(([category, spec]) => {
+          if (!acc.specifications) acc.specifications = {};
+          if (!acc.specifications[category]) acc.specifications[category] = [];
+          acc.specifications[category].push(spec as string);
+        });
+
+        return acc;
+      },
+      { areas: [], calamityTypes: [] }
+    );
+
     // Convert Sets to Arrays
     if (combinedData.necessities) {
       Object.keys(combinedData.necessities).forEach((category: string) => {
-        combinedData.necessities![category] = Array.from(combinedData.necessities![category]);
+        combinedData.necessities![category] = Array.from(
+          combinedData.necessities![category]
+        );
       });
     }
     if (combinedData.specifications) {
       Object.keys(combinedData.specifications).forEach((category: string) => {
-        combinedData.specifications![category] = Array.from(combinedData.specifications![category]);
+        combinedData.specifications![category] = Array.from(
+          combinedData.specifications![category]
+        );
       });
     }
-    
+
     console.log("Combined data:", combinedData);
-    
+
     const queryParams = new URLSearchParams({
-      areas: combinedData.areas.join(','),
-      calamityTypes: combinedData.calamityTypes.join(','),
+      areas: combinedData.areas.join(","),
+      calamityTypes: combinedData.calamityTypes.join(","),
       necessities: JSON.stringify(combinedData.necessities || {}),
       specifications: JSON.stringify(combinedData.specifications || {}),
     });
@@ -214,7 +232,7 @@ const DonationRequestsTable = () => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="table w-full bg-white rounded shadow border border-gray-200">
+      <table className="table w-full bg-white shadow rounded-b-lg rounded-t-none">
         <thead>
           <tr>
             <th colSpan={7} className="p-4 border-b">
@@ -307,7 +325,12 @@ const DonationRequestsTable = () => {
             </tr>
           ) : requests.length > 0 ? (
             requests.map((request: Request) => (
-              <tr key={request.id} className={`hover:bg-gray-50 ${selectedRequests.includes(request.id) ? 'bg-green-100' : ''}`}>
+              <tr
+                key={request.id}
+                className={`hover:bg-gray-50 ${
+                  selectedRequests.includes(request.id) ? "bg-green-100" : ""
+                }`}
+              >
                 <td className="p-3 border-b">{request.completeName}</td>
                 <td className="p-3 border-b">{request.area}</td>
                 <td className="p-3 border-b">{request.typeOfCalamity}</td>
@@ -341,7 +364,7 @@ const DonationRequestsTable = () => {
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors duration-200 ease-in-out ${
                           selectedRequests.includes(request.id)
                             ? "bg-primary border-primary"
-                            : "border-base-200"
+                            : "border-base-300"
                         }`}
                       >
                         {selectedRequests.includes(request.id) && (
@@ -397,10 +420,18 @@ const DonationRequestsTable = () => {
         </tfoot>
       </table>
       {isModalOpen && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <h2 className="bg-primary text-white text-2xl font-bold p-5">Request Details</h2>
-            <div className="space-y-4 bg-white p-4">
+        <dialog open className="modal modal-open">
+          <div className="modal-box">
+            <div className="flex justify-between items-center bg-primary text-white p-5">
+              <h3 className="font-bold text-xl">Request Details</h3>
+              <button
+                onClick={closeModal}
+                className="btn btn-sm btn-circle btn-ghost text-white"
+              >
+                <IoClose className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
               <p>
                 <span className="font-semibold">Name:</span>{" "}
                 {selectedRequest.completeName}
@@ -413,70 +444,49 @@ const DonationRequestsTable = () => {
                 <span className="font-semibold">Calamity Type:</span>{" "}
                 {selectedRequest.typeOfCalamity}
               </p>
-              <p>
+              <div>
                 <span className="font-semibold">In-Kind Necessities:</span>
                 {(() => {
                   try {
-                    let necessities: ParsedData = {};
-                    let specifications: ParsedData = {};
+                    // Parse the in-kind necessities as a comma-separated string
+                    const necessities = selectedRequest.inKindNecessities
+                      .split(",")
+                      .map((item) => item.trim());
+                    // Parse the specifications as a JSON object
+                    const specifications = JSON.parse(
+                      selectedRequest.specifications
+                    );
 
-                    // Try parsing as JSON, if it fails, treat as comma-separated string
-                    try {
-                      necessities = JSON.parse(selectedRequest.inKindNecessities.replace(/'/g, '"'));
-                    } catch {
-                      necessities = selectedRequest.inKindNecessities.split(',').reduce((acc: Record<string, string>, item) => {
-                        const [key, value] = item.split(':').map(s => s.trim());
-                        acc[key] = value;
-                        return acc;
-                      }, {});
-                    }
-
-                    try {
-                      specifications = JSON.parse(selectedRequest.specifications.replace(/'/g, '"'));
-                    } catch {
-                      specifications = selectedRequest.specifications.split(',').reduce((acc: Record<string, string>, item) => {
-                        const [key, value] = item.split(':').map(s => s.trim());
-                        acc[key] = value;
-                        return acc;
-                      }, {});
-                    }
-
-                    return Object.entries(necessities).map(([category, items], index) => (
-                      <div key={index} className="m-2">
-                        <strong>{category}:</strong>{" "}
-                        {Array.isArray(items) 
-                          ? items.join(", ")
-                          : String(items)}
+                    return necessities.map((category) => (
+                      <div key={category} className="ml-4 mt-2">
+                        <strong>{category}:</strong>
                         <span className="ml-2">
-                          {specifications[category] 
-                            ? specifications[category]
-                            : "No Specifications"}
+                          {specifications[category] || "Nothing specified"}
                         </span>
                       </div>
                     ));
                   } catch (error) {
-                    console.error("Error parsing necessities or specifications:", error);
+                    console.error("Error parsing data:", error);
                     return (
-                      <div>
-                        <div>{selectedRequest.inKindNecessities}</div>
-                        <div>{selectedRequest.specifications}</div>
+                      <div className="ml-4 mt-2">
+                        <p>
+                          Raw Necessities: {selectedRequest.inKindNecessities}
+                        </p>
+                        <p>
+                          Raw Specifications: {selectedRequest.specifications}
+                        </p>
                       </div>
                     );
                   }
                 })()}
-              </p>
+              </div>
               <p>
                 <span className="font-semibold">Date:</span>{" "}
                 {new Date(selectedRequest.dateTime).toLocaleDateString()}
               </p>
             </div>
-            <div className="flex justify-end m-4">
-              <button onClick={closeModal} className="btn btn-primary text-white">
-                Close
-              </button>
-            </div>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );

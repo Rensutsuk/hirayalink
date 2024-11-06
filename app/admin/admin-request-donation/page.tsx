@@ -177,7 +177,7 @@ export default function AdminRequestDonation() {
         </div>
       </div>
       <div className="flex justify-center m-10">
-        <div className="card w-full bg-base-100 shadow-xl">
+        <div className="card outline outline-primary w-full bg-base-100 shadow-xl">
           <div className="card-title rounded-t-xl p-5 bg-primary flex justify-between items-center">
             <h2 className="text-white text-2xl">Fill in the details</h2>
             <button onClick={handleClear} className="btn btn-secondary btn-sm">
