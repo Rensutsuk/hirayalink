@@ -12,8 +12,8 @@ const AdminDashboard = () => {
           </h1>
         </div>
       </div>
-      <div className="p-5">
-        <div className="bg-primary rounded-lg z-0">
+      <div className="m-5 outline outline-primary rounded-lg">
+        <div className="bg-primary z-0">
           <h2 className="text-white text-xl font-bold p-5">
             Recipient Donation Requests for your Barangay
           </h2>

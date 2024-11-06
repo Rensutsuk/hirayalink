@@ -178,7 +178,7 @@ export default function RecipientRequests() {
       </div>
 
       {/* Posts section */}
-      <div className="container mx-auto px-4 max-w-4xl">
+      <div className="container mx-auto px-4 max-w-4xl space-y-6">
         {isLoading && posts.length === 0 ? (
           <div className="flex justify-center items-center h-64">
             <span className="loading loading-spinner loading-lg">
