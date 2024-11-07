@@ -84,20 +84,33 @@ export const generateReport = async (reportData: any, userData: any) => {
     );
     verticalPosition += 30; // Add space after totals
 
-    // Function to add a new page if needed
-    const addPageIfNeeded = () => {
-      if (verticalPosition > 936 - bottomMargin) {
-        // Adjust for bottom margin
+    // Function to add a new page if needed - updated to be more precise
+    const addPageIfNeeded = (requiredSpace: number = 0) => {
+      if (verticalPosition + requiredSpace > 936 - bottomMargin) {
         doc.addPage();
-        verticalPosition = topMargin; // Reset position for new page
+        verticalPosition = topMargin;
+        return true;
       }
+      return false;
     };
 
-    // Add a text wrapping function
+    // Updated text wrapping function with better spacing
     const addWrappedText = (text: string, x: number, y: number, maxWidth: number) => {
       const lines = doc.splitTextToSize(text, maxWidth);
-      doc.text(lines, x, y);
-      return (lines.length - 1) * doc.getTextDimensions('Text').h; // Return additional height used
+      const lineHeight = doc.getTextDimensions('Text').h * 1.5; // Increased line height for better spacing
+      const totalHeight = lines.length * lineHeight;
+      
+      // Check if we need a new page
+      if (addPageIfNeeded(totalHeight)) {
+        y = verticalPosition;
+      }
+      
+      // Draw each line with proper spacing
+      lines.forEach((line: string, index: number) => {
+        doc.text(line, x, y + (index * lineHeight));
+      });
+      
+      return totalHeight;
     };
 
     // Calculate available width for text (accounting for margins)
@@ -109,21 +122,22 @@ export const generateReport = async (reportData: any, userData: any) => {
     doc.text("Recipient Request Posts", topMargin, verticalPosition);
     verticalPosition += 20; // Increase position for the next line
     reportData.recipientRequests.forEach((post: any, index: number) => {
+      const entryHeight = 90; // Estimated height for each entry
+      addPageIfNeeded(entryHeight);
+      
       doc.setFontSize(12);
       doc.text(`${index + 1}. Name: ${post.completeName}`, topMargin, verticalPosition);
       verticalPosition += 15;
       doc.text(`   Age: ${post.age}`, topMargin, verticalPosition);
       verticalPosition += 15;
       
-      // Use text wrapping for potentially long text
       const areaHeight = addWrappedText(`   Area: ${post.area}`, topMargin, verticalPosition, maxWidth);
-      verticalPosition += 15 + areaHeight;
+      verticalPosition += areaHeight + 15;
       
       doc.text(`   Contact Number: ${post.contactNumber}`, topMargin, verticalPosition);
       verticalPosition += 15;
       doc.text(`   Date: ${new Date(post.dateTime).toLocaleString()}`, topMargin, verticalPosition);
-      verticalPosition += 30; // Space between entries
-      addPageIfNeeded();
+      verticalPosition += 20;
     });
 
     // Add space before the next section
@@ -249,17 +263,19 @@ export const generateReport = async (reportData: any, userData: any) => {
     doc.text("Success Stories", topMargin, verticalPosition);
     verticalPosition += 20; // Increase position for the next line
     reportData.successStories.forEach((story: any, index: number) => {
+      // Check space needed for the entire story entry
+      const estimatedHeight = 100; // Increased base height for better spacing
+      addPageIfNeeded(estimatedHeight);
+      
       doc.setFontSize(12);
       doc.text(`${index + 1}. Name of Calamity: ${story.nameOfCalamity}`, topMargin, verticalPosition);
-      verticalPosition += 15;
+      verticalPosition += 20; // Increased spacing
       
-      // Handle long story text with wrapping
       const storyHeight = addWrappedText(`   Story Text: ${story.storyText}`, topMargin, verticalPosition, maxWidth);
-      verticalPosition += 15 + storyHeight;
+      verticalPosition += storyHeight + 25; // Increased spacing after story text
       
       doc.text(`   Date: ${new Date(story.createdAt).toLocaleString()}`, topMargin, verticalPosition);
-      verticalPosition += 30; // Space between entries
-      addPageIfNeeded();
+      verticalPosition += 30; // Increased spacing after date
     });
 
     // Save the PDF
