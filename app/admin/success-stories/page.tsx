@@ -12,6 +12,7 @@ interface BarangayRequestPost {
   typeOfCalamity: string;
   batchNumber: number;
   donorIds: string[];
+  controlNumbers: string[];
 }
 
 export default function SuccessStoryForm() {
@@ -82,7 +83,7 @@ export default function SuccessStoryForm() {
             setFormData({
                 ...formData,
                 calamityName: selectedPost.typeOfCalamity,
-                controlNumber: selectedPost.id,
+                controlNumber: selectedPost.controlNumbers.join(", "),
                 transactionIds: selectedPost.donorIds.join(", "), // Join the array with commas
             });
         } else {

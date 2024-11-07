@@ -42,6 +42,7 @@ export async function GET(req: Request) {
         donations: {
           select: {
             donorId: true,
+            controlNumber: true,
           },
         },
       },
@@ -52,7 +53,8 @@ export async function GET(req: Request) {
     const postsWithDonorIds = await Promise.all(
       barangayRequestPosts.map(async (post: any) => {
         const donorIds = Array.from(new Set(post.donations.map((donation: any) => donation.donorId))); // Get unique donorIds
-        return { ...post, donorIds };
+        const controlNumbers = Array.from(new Set(post.donations.map((donation: any) => donation.controlNumber))); // Get unique controlNumbers
+        return { ...post, donorIds, controlNumbers };
       })
     );
 
