@@ -1,23 +1,13 @@
 "use client";
 
-import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  forwardRef,
-  RefObject,
-} from "react";
-import Post from "@/components/donor/posts/recipient-requests/Post";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import PostList from "@/components/donor/posts/recipient-requests/Post";
 import PostDetailsModal from "@/components/donor/posts/recipient-requests/PostDetailsModal";
 import type { PostProps, RecipientRequests } from "@/types/recipient";
+import PostSkeleton from "@/components/donor/posts/PostSkeleton";
 
 export default function RecipientRequests() {
   const [posts, setPosts] = useState<RecipientRequests[]>([]);
-  const [showComments, setShowComments] = useState<{ [key: number]: boolean }>(
-    {}
-  );
-  const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
@@ -36,7 +26,6 @@ export default function RecipientRequests() {
         throw new Error("Failed to fetch posts");
       }
       const data = await response.json();
-      console.log("Fetched posts:", data.posts); // Log the response to check for duplicates
 
       setPosts((prevPosts) => {
         const newPosts = data.posts.filter(
@@ -73,7 +62,7 @@ export default function RecipientRequests() {
   }, [fetchPosts]);
 
   const lastPostElementRef = useCallback(
-    (node: HTMLElement | null) => {
+    (node: HTMLDivElement | null) => {
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
@@ -123,13 +112,6 @@ export default function RecipientRequests() {
     }
   };
 
-  const toggleComments = (postId: string) => {
-    setShowComments((prev: Record<string, boolean>) => ({
-      ...prev,
-      [postId]: !prev[postId],
-    }));
-  };
-
   const handleAddComment = async (postId: string, content: string) => {
     try {
       const response = await fetch(
@@ -162,10 +144,6 @@ export default function RecipientRequests() {
   const handleClosePostDetails = () => {
     setSelectedPost(null);
   };
-  const PostWithRef = forwardRef<HTMLDivElement, PostProps>((props, ref) => {
-    return <Post {...props} ref={ref as RefObject<HTMLDivElement>} />;
-  });
-  PostWithRef.displayName = "PostWithRef";
 
   return (
     <div>
@@ -179,45 +157,19 @@ export default function RecipientRequests() {
 
       {/* Posts section */}
       <div className="container mx-auto px-4 max-w-4xl space-y-6">
-        {isLoading && posts.length === 0 ? (
-          <div className="flex justify-center items-center h-64">
-            <span className="loading loading-spinner loading-lg">
-              Loading Posts
-            </span>
-          </div>
-        ) : error ? (
-          <p>{error}</p>
-        ) : posts.length > 0 ? (
-          posts.map((post: RecipientRequests, index: number) => (
-            <PostWithRef
-              key={post.id}
-              post={post}
-              handleLikeClick={handleLikeClick}
-              toggleComments={toggleComments}
-              showComments={showComments}
-              newComment={newComment}
-              setNewComment={setNewComment}
-              handleAddComment={handleAddComment}
-              likedPosts={likedPosts}
-              onOpenDetails={() => handleOpenPostDetails(post)}
-              {...(posts.length === index + 1
-                ? { ref: lastPostElementRef }
-                : {})}
-            />
-          ))
-        ) : (
-          <p className="text-center">No posts available</p>
-        )}
-        {isLoading && posts.length > 0 && (
-          <div className="flex justify-center items-center h-16">
-            <span className="loading loading-spinner loading-lg">
-              Loading more posts...
-            </span>
-          </div>
-        )}
+        <Suspense fallback={<PostSkeleton count={3} />}>
+          <PostList
+            posts={posts}
+            handleLikeClick={handleLikeClick}
+            handleAddComment={handleAddComment}
+            likedPosts={likedPosts}
+            onOpenDetails={handleOpenPostDetails}
+          />
+        </Suspense>
+        {isLoading && <PostSkeleton count={3} />}
+        {error && <p>{error}</p>}
       </div>
 
-      {/* Add Modal Component */}
       {selectedPost && (
         <PostDetailsModal
           post={selectedPost}
