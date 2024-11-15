@@ -71,8 +71,8 @@ export default function Home() {
       </div>
 
       {/* Mission and Vision Section */}
-      <div className="flex flex-col mx-5">
-        <div className="grid grid-flow-col auto-col-auto justify-center gap-20">
+      <div className="flex flex-col mx-5 items-center">
+        <div className="flex flex-col sm:flex-row gap-20 justify-center">
           <div className="card bg-primary max-w-96 shadow-xl text-white bottom-36">
             <div className="card-body">
               <h2 className="card-title">Mission</h2>
@@ -131,7 +131,7 @@ export default function Home() {
       </div>
 
       {/* Slideshow Section */}
-      <div className="grid grid-cols-2 gap-10 px-10 py-16">
+      <div className="flex flex-col md:flex-row gap-10 px-10 py-16">
         {/* Calamity Impact Slideshow */}
         <div className="w-full rounded-xl overflow-hidden shadow-lg">
           <h2 className="text-2xl font-bold p-4 bg-base-200">

@@ -7,16 +7,20 @@ export default function Footer() {
         <Image
           src="/aidlink.svg"
           alt="HirayaLink"
-          width={48} // equivalent to max-w-12 (12 * 4px)
+          width={48}
           height={48}
           className="max-w-12"
         />
-        <p className="text-center">
-          <span className="text-primary font-bold">HIRAYA</span>
-          <span className="font-bold">LINK</span>
-          <br />
-          Copyright © {new Date().getFullYear()} - All right reserved
-        </p>
+        <div className="flex flex-col text-center">
+          <div>
+            <span className="text-primary font-bold">HIRAYA</span>
+            <span className="font-bold">LINK</span>
+          </div>
+          <br className="sm:hidden" />
+          <span className="sm:ml-1">
+            Copyright © {new Date().getFullYear()} - All right reserved
+          </span>
+        </div>
       </div>
     </footer>
   );
